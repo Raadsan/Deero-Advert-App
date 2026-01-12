@@ -42,6 +42,7 @@ class EnterpriseHomepage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: Column(
             children: [
+              SizedBox(height: 8),
               CarouselSlider(
                 options: CarouselOptions(
                   height: 160,
@@ -85,14 +86,17 @@ class EnterpriseHomepage extends StatelessWidget {
                   ModuleCards(
                     moduleName: "Raadsan Tech",
                     moduleImage: raadsanLogo,
+                    bgcolor: Color(0xffC49A6C),
                   ),
                   ModuleCards(
                     moduleName: "Deero Advert",
                     moduleImage: advertLogo,
+                    bgcolor: Color(0xffD0AE89),
                   ),
                   ModuleCards(
                     moduleName: "Deero Institute",
                     moduleImage: instituteLogo,
+                    bgcolor: Color(0xffC49A6C),
                   ),
                 ],
               ),

@@ -18,7 +18,7 @@ class ModuleSliderCard extends StatelessWidget {
       height: 160,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Color(0xffDCC2A7),
+        color: Color(0xffF3EBE2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

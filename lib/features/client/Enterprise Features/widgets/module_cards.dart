@@ -6,9 +6,11 @@ class ModuleCards extends StatelessWidget {
     super.key,
     required this.moduleName,
     required this.moduleImage,
+    required this.bgcolor,
   });
   final String moduleName;
   final String moduleImage;
+  final Color bgcolor;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class ModuleCards extends StatelessWidget {
           width: 65,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50),
-            color: Color(0xffDFD7D0).withOpacity(0.3),
+            color: bgcolor,
           ),
           child: Padding(
             padding: const EdgeInsets.all(14.0),
