@@ -11,7 +11,7 @@ class SplashPage extends StatelessWidget {
       type: Transition.size,
       child: Image.asset('images/enterpriseLogo.png', width: 200, height: 200),
       curve: Curves.easeInOut,
-      navigator: const EnterpriseHomepage(),
+      navigator:  EnterpriseHomepage(),
       durationInSeconds: 1,
     );
   }

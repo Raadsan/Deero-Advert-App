@@ -96,9 +96,9 @@ class EnterpriseHomepage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
 
-              Text("Our Partners", style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),)
+              SizedBox(height: 10),
             ],
           ),
         ),
@@ -106,6 +106,3 @@ class EnterpriseHomepage extends StatelessWidget {
     );
   }
 }
-
-
-
