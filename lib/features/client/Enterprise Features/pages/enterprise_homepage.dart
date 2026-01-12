@@ -98,7 +98,7 @@ class EnterpriseHomepage extends StatelessWidget {
               ),
               SizedBox(height: 20,),
 
-              
+              Text("Our Partners", style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),)
             ],
           ),
         ),
