@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_orderpage.dart';
@@ -46,13 +47,12 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
                   currentPage = value;
                 }),
               },
-              hoverColor: Colors.cyan, // tab button hover color
+              hoverColor: primaryColor, // tab button hover color
               haptic: true, // haptic feedback
               tabBorderRadius: 35,
-              tabBackgroundColor: Colors.indigo.shade300,
-              tabActiveBorder: Border.all(color: Colors.grey, width: 1),
+              tabBackgroundColor: Color(0xffC49A6C),
               curve: Curves.ease, // tab animation curves
-              duration: Duration(microseconds: 1000), // tab animation duration
+              duration: Duration(milliseconds: 100), // tab animation duration
               gap: 8, // the tab button gap between icon and text
               color: Colors.black, // unselected icon color
               activeColor: Colors.white, // selected icon and text color

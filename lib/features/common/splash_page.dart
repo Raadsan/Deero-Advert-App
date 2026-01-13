@@ -9,10 +9,11 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSplash(
-      type: Transition.size,
+      type: Transition.fade,
+      animation: Duration(milliseconds: 1000),
       child: Image.asset('images/enterpriseLogo.png', width: 200, height: 200),
-      curve: Curves.easeInOut,
-      navigator:  EnterpriseNavigationpage(),
+      // curve: Curves.ease,
+      navigator: EnterpriseNavigationpage(),
       durationInSeconds: 1,
     );
   }

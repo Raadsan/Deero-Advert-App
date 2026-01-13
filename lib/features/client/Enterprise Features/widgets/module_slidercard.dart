@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,7 +19,7 @@ class ModuleSliderCard extends StatelessWidget {
       height: 160,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Color(0xffF3EBE2),
+        color: primaryColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
