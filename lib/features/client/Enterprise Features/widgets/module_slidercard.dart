@@ -20,7 +20,7 @@ class ModuleSliderCard extends StatelessWidget {
       height: 160,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: primaryColor,
+        color: Color(0xff603913),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -40,6 +40,7 @@ class ModuleSliderCard extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           letterSpacing: 0.4,
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -48,7 +49,10 @@ class ModuleSliderCard extends StatelessWidget {
                     FadeInUp(
                       child: Text(
                         moduleDescription,
-                        style: GoogleFonts.poppins(fontSize: 10),
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -57,8 +61,13 @@ class ModuleSliderCard extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: BackInRight(
-              child: Image.asset(moduleImage, width: 100, height: 100),
+            child: FadeInRightBig(
+              child: Image.asset(
+                moduleImage,
+                width: 100,
+                height: 100,
+                color: Colors.white,
+              ),
             ),
           ),
         ],

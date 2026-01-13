@@ -47,10 +47,10 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
                   currentPage = value;
                 }),
               },
-              hoverColor: primaryColor, // tab button hover color
+              hoverColor: Colors.cyan, // tab button hover color
               haptic: true, // haptic feedback
               tabBorderRadius: 35,
-              tabBackgroundColor: Color(0xffC49A6C),
+              tabBackgroundColor: Color(0xff603913),
               curve: Curves.ease, // tab animation curves
               duration: Duration(milliseconds: 100), // tab animation duration
               gap: 8, // the tab button gap between icon and text
