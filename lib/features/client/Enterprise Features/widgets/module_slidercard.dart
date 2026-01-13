@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,25 +34,33 @@ class ModuleSliderCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      moduleName,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        letterSpacing: 0.4,
-                        fontWeight: FontWeight.w600,
+                    FadeInLeftBig(
+                      child: Text(
+                        moduleName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          letterSpacing: 0.4,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     SizedBox(height: 5),
-                    Text(
-                      moduleDescription,
-                      style: GoogleFonts.poppins(fontSize: 10),
+                    FadeInUp(
+                      child: Text(
+                        moduleDescription,
+                        style: GoogleFonts.poppins(fontSize: 10),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          Expanded(child: Image.asset(moduleImage, width: 100, height: 100)),
+          Expanded(
+            child: BackInRight(
+              child: Image.asset(moduleImage, width: 100, height: 100),
+            ),
+          ),
         ],
       ),
     );

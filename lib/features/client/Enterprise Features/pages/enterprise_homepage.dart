@@ -59,12 +59,6 @@ class EnterpriseHomepage extends StatelessWidget {
                 ),
                 items: [
                   ModuleSliderCard(
-                    moduleName: "Raadsan Tech",
-                    moduleImage: fullRaadsanLogo,
-                    moduleDescription:
-                        "A technology company providing innovative software and digital solutions for businesses",
-                  ),
-                  ModuleSliderCard(
                     moduleName: "Deero Advert",
                     moduleImage: fullAdvertLogo,
                     moduleDescription:
