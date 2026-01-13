@@ -40,6 +40,8 @@ dependencies:
   flutter_native_splash: ^2.4.7
   flutter_animated_splash: ^0.0.10
   lucide_icons: ^0.257.0
+  google_nav_bar: ^5.0.7
+  line_icons: ^2.0.3
 
 dev_dependencies:
   flutter_test:

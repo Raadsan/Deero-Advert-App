@@ -3,10 +3,12 @@ import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_orderpage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_profilepage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class EnterpriseNavigationpage extends StatefulWidget {
-  const EnterpriseNavigationpage({super.key});
+  EnterpriseNavigationpage({super.key});
 
   @override
   State<EnterpriseNavigationpage> createState() =>
@@ -27,30 +29,69 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[currentPage],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentPage,
-        onTap: (page) => {
-          setState(() {
-            currentPage = page;
-          }),
-        },
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: "Home"),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.shoppingBag),
-            label: "Order",
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1)),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 3),
+            child: GNav(
+              hoverColor: Colors.cyan, // tab button hover color
+              haptic: true, // haptic feedback
+              tabBorderRadius: 35,
+              tabBackgroundColor: Colors.indigo.shade300,
+              tabActiveBorder: Border.all(color: Colors.grey, width: 1),
+              curve: Curves.easeOutExpo, // tab animation curves
+              duration: Duration(milliseconds: 200), // tab animation duration
+              gap: 8, // the tab button gap between icon and text
+              color: Colors.black, // unselected icon color
+              activeColor: Colors.white, // selected icon and text color
+              iconSize: 24, // tab button icon size
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 15,
+              ), // navigation bar padding
+              tabs: [
+                GButton(icon: LineIcons.home, text: 'Home'),
+                GButton(icon: LucideIcons.shoppingBag, text: 'Order'),
+                GButton(icon: LucideIcons.messageCircle, text: 'Notification'),
+                GButton(icon: LucideIcons.user2, text: 'Profile'),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.messageCircle),
-            label: "Notification",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.user2),
-            label: "Profile",
-          ),
-        ],
+        ),
       ),
     );
   }
 }
+
+
+
+  // bottomNavigationBar: BottomNavigationBar(
+  //       currentIndex: currentPage,
+  //       onTap: (page) => {
+  //         setState(() {
+  //           currentPage = page;
+  //         }),
+  //       },
+  //       type: BottomNavigationBarType.fixed,
+  //       items: [
+  //         BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: "Home"),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(LucideIcons.shoppingBag),
+  //           label: "Order",
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(LucideIcons.messageCircle),
+  //           label: "Notification",
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(LucideIcons.user2),
+  //           label: "Profile",
+  //         ),
+  //       ],
+  //     ),
