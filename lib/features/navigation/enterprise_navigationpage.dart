@@ -45,8 +45,8 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
               tabBorderRadius: 35,
               tabBackgroundColor: Colors.indigo.shade300,
               tabActiveBorder: Border.all(color: Colors.grey, width: 1),
-              curve: Curves.easeOutExpo, // tab animation curves
-              duration: Duration(milliseconds: 200), // tab animation duration
+              curve: Curves.easeIn, // tab animation curves
+              duration: Duration(microseconds: 1000), // tab animation duration
               gap: 8, // the tab button gap between icon and text
               color: Colors.black, // unselected icon color
               activeColor: Colors.white, // selected icon and text color
@@ -57,9 +57,9 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
               ), // navigation bar padding
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
-                GButton(icon: LucideIcons.shoppingBag, text: 'Order'),
-                GButton(icon: LucideIcons.messageCircle, text: 'Notification'),
-                GButton(icon: LucideIcons.user2, text: 'Profile'),
+                GButton(icon: LineIcons.shoppingBag, text: 'Order'),
+                GButton(icon: LineIcons.bell, text: 'Notification'),
+                GButton(icon: LineIcons.user, text: 'Profile'),
               ],
             ),
           ),
