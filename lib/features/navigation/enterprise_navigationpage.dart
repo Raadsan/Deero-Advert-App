@@ -40,12 +40,18 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 3),
             child: GNav(
+              selectedIndex: currentPage,
+              onTabChange: (value) => {
+                setState(() {
+                  currentPage = value;
+                }),
+              },
               hoverColor: Colors.cyan, // tab button hover color
               haptic: true, // haptic feedback
               tabBorderRadius: 35,
               tabBackgroundColor: Colors.indigo.shade300,
               tabActiveBorder: Border.all(color: Colors.grey, width: 1),
-              curve: Curves.easeIn, // tab animation curves
+              curve: Curves.ease, // tab animation curves
               duration: Duration(microseconds: 1000), // tab animation duration
               gap: 8, // the tab button gap between icon and text
               color: Colors.black, // unselected icon color
