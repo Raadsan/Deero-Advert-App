@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_cards.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_slidercard.dart';
+import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EnterpriseHomepage extends StatelessWidget {
@@ -81,16 +83,19 @@ class EnterpriseHomepage extends StatelessWidget {
                     moduleName: "Raadsan Tech",
                     moduleImage: raadsanLogo,
                     bgcolor: Color(0xffC49A6C),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
                   ),
                   ModuleCards(
                     moduleName: "Deero Advert",
                     moduleImage: advertLogo,
                     bgcolor: Color(0xffD0AE89),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
                   ),
                   ModuleCards(
                     moduleName: "Deero Institute",
                     moduleImage: instituteLogo,
                     bgcolor: Color(0xffC49A6C),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
                   ),
                 ],
               ),

@@ -1,29 +1,18 @@
-import 'package:deero_enterprise_app/core/themes/color_page.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_homepage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_notificationpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_orderpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_profilepage.dart';
+import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_aboutpage.dart';
+import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-
-class EnterpriseNavigationpage extends StatefulWidget {
-  EnterpriseNavigationpage({super.key});
+class RaadsanNavigationpage extends StatefulWidget {
+  RaadsanNavigationpage({super.key});
 
   @override
-  State<EnterpriseNavigationpage> createState() =>
-      _EnterpriseNavigationpageState();
+  State<RaadsanNavigationpage> createState() => _RaadsanNavigationpageState();
 }
 
-class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
+class _RaadsanNavigationpageState extends State<RaadsanNavigationpage> {
   @override
-  List<Widget> _pages = [
-    EnterpriseHomepage(),
-    EnterpriseOrderpage(),
-    EnterpriseNotificationpage(),
-    EnterpriseProfilepage(),
-  ];
+  List<Widget> _pages = [RaadsanHomepage(), RaadsanAboutpage()];
 
   int currentPage = 0;
 
@@ -63,9 +52,7 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
               ), // navigation bar padding
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
-                GButton(icon: LineIcons.shoppingBag, text: 'Order'),
-                GButton(icon: LineIcons.bell, text: 'Notification'),
-                GButton(icon: LineIcons.user, text: 'Profile'),
+                GButton(icon: LineIcons.info, text: 'About'),
               ],
             ),
           ),
@@ -74,5 +61,3 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
     );
   }
 }
-
-
