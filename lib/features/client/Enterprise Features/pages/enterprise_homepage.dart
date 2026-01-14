@@ -1,10 +1,10 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_cards.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_slidercard.dart';
 import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EnterpriseHomepage extends StatelessWidget {
@@ -82,29 +82,204 @@ class EnterpriseHomepage extends StatelessWidget {
                   ModuleCards(
                     moduleName: "Raadsan Tech",
                     moduleImage: raadsanLogo,
-                    bgcolor: Color(0xffC49A6C),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
+                    bgcolor: Color(0xffFDC210),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => RaadsanHomepage()),
+                    ),
                   ),
                   ModuleCards(
                     moduleName: "Deero Advert",
                     moduleImage: advertLogo,
-                    bgcolor: Color(0xffD0AE89),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
+                    bgcolor: Color(0xff651210),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => RaadsanHomepage()),
+                    ),
                   ),
                   ModuleCards(
                     moduleName: "Deero Institute",
                     moduleImage: instituteLogo,
-                    bgcolor: Color(0xffC49A6C),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_)=>RaadsanHomepage())),
+                    bgcolor: Color(0xff003D9E),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => RaadsanHomepage()),
+                    ),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(0xff806142),
+
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Join our Newsletter",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "Get the latest updates from Deero",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: "Enter your email",
+                                border: InputBorder.none,
+                                hintStyle: GoogleFonts.poppins(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Color(0xffC49A6C),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.send, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              FadeInUp(
+                duration: const Duration(milliseconds: 750),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: BuildStatItem(
+                        color: const Color(0xFF603913),
+                        val: 10,
+                        suffix: "K+",
+                        label: "Clients",
+                      ),
+                    ),
+                    Expanded(
+                      child: BuildStatItem(
+                        color: const Color(0xFFC49A6C),
+                        val: 50,
+                        suffix: "+",
+                        label: "Experts",
+                      ),
+                    ),
+                    Expanded(
+                      child: BuildStatItem(
+                        val: 100,
+                        suffix: "%",
+                        label: "Secure",
+                        color: const Color(0xFF603913),
+                      ),
+                    ),
+                    Expanded(
+                      child: BuildStatItem(
+                        val: 24,
+                        suffix: "/7",
+                        label: "Support",
+                        color: const Color(0xFFC49A6C),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class BuildStatItem extends StatelessWidget {
+  const BuildStatItem({
+    super.key,
+    required this.val,
+    required this.suffix,
+    required this.label,
+    required this.color,
+  });
+  final double val;
+  final String suffix;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: color.withOpacity(0.05)),
+      ),
+      child: Column(
+        children: [
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: val),
+            duration: const Duration(seconds: 2),
+            curve: Curves.easeOutExpo,
+            builder: (context, value, child) {
+              return Text(
+                "${value.toInt()}$suffix",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              );
+            },
+          ),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

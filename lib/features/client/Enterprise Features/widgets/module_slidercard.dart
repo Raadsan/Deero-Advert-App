@@ -1,5 +1,4 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
