@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_cards.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_slidercard.dart';
 import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';
@@ -94,7 +95,7 @@ class EnterpriseHomepage extends StatelessWidget {
                     bgcolor: Color(0xff651210),
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => RaadsanHomepage()),
+                      MaterialPageRoute(builder: (_) => AdvertHomepage()),
                     ),
                   ),
                   ModuleCards(
@@ -107,74 +108,6 @@ class EnterpriseHomepage extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 30),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Color(0xff806142),
-
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Join our Newsletter",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      "Get the latest updates from Deero",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: "Enter your email",
-                                border: InputBorder.none,
-                                hintStyle: GoogleFonts.poppins(
-                                  color: Colors.grey,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Color(0xffC49A6C),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(Icons.send, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 30),
               FadeInUp(
