@@ -3,13 +3,25 @@ import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
 
-class AdvertHomepage extends StatelessWidget {
+class AdvertHomepage extends StatefulWidget {
   const AdvertHomepage({super.key});
 
   @override
+  State<AdvertHomepage> createState() => _AdvertHomepageState();
+}
+
+class _AdvertHomepageState extends State<AdvertHomepage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ServiceProvider>().getAllServices();
+    });
+  }
+
   Widget build(BuildContext context) {
     return Consumer<ServiceProvider>(
       builder: (context, serviceprovider, _) {
@@ -176,6 +188,8 @@ class AdvertHomepage extends StatelessWidget {
                         vertical: 15,
                       ),
                       child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: service.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -184,6 +198,7 @@ class AdvertHomepage extends StatelessWidget {
                           childAspectRatio: 1,
                         ),
                         itemBuilder: (context, index) {
+                          print("service icon ${service[index].serviceIcon}");
                           return ServiceCard(
                             ImageUrl: service[index].serviceIcon,
                             serviceTitle: service[index].serviceTitle,
@@ -241,7 +256,7 @@ class ServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset(ImageUrl!),
+        ImageUrl == null ? const Icon(Icons.image) : Image.network(ImageUrl!),
         SizedBox(height: 5),
         Text(serviceTitle!, style: GoogleFonts.poppins(fontSize: 11)),
       ],
