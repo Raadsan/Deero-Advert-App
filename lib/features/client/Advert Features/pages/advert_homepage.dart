@@ -149,7 +149,7 @@ class AdvertHomepage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              Text("Our Services", style: GoogleFonts.poppins(fontSize: 18)),
+              Text("Our Services", style: GoogleFonts.poppins(fontSize: 17)),
               SizedBox(height: 10),
               Container(
                 height: 180,

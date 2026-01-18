@@ -1,3 +1,5 @@
+const String EndPoint = "http://192.168.8.135:5000/api/";
+
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';
 final String advertLogo = 'images/advertimages/advertlogo.png';
