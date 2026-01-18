@@ -1,4 +1,5 @@
-const String EndPoint = "http://192.168.8.135:5000/api/";
+const String BaseUrl = "http://192.168.8.135:5000/";
+const String EndPoint = "${BaseUrl}api/";
 
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';

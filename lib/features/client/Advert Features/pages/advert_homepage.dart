@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
@@ -13,13 +16,11 @@ class AdvertHomepage extends StatefulWidget {
   State<AdvertHomepage> createState() => _AdvertHomepageState();
 }
 
-class _AdvertHomepageState extends State<AdvertHomepage> {
+class _AdvertHomepageState extends State<AdvertHomepage>
+    with AfterLayoutMixin<AdvertHomepage> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ServiceProvider>().getAllServices();
-    });
+  FutureOr<void> afterFirstLayout(BuildContext context) {
+    Provider.of<ServiceProvider>(context, listen: false).getAllServices();
   }
 
   Widget build(BuildContext context) {
@@ -176,36 +177,43 @@ class _AdvertHomepageState extends State<AdvertHomepage> {
                   ),
                   SizedBox(height: 10),
                   Container(
-                    height: 180,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Color(0xffDFD7D0).withOpacity(0.25),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 15,
-                      ),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: service.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 30,
-                          crossAxisSpacing: 15,
-                          childAspectRatio: 1,
-                        ),
-                        itemBuilder: (context, index) {
-                          print("service icon ${service[index].serviceIcon}");
-                          return ServiceCard(
-                            ImageUrl: service[index].serviceIcon,
-                            serviceTitle: service[index].serviceTitle,
-                          );
-                        },
-                      ),
-                    ),
+                    child: serviceprovider.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : serviceprovider.error != null
+                        ? Center(
+                            child: Text(
+                              "Error: ${serviceprovider.error}",
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : service.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No services available",
+                              style: GoogleFonts.poppins(color: Colors.grey),
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: service
+                                  .map(
+                                    (s) => ServiceCard(
+                                      ImageUrl: BaseUrl + (s.serviceIcon ?? ""),
+                                      serviceTitle: s.serviceTitle,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
                   ),
 
                   SizedBox(height: 20),
@@ -254,12 +262,27 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ImageUrl == null ? const Icon(Icons.image) : Image.network(ImageUrl!),
-        SizedBox(height: 5),
-        Text(serviceTitle!, style: GoogleFonts.poppins(fontSize: 11)),
-      ],
+    return Container(
+      width: (MediaQuery.of(context).size.width - 50) / 3,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.network(
+            ImageUrl??"",
+            width: 40,
+            height: 40,
+            fit: BoxFit.contain,
+          ),
+          SizedBox(height: 5),
+          Text(
+            serviceTitle ?? "",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(fontSize: 10),
+          ),
+        ],
+      ),
     );
   }
 }

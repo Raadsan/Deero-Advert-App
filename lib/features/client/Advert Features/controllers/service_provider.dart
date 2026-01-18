@@ -21,9 +21,9 @@ class ServiceProvider extends ChangeNotifier {
         print("${response.statusCode}");
         print(response.body);
         final data = jsonDecode(response.body);
-        _listService = data.map((e) => ServiceModel.fromJson(e)).toList();
+        serviceModel = ServiceModel.fromJson(data);
       }
-      print(_listService.length);
+      print(serviceModel?.data?.length);
       isLoading = false;
       notifyListeners();
     } catch (e) {

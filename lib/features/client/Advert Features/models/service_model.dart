@@ -39,14 +39,15 @@ class Data {
   String? updatedAt;
   int? iV;
 
-  Data(
-      {this.sId,
-      this.serviceTitle,
-      this.serviceIcon,
-      this.packages,
-      this.createdAt,
-      this.updatedAt,
-      this.iV});
+  Data({
+    this.sId,
+    this.serviceTitle,
+    this.serviceIcon,
+    this.packages,
+    this.createdAt,
+    this.updatedAt,
+    this.iV,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -88,7 +89,7 @@ class Packages {
 
   Packages.fromJson(Map<String, dynamic> json) {
     packageTitle = json['packageTitle'];
-    price = json['price'];
+    price = json['price']?.toDouble();
     features = json['features'].cast<String>();
     sId = json['_id'];
   }
