@@ -89,7 +89,7 @@ class AdvertHomepage extends StatelessWidget {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Color(0xffFCD7C3),
+                  color: Color(0xffFCD7C3).withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
@@ -143,14 +143,6 @@ class AdvertHomepage extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        "Your domain is unavailable",
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
                       ),
                     ],
                   ),
