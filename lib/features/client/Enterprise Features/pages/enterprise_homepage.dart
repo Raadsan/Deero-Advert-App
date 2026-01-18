@@ -4,6 +4,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_cards.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_slidercard.dart';
 import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';
+import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -95,7 +96,7 @@ class EnterpriseHomepage extends StatelessWidget {
                     bgcolor: Color(0xff651210),
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => AdvertHomepage()),
+                      MaterialPageRoute(builder: (_) => AdvertNavigationpage()),
                     ),
                   ),
                   ModuleCards(

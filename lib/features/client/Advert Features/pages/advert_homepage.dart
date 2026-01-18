@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -60,50 +63,18 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Event Branding",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        "We offer a full suite of event branding and consulting services, including event digital strategy,",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 11,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                Expanded(
-                                  child: Image.asset(
-                                    "images/advertimages/event.png",
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    child: CarouselSlider(
+                      items: [AdvertSliderCard(), AdvertSliderCard()],
+                      options: CarouselOptions(
+                        height: 160,
+                        viewportFraction: 1,
+                        aspectRatio: 16 / 9,
+                        autoPlay: true,
+                        autoPlayInterval: Duration(seconds: 3),
+                        autoPlayAnimationDuration: Duration(milliseconds: 800),
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        enlargeCenterPage: true,
+                        scrollDirection: Axis.horizontal,
                       ),
                     ),
                   ),
@@ -179,7 +150,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xffDFD7D0).withOpacity(0.25),
+                      color: Color(0xffFCD7C3).withOpacity(0.30),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: serviceprovider.isLoading
@@ -216,15 +187,19 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                           ),
                   ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 50),
 
                   Text(
                     "Our Major Clients",
-                    style: GoogleFonts.poppins(fontSize: 18),
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      letterSpacing: 1,
+                      // color: Colors.grey,
+                    ),
                   ),
                   SizedBox(height: 10),
                   Container(
-                    height: 100,
+                    height: 90,
                     width: double.infinity,
                     child: CarouselSlider(
                       items: [
@@ -251,38 +226,6 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           ),
         );
       },
-    );
-  }
-}
-
-class ServiceCard extends StatelessWidget {
-  const ServiceCard({super.key, this.serviceTitle, this.ImageUrl});
-  final String? serviceTitle;
-  final String? ImageUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: (MediaQuery.of(context).size.width - 50) / 3,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.network(
-            ImageUrl??"",
-            width: 40,
-            height: 40,
-            fit: BoxFit.contain,
-          ),
-          SizedBox(height: 5),
-          Text(
-            serviceTitle ?? "",
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 10),
-          ),
-        ],
-      ),
     );
   }
 }
