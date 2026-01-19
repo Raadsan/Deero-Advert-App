@@ -12,7 +12,7 @@ class NewsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -23,12 +23,10 @@ class NewsCard extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            // Future navigation to detail page
-          },
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {},
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -64,7 +62,7 @@ class NewsCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500, // Medium weight, NOT bold
+                    fontWeight: FontWeight.w500,
                     color: const Color(0xff1f2937),
                     height: 1.5,
                   ),

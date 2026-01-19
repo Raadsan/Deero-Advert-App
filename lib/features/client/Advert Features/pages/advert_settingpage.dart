@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,32 +12,85 @@ class AdvertSettingpage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         automaticallyImplyLeading: false,
         title: Text(
-          "Setting page",
+          "Settings",
           style: GoogleFonts.poppins(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-            color: Color(0xff660E0D),
+            fontWeight: FontWeight.w600,
+            color: const Color(0xff111827),
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AdvertSettingCard(icon: Icons.account_circle, title: "Account"),
-              AdvertSettingCard(icon: Icons.info, title: "About"),
-              AdvertSettingCard(icon: Icons.newspaper, title: "News",onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AdvertNewspage())),),
-              AdvertSettingCard(icon: Icons.work, title: "career"),
+              SizedBox(height: 20),
               AdvertSettingCard(
-                icon: Icons.notifications,
-                title: "Notification",
+                icon: Icons.person_outline_rounded,
+                title: "My Account",
+                onTap: () {},
               ),
-              AdvertSettingCard(icon: Icons.help, title: "help center"),
-              AdvertSettingCard(icon: Icons.logout, title: "Logout"),
+              AdvertSettingCard(
+                icon: Icons.notifications_none_rounded,
+                title: "Notifications",
+                onTap: () {},
+              ),
+              AdvertSettingCard(
+                icon: Icons.newspaper_rounded,
+                title: "Latest News",
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdvertNewspage(),
+                  ),
+                ),
+              ),
+              AdvertSettingCard(
+                icon: Icons.work_outline_rounded,
+                title: "Careers",
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdvertCareerPage(),
+                  ),
+                ),
+              ),
+              AdvertSettingCard(
+                icon: Icons.info_outline_rounded,
+                title: "About Us",
+                onTap: () {},
+              ),
+              AdvertSettingCard(
+                icon: Icons.help_outline_rounded,
+                title: "Help Center",
+                onTap: () {},
+              ),
+              AdvertSettingCard(
+                icon: Icons.logout_rounded,
+                title: "Log Out",
+                onTap: () {},
+                showArrow: false,
+              ),
+
+              const SizedBox(height: 40),
+              Center(
+                child: Text(
+                  "Version 1.0.0",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -46,23 +100,57 @@ class AdvertSettingpage extends StatelessWidget {
 }
 
 class AdvertSettingCard extends StatelessWidget {
-   AdvertSettingCard({super.key, required this.icon, required this.title, this.onTap});
+  const AdvertSettingCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.onTap,
+    this.iconColor = const Color(0xff660E0D),
+    this.isDestructive = false,
+    this.showArrow = true,
+  });
 
   final IconData icon;
   final String title;
   final Function()? onTap;
+  final Color iconColor;
+  final bool isDestructive;
+  final bool showArrow;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, size: 25, color: Color(0xff660E0D)),
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(fontSize: 16, letterSpacing: 1),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Color(0xffFCD7C3).withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 20, color: Colors.black),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xff1f2937),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      onTap: onTap,
-      trailing: Icon(Icons.arrow_forward_ios, size: 20),
     );
   }
 }
