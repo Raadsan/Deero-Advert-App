@@ -1,16 +1,10 @@
-import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_hostingpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_settingpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_homepage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_notificationpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_orderpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class AdvertNavigationpage extends StatefulWidget {
   AdvertNavigationpage({super.key});
@@ -66,9 +60,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               ), // navigation bar padding
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
-                GButton(icon: LineIcons.servicestack, text: 'Service'),
-                GButton(icon: LineIcons.bell, text: 'Hosting'),
-                GButton(icon: LineIcons.user, text: 'Setting'),
+                GButton(icon: LineIcons.cubes, text: 'Service'),
+                GButton(icon: LineIcons.server, text: 'Hosting'),
+                GButton(icon: LineIcons.cog, text: 'Setting'),
               ],
             ),
           ),

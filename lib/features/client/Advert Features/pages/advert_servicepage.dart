@@ -99,7 +99,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: isSelected
-                                ? FontWeight.w600
+                                ? FontWeight.w500
                                 : FontWeight.w500,
                             color: isSelected ? Colors.white : Colors.grey[700],
                           ),
@@ -122,7 +122,6 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                       key: ValueKey<int>(_selectedIndex),
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildServiceHeader(services[_selectedIndex]),
                         const SizedBox(height: 16),
                         if (services[_selectedIndex].packages != null &&
                             services[_selectedIndex].packages!.isNotEmpty)
@@ -150,76 +149,6 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
         );
       },
     );
-  }
-
-  Widget _buildServiceHeader(Data service) {
-    final imageUrl = service.serviceIcon != null
-        ? BaseUrl + service.serviceIcon!
-        : null;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 100,
-            width: 100,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xffF9FAFB),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: _buildImage(imageUrl),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            service.serviceTitle ?? "Untitled Service",
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xff111827),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImage(String? url) {
-    if (url == null || url.isEmpty) {
-      return Icon(Icons.layers_outlined, size: 50, color: Colors.grey[400]);
-    }
-
-    if (url.toLowerCase().endsWith('.svg')) {
-      return SvgPicture.network(
-        url,
-        fit: BoxFit.contain,
-        placeholderBuilder: (_) =>
-            Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      );
-    } else {
-      return Image.network(
-        url,
-        fit: BoxFit.contain,
-        loadingBuilder: (_, child, progress) => progress == null
-            ? child
-            : Center(child: CircularProgressIndicator(strokeWidth: 2)),
-        errorBuilder: (_, __, ___) =>
-            Icon(Icons.broken_image_rounded, size: 50, color: Colors.grey[300]),
-      );
-    }
   }
 
   Widget _buildPackageCard(Packages package) {
