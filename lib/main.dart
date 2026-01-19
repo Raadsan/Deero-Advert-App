@@ -1,4 +1,4 @@
-
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/common/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +12,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-          title: 'Deero Enterprice',
-          home:SplashPage() ),
+        title: 'Deero Enterprice',
+        home: SplashPage(),
+      ),
     );
   }
 }
-

@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -28,7 +29,7 @@ class AdvertSettingpage extends StatelessWidget {
             children: [
               AdvertSettingCard(icon: Icons.account_circle, title: "Account"),
               AdvertSettingCard(icon: Icons.info, title: "About"),
-              AdvertSettingCard(icon: Icons.newspaper, title: "News"),
+              AdvertSettingCard(icon: Icons.newspaper, title: "News",onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AdvertNewspage())),),
               AdvertSettingCard(icon: Icons.work, title: "career"),
               AdvertSettingCard(
                 icon: Icons.notifications,
@@ -45,10 +46,11 @@ class AdvertSettingpage extends StatelessWidget {
 }
 
 class AdvertSettingCard extends StatelessWidget {
-  const AdvertSettingCard({super.key, required this.icon, required this.title});
+   AdvertSettingCard({super.key, required this.icon, required this.title, this.onTap});
 
   final IconData icon;
   final String title;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,7 @@ class AdvertSettingCard extends StatelessWidget {
         title,
         style: GoogleFonts.poppins(fontSize: 16, letterSpacing: 1),
       ),
+      onTap: onTap,
       trailing: Icon(Icons.arrow_forward_ios, size: 20),
     );
   }
