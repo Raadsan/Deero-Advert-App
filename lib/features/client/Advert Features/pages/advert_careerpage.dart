@@ -1,5 +1,4 @@
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/careers_model.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_career_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

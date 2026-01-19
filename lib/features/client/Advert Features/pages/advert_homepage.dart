@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:animate_do/animate_do.dart';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
