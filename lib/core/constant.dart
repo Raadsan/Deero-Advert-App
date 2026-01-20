@@ -1,6 +1,9 @@
 const String BaseUrl = "http://192.168.8.135:5000/";
 const String EndPoint = "${BaseUrl}api/";
 
+
+const String isLogged="isLogged";
+
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';
 final String advertLogo = 'images/advertimages/advertlogo.png';

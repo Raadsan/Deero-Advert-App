@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_cards.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/widgets/module_slidercard.dart';
 import 'package:deero_enterprise_app/features/client/Raadsan%20Features/pages/raadsan_homepage.dart';

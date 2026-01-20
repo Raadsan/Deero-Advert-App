@@ -2,7 +2,7 @@ import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_orderpage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/enterprise_profilepage.dart';
+import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
@@ -22,7 +22,7 @@ class _EnterpriseNavigationpageState extends State<EnterpriseNavigationpage> {
     EnterpriseHomepage(),
     EnterpriseOrderpage(),
     EnterpriseNotificationpage(),
-    EnterpriseProfilepage(),
+    Profilepage(),
   ];
 
   int currentPage = 0;
