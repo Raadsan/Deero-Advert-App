@@ -3,6 +3,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/models/se
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AdvertServicepage extends StatefulWidget {
   const AdvertServicepage({super.key});
@@ -106,29 +107,33 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                   ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    child: Column(
-                      key: ValueKey<int>(_selectedIndex),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-                        if (services[_selectedIndex].packages != null &&
-                            services[_selectedIndex].packages!.isNotEmpty)
-                          ...services[_selectedIndex].packages!.map(
-                            (package) => _buildPackageCard(package),
-                          )
-                        else
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Center(
-                              child: Text(
-                                "No packages available yet.",
-                                style: GoogleFonts.poppins(color: Colors.grey),
-                              ),
-                            ),
+                    child: serviceProvider.isLoading
+                        ? PackageCardShimmer()
+                        : Column(
+                            key: ValueKey<int>(_selectedIndex),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 16),
+                              if (services[_selectedIndex].packages != null &&
+                                  services[_selectedIndex].packages!.isNotEmpty)
+                                ...services[_selectedIndex].packages!.map(
+                                  (package) => _buildPackageCard(package),
+                                )
+                              else
+                                Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Center(
+                                    child: Text(
+                                      "No packages available yet.",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: 30),
+                            ],
                           ),
-                        const SizedBox(height: 30),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -257,6 +262,118 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PackageCardShimmer extends StatelessWidget {
+  const PackageCardShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        3,
+        (index) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🔹 HEADER
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.withOpacity(0.1)),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          height: 16,
+                          width: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        Container(
+                          height: 18,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 🔹 FEATURES
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: List.generate(
+                        3,
+                        (i) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 18,
+                                width: 18,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 🔹 BUTTON
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    child: Container(
+                      height: 45,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

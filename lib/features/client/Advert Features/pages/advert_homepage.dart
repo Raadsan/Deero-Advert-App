@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AdvertHomepage extends StatefulWidget {
   const AdvertHomepage({super.key});
@@ -47,6 +47,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 10),
+
                   Container(
                     height: 160,
                     decoration: BoxDecoration(
@@ -153,7 +154,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: serviceprovider.isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const Center(child: ServiceCardShimmer())
                         : serviceprovider.error != null
                         ? Center(
                             child: Text(
@@ -225,6 +226,46 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           ),
         );
       },
+    );
+  }
+}
+
+class ServiceCardShimmer extends StatelessWidget {
+  final int itemCount;
+
+  const ServiceCardShimmer({super.key, this.itemCount = 6});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: List.generate(itemCount, (index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: SizedBox(
+            width: 90, // la mid ah ServiceCard
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Shimmer for Image
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Shimmer for Title
+                Container(height: 12, width: 60, color: Colors.grey.shade300),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 }
