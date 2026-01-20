@@ -1,8 +1,6 @@
-import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/service_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +32,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
         final services = serviceProvider.serviceModel?.data ?? [];
 
         return Scaffold(
-          backgroundColor: const Color(0xffF9FAFB),
+          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
@@ -45,7 +43,8 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
               "Our Services",
               style: GoogleFonts.poppins(
                 fontSize: 20,
-                fontWeight: FontWeight.w600,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xff111827),
               ),
             ),
@@ -55,7 +54,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
             children: [
               const SizedBox(height: 20),
               SizedBox(
-                height: 50,
+                height: 43,
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   scrollDirection: Axis.horizontal,
@@ -69,8 +68,8 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                          horizontal: 15,
+                          vertical: 10,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
@@ -82,17 +81,6 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                 ? const Color(0xff660E0D)
                                 : Colors.grey.shade300,
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xff660E0D,
-                                    ).withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ]
-                              : [],
                         ),
                         child: Text(
                           service.serviceTitle ?? "Service",
@@ -155,7 +143,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xffFCD7C3).withOpacity(0.4),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.withOpacity(0.1)),
         boxShadow: [
@@ -172,7 +160,6 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(20),
               ),
