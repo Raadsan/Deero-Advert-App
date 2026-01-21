@@ -61,47 +61,69 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
               const SizedBox(height: 20),
               SizedBox(
                 height: 43,
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: services.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final service = services[index];
-                    final isSelected = _selectedIndex == index;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedIndex = index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xff660E0D)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xff660E0D)
-                                : Colors.grey.shade300,
-                          ),
-                        ),
-                        child: Text(
-                          service.serviceTitle ?? "Service",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: isSelected
-                                ? FontWeight.w500
-                                : FontWeight.w500,
-                            color: isSelected ? Colors.white : Colors.grey[700],
-                          ),
-                        ),
+                child: serviceProvider.isLoading
+                    ? ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 4,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: Container(
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: services.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final service = services[index];
+                          final isSelected = _selectedIndex == index;
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedIndex = index),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? const Color(0xff660E0D)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xff660E0D)
+                                      : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                service.serviceTitle ?? "Service",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w500
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
               const SizedBox(height: 20),
               Expanded(
@@ -168,7 +190,6 @@ class PackageCardShimmer extends StatelessWidget {
             highlightColor: Colors.grey.shade100,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
@@ -433,7 +454,7 @@ class _PackageCardState extends State<PackageCard> {
 
                     if (success) {
                       if (ctx.mounted) {
-                        Navigator.pop(ctx); 
+                        Navigator.pop(ctx);
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

@@ -150,7 +150,9 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xffFCD7C3).withOpacity(0.30),
+                      color: serviceprovider.isLoading
+                          ? Colors.white
+                          : Color(0xffFCD7C3).withOpacity(0.30),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: serviceprovider.isLoading
@@ -244,24 +246,27 @@ class ServiceCardShimmer extends StatelessWidget {
         return Shimmer.fromColors(
           baseColor: Colors.grey.shade300,
           highlightColor: Colors.grey.shade100,
-          child: SizedBox(
-            width: 90, // la mid ah ServiceCard
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Shimmer for Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    height: 50,
-                    width: 50,
-                    color: Colors.grey.shade300,
+          child: Container(
+            width: (MediaQuery.of(context).size.width - 50) / 3,
+            child: SizedBox(
+              width: 90, // la mid ah ServiceCard
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Shimmer for Image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      color: Colors.grey.shade300,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                // Shimmer for Title
-                Container(height: 12, width: 60, color: Colors.grey.shade300),
-              ],
+                  const SizedBox(height: 8),
+                  // Shimmer for Title
+                  Container(height: 12, width: 60, color: Colors.grey.shade300),
+                ],
+              ),
             ),
           ),
         );
