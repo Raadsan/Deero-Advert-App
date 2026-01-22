@@ -54,7 +54,7 @@ class TransactionProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         
-        if (userMessage.toLowerCase().contains("failed")) {
+        if (userMessage.toLowerCase().contains("failed")) { 
           isSuccess = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(userMessage), backgroundColor: Colors.red),
