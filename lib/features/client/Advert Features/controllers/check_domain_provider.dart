@@ -35,22 +35,22 @@ class CheckDomainProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Use exactly what the client typed
       String domainToCheck = query.toLowerCase().trim();
 
-      // Fetch prices from backend
       final allPrices = await _fetchAllDomainPrices();
 
       // Get TLD from domain
       double? foundPrice;
+      String? domainId;
       if (domainToCheck.contains('.')) {
         final parts = domainToCheck.split('.');
         final tld = '.${parts.last}';
 
-        // Find price for this TLD
         for (var p in allPrices) {
           if (p.tld.toLowerCase() == tld.toLowerCase()) {
             foundPrice = p.newPrice;
+            domainId = p.sId;
+            print("Found TLD: ${p.tld}, Price: ${p.newPrice}, ID: ${p.sId}");
             break;
           }
         }
@@ -58,6 +58,7 @@ class CheckDomainProvider extends ChangeNotifier {
 
       // If price not found, it means the extension doesn't exist in our list
       if (foundPrice == null) {
+        print("TLD Price not found in backend for domain extensions.");
         error = "This domain extension does not exist in our system.";
         loading = false;
         notifyListeners();
@@ -66,35 +67,34 @@ class CheckDomainProvider extends ChangeNotifier {
 
       final price = foundPrice;
 
-      // Check domain availability using RDAP
       try {
-        final res = await http.get(
+        final response = await http.get(
           Uri.parse("https://rdap.org/domain/$domainToCheck"),
         );
 
-        // If status is 429 (rate limited), assume available
-        if (res.statusCode == 429) {
+        if (response.statusCode == 429) {
           results.add(
             DomainCheckResult(
+              sId: domainId,
               domain: domainToCheck,
               available: true,
               price: "\$${price.toStringAsFixed(2)}/Year",
             ),
           );
         } else {
-          // 404 means domain is available, anything else means taken
           results.add(
             DomainCheckResult(
+              sId: domainId,
               domain: domainToCheck,
-              available: res.statusCode == 404,
+              available: response.statusCode == 404,
               price: "\$${price.toStringAsFixed(2)}/Year",
             ),
           );
         }
       } catch (_) {
-        // If error, assume available
         results.add(
           DomainCheckResult(
+            sId: domainId,
             domain: domainToCheck,
             available: true,
             price: "\$${price.toStringAsFixed(2)}/Year",

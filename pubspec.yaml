@@ -50,6 +50,7 @@ dependencies:
   intl: ^0.20.2
   get_storage: ^2.1.1
   shimmer: ^3.0.0
+  material_dialogs: ^1.1.5
 
 dev_dependencies:
   flutter_test:

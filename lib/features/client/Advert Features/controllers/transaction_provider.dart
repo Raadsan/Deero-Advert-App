@@ -9,6 +9,7 @@ class TransactionProvider extends ChangeNotifier {
 
   Future<bool> CreateTransaction({
     String? domainId,
+    dynamic domain, // Use dynamic to handle potential object change
     String? serviceId,
     String? packageId,
     String? hostingPackageId,
@@ -23,8 +24,10 @@ class TransactionProvider extends ChangeNotifier {
     try {
       isLoading = true;
       notifyListeners();
+
       var data = {
         "domainId": domainId,
+        "domain": domain,
         "serviceId": serviceId,
         "packageId": packageId,
         "hostingPackageId": hostingPackageId,
@@ -34,44 +37,42 @@ class TransactionProvider extends ChangeNotifier {
         "accountNo": accountNo,
         "paymentMethod": paymentMethod,
       };
+
+      print("Sending Transaction Data: ${jsonEncode(data)}");
+
       var response = await http.post(
         Uri.parse(EndPoint + "transactions"),
         body: jsonEncode(data),
         headers: {"Content-Type": "application/json"},
       );
-      String responseBody = response.body;
-      Map<String, dynamic> decodedResponse = {};
-      try {
-        decodedResponse = jsonDecode(responseBody);
-      } catch (e) {
-        print("Error decoding response: $e");
-      }
 
-      String userMessage =
-          decodedResponse['responseMsg'] ??
-          decodedResponse['message'] ??
-          responseBody;
+      var decodedResponse = jsonDecode(response.body);
+      print("Backend Response: $decodedResponse");
 
-      if (response.statusCode == 200) {
-        
-        if (userMessage.toLowerCase().contains("failed")) { 
-          isSuccess = false;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(userMessage), backgroundColor: Colors.red),
-          );
-        } else {
-          isSuccess = true;
-          print("Transaction created successfully");
-        }
-      } else {
-        print("Failed to create transaction: ${response.statusCode}");
+      if (response.statusCode == 200 || decodedResponse['success'] == true) {
+        isSuccess = true;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userMessage), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              decodedResponse['message'] ?? "Transaction successful",
+            ),
+            backgroundColor: Colors.green,
+          ),
         );
+      } else {
         isSuccess = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(decodedResponse['message'] ?? "Transaction failed"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print("Error creating transaction: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+      );
     } finally {
       isLoading = false;
       notifyListeners();

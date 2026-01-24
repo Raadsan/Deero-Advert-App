@@ -1,5 +1,10 @@
+import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -118,9 +123,9 @@ class AdvertDomainsPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       ...results.map(
                         (result) => _DomainCard(
+                          id: result.sId,
                           domain: result.domain,
                           isAvailable: result.available,
                           price: result.price,
@@ -135,167 +140,364 @@ class AdvertDomainsPage extends StatelessWidget {
   }
 }
 
-class _DomainCard extends StatelessWidget {
+class _DomainCard extends StatefulWidget {
+  final String? id;
   final String domain;
   final bool isAvailable;
   final String price;
 
   const _DomainCard({
+    required this.id,
     required this.domain,
     required this.isAvailable,
     required this.price,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isAvailable
-              ? const Color(0xFFE5E7EB)
-              : Colors.red.withOpacity(0.1),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Domain Info (Left Side)
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    domain,
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xff111827),
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (isAvailable) ...[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          price.split('/').first,
-                          style: GoogleFonts.poppins(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xff111827),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "$price.original", // Mocking an original price for visual match
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey.shade400,
-                          ),
-                        ).buildStruckPrice(price),
-                      ],
-                    ),
-                    Text(
-                      "for first year",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: const Color(0xff111827),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        "Available",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: const Color(0xFF166534),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    Text(
-                      "Not Available",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.red.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // Cart Button (Right Side)
-            if (isAvailable)
-              Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xff111827).withOpacity(0.8),
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Added to cart: $domain"),
-                          backgroundColor: const Color(0xff651313),
-                        ),
-                      );
-                    },
-                    child: const Icon(
-                      Icons.add_shopping_cart_outlined,
-                      color: Color(0xff111827),
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<_DomainCard> createState() => _DomainCardState();
 }
 
-extension on Widget {
+class _DomainCardState extends State<_DomainCard> {
+  final TextEditingController _accountController = TextEditingController();
+  bool _isLocalLoading = false;
+
+  @override
+  void dispose() {
+    _accountController.dispose();
+    super.dispose();
+  }
+
+  void _showPurchaseDialog(
+    BuildContext context,
+    UserProvider userProvider,
+    TransactionProvider transactionProvider,
+  ) {
+    double parsedPrice = 0.0;
+    try {
+      parsedPrice = double.parse(
+        widget.price.replaceAll(RegExp(r'[^0-9.]'), ''),
+      );
+    } catch (e) {
+      print("Error parsing price: $e");
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                "Purchase ${widget.domain}",
+                style: GoogleFonts.poppins(
+                  letterSpacing: 1,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xff651313),
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Price: ${widget.price}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFFEB4724),
+                        ),
+                      ),
+                      Text(
+                        "Payment Method Waafipay",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Account Number",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextFormField(
+                    controller: _accountController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      hintText: "Enter phone number",
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey.shade400,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    style: GoogleFonts.poppins(fontSize: 14),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    "Cancel",
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_accountController.text.isEmpty) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please enter account number"),
+                        ),
+                      );
+                      return;
+                    }
+                    if (ctx.mounted) {
+                      setDialogState(() {
+                        _isLocalLoading = true;
+                      });
+                    }
+
+                    print(
+                      "Creating transaction for Domain ID: ${widget.id}, Amount: $parsedPrice",
+                    );
+
+                    final success = await transactionProvider.CreateTransaction(
+                      userId: userProvider.userModel!.user!.id!,
+                      amount: parsedPrice,
+                      // Pass domain as an object to skip 'findById' on backend
+                      domain: {"name": widget.domain, "_id": widget.id},
+                      hostingPackageId: null,
+                      serviceId: null,
+                      description: "Domain Purchase: ${widget.domain}",
+                      paymentMethod: "Waafipay",
+                      accountNo: _accountController.text,
+                      context: context,
+                    );
+
+                    if (ctx.mounted) {
+                      setDialogState(() {
+                        _isLocalLoading = false;
+                      });
+                    }
+
+                    if (success) {
+                      if (ctx.mounted) {
+                        Navigator.pop(ctx);
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Purchase successful!"),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff651313),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isLocalLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Confirm",
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<UserProvider, TransactionProvider>(
+      builder: (context, userProvider, transactionProvider, child) {
+        final box = GetStorage();
+        final isLoggedIn = box.hasData(isLogged);
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: widget.isAvailable
+                  ? const Color(0xFFE5E7EB)
+                  : Colors.red.withOpacity(0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.domain,
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xff111827),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (widget.isAvailable) ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              widget.price.split('/').first,
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xff111827),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            buildStruckPrice(widget.price),
+                          ],
+                        ),
+                        Text(
+                          "for first year",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: const Color(0xff111827),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            "Available",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: const Color(0xFF166534),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          "Not Available",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.red.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (widget.isAvailable)
+                  Container(
+                    height: 56,
+                    width: 56,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xff111827).withOpacity(0.8),
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () {
+                          if (isLoggedIn) {
+                            _showPurchaseDialog(
+                              context,
+                              userProvider,
+                              transactionProvider,
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Icon(
+                          Icons.add_shopping_cart_outlined,
+                          color: Color(0xff111827),
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget buildStruckPrice(String currentPrice) {
-    // This is a helper to generate a visual struck-through price for the "Wow" factor
-    // calculated as roughly 4x the current price to match the registrar feel
     try {
       double p = double.parse(currentPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
       String original = (p * 4.5).toStringAsFixed(2);
@@ -323,7 +525,6 @@ class DomainResultShimmer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header shimmer
           Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -337,8 +538,6 @@ class DomainResultShimmer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Main domain card shimmer
           ...List.generate(
             5,
             (index) => Shimmer.fromColors(
