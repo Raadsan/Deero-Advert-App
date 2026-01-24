@@ -5,11 +5,13 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/hosting_model.dart'
     as hosting;
+import 'package:deero_enterprise_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 
 class AdvertHostingpage extends StatefulWidget {
   const AdvertHostingpage({super.key});
@@ -36,7 +38,7 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
   Widget build(BuildContext context) {
     return Consumer<HostingProvider>(
       builder: (context, hostingProvider, child) {
-        final hosting = hostingProvider.hostingModel?.data ?? [];
+        final hostingData = hostingProvider.hostingModel?.data ?? [];
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -101,9 +103,9 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                       : Builder(
                           builder: (context) {
                             // Find the maximum price
-                            final maxPrice = hosting.isEmpty
+                            final maxPrice = hostingData.isEmpty
                                 ? 0.0
-                                : hosting
+                                : hostingData
                                       .map((h) => h.price ?? 0.0)
                                       .reduce((a, b) => a > b ? a : b);
 
@@ -111,8 +113,8 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 16),
-                                if (hosting.isNotEmpty)
-                                  ...hosting.map(
+                                if (hostingData.isNotEmpty)
+                                  ...hostingData.map(
                                     (hostingPackage) => HostingPackageCard(
                                       hostingPackage: hostingPackage,
                                       isYearly: isYearly,
@@ -294,172 +296,191 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
         ? (widget.hostingPackage.price ?? 0) * 12
         : (widget.hostingPackage.price ?? 0);
 
-    showDialog(
+    Dialogs.bottomMaterialDialog(
       context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.transparent,
-              title: Text(
-                "Purchase ${widget.hostingPackage.name}",
-                style: GoogleFonts.poppins(
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xff651313),
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      title: "Purchase ${widget.hostingPackage.name}",
+      titleStyle: GoogleFonts.poppins(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: const Color(0xff651313),
+      ),
+      customView: StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffFCD9CC).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Price: \$${price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFEB4724),
-                        ),
-                      ),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Payment Method Waafipay",
+                            "Total Price",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          Text(
+                            "\$${price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFEB4724),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Method",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          Text(
+                            "Waafipay",
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.grey,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xff651313),
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 20),
-                  Text(
-                    "Account Number",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter your account number";
-                      }
-                      return null;
-                    },
-                    controller: _accountController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: "Enter phone number",
-                      hintStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey.shade400,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                    ),
-                    style: GoogleFonts.poppins(fontSize: 14),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(
-                    "Cancel",
-                    style: GoogleFonts.poppins(color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Account Number",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xff111827),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_accountController.text.isEmpty) {
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please enter account number"),
-                        ),
-                      );
-                      return;
-                    }
-                    if (ctx.mounted) {
-                      setDialogState(() {
-                        _isLocalLoading = true;
-                      });
-                    }
-
-                    final success = await transactionProvider.CreateTransaction(
-                      userId: userProvider.userModel!.user!.id!,
-                      amount: price,
-                      hostingPackageId: widget.hostingPackage.sId,
-                      paymentMethod: "Waafipay",
-                      accountNo: _accountController.text,
-                      context: context,
-                    );
-
-                    if (ctx.mounted) {
-                      setDialogState(() {
-                        _isLocalLoading = false;
-                      });
-                    }
-
-                    if (success) {
-                      if (ctx.mounted) {
-                        Navigator.pop(ctx);
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Purchase successful!"),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } else {}
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff651313),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _accountController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: "Enter phone number",
+                    prefixIcon: const Icon(Icons.phone_android, size: 20),
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.shade400,
                     ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFEB4724)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
                   ),
-                  child: _isLocalLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _isLocalLoading
+                        ? null
+                        : () async {
+                            if (_accountController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Please enter account number"),
+                                ),
+                              );
+                              return;
+                            }
+                            setDialogState(() {
+                              _isLocalLoading = true;
+                            });
+
+                            final success =
+                                await transactionProvider.CreateTransaction(
+                                  userId: userProvider.userModel!.user!.id!,
+                                  amount: price,
+                                  hostingPackageId: widget.hostingPackage.sId,
+                                  paymentMethod: "Waafipay",
+                                  accountNo: _accountController.text,
+                                  context: context,
+                                );
+
+                            setDialogState(() {
+                              _isLocalLoading = false;
+                            });
+
+                            if (success) {
+                              Navigator.pop(context); // Close Purchase Sheet
+                              CustomBottomSheet.showCongratulations(
+                                context: context,
+                                message:
+                                    "Your hosting plan ${widget.hostingPackage.name} is now active!",
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff651313),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLocalLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            "Confirm Purchase",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        )
-                      : Text(
-                          "Confirm",
-                          style: GoogleFonts.poppins(color: Colors.white),
-                        ),
+                  ),
                 ),
+                const SizedBox(height: 20),
               ],
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
