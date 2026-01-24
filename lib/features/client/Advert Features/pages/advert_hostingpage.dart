@@ -422,13 +422,25 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                               );
                               return;
                             }
+                            final userId = userProvider.userModel?.user?.id;
+                            if (userId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "User session error. Please login again.",
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+
                             setDialogState(() {
                               _isLocalLoading = true;
                             });
 
                             final success =
                                 await transactionProvider.CreateTransaction(
-                                  userId: userProvider.userModel!.user!.id!,
+                                  userId: userId,
                                   amount: price,
                                   hostingPackageId: widget.hostingPackage.sId,
                                   paymentMethod: "Waafipay",

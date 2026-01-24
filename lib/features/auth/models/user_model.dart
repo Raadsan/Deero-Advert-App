@@ -32,7 +32,7 @@ class User {
   User({this.id, this.fullname, this.email, this.phone, this.role});
 
   User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id'] ?? json['_id'];
     fullname = json['fullname'];
     email = json['email'];
     phone = json['phone'];
@@ -60,13 +60,14 @@ class Role {
   int? iV;
   String? description;
 
-  Role(
-      {this.sId,
-      this.name,
-      this.createdAt,
-      this.updatedAt,
-      this.iV,
-      this.description});
+  Role({
+    this.sId,
+    this.name,
+    this.createdAt,
+    this.updatedAt,
+    this.iV,
+    this.description,
+  });
 
   Role.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];

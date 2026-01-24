@@ -21,8 +21,15 @@ class CustomBottomSheet {
       ),
       msgStyle: GoogleFonts.poppins(fontSize: 16, color: Colors.grey.shade600),
       lottieBuilder: Lottie.network(
-        'https://assets3.lottiefiles.com/packages/lf20_toum7vvy.json', // Success stars
+        'https://lottie.host/8040854c-8822-4a00-9943-4f95e54d72bc/4uH8FpLz6w.json',
         fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(
+            Icons.check_circle,
+            size: 100,
+            color: Color(0xFF22C55E),
+          );
+        },
       ),
       actions: [
         IconsButton(
