@@ -1,4 +1,5 @@
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CareersProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider() ),
         ChangeNotifierProvider(create: (_) => TransactionProvider() ),
-        ChangeNotifierProvider(create: (_)=> HostingProvider())
+        ChangeNotifierProvider(create: (_)=> HostingProvider()),
+        ChangeNotifierProvider(create: (_)=> CheckDomainProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

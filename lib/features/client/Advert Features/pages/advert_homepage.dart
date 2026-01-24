@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +22,77 @@ class AdvertHomepage extends StatefulWidget {
 
 class _AdvertHomepageState extends State<AdvertHomepage>
     with AfterLayoutMixin<AdvertHomepage> {
+  final TextEditingController _domainController = TextEditingController();
+
+  @override
+  void dispose() {
+    _domainController.dispose();
+    super.dispose();
+  }
+
   @override
   FutureOr<void> afterFirstLayout(BuildContext context) {
     Provider.of<ServiceProvider>(context, listen: false).getAllServices();
+  }
+
+  void _searchDomain(BuildContext context) {
+    final domainName = _domainController.text.trim();
+
+    // Check if domain name is empty
+    if (domainName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Please enter a domain name",
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: const Color(0xFFEB4724),
+        ),
+      );
+      return;
+    }
+
+    // Check if domain has a TLD (like .com, .org, .so, etc.)
+    if (!domainName.contains('.') || domainName.endsWith('.')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Please include domain extension (e.g., .com, .org, .so)",
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: const Color(0xFFEB4724),
+        ),
+      );
+      return;
+    }
+
+    // Validate TLD format
+    final parts = domainName.split('.');
+    if (parts.length < 2 || parts.last.isEmpty || parts.last.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Please enter a valid domain with extension (e.g., mywebsite.com)",
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: const Color(0xFFEB4724),
+        ),
+      );
+      return;
+    }
+
+    final domainProvider = Provider.of<CheckDomainProvider>(
+      context,
+      listen: false,
+    );
+    domainProvider.checkDomain(domainName);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdvertDomainsPage(searchedDomain: domainName),
+      ),
+    );
   }
 
   Widget build(BuildContext context) {
@@ -105,8 +175,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                 height: 45,
                                 width: MediaQuery.of(context).size.width * 0.6,
                                 child: TextFormField(
+                                  controller: _domainController,
+                                  onFieldSubmitted: (_) =>
+                                      _searchDomain(context),
                                   decoration: InputDecoration(
-                                    hintText: "Search Your Domain",
+                                    hintText: "e.g. mywebsite.com",
                                     fillColor: Colors.white,
                                     hintStyle: GoogleFonts.poppins(
                                       fontSize: 14,
@@ -122,7 +195,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               ),
                               SizedBox(height: 6),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () => _searchDomain(context),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Color(0xff660E0D),
                                   foregroundColor: Colors.white,
@@ -249,11 +322,10 @@ class ServiceCardShimmer extends StatelessWidget {
           child: Container(
             width: (MediaQuery.of(context).size.width - 50) / 3,
             child: SizedBox(
-              width: 90, // la mid ah ServiceCard
+              width: 90,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Shimmer for Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
@@ -263,7 +335,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Shimmer for Title
+
                   Container(height: 12, width: 60, color: Colors.grey.shade300),
                 ],
               ),
