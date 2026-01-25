@@ -8,6 +8,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
@@ -102,6 +103,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              systemNavigationBarColor: Colors.white,
+              systemNavigationBarContrastEnforced: true,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ),
             backgroundColor: Colors.white,
             leading: IconButton(
               onPressed: () {},
