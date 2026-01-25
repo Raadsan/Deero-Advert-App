@@ -51,6 +51,9 @@ dependencies:
   get_storage: ^2.1.1
   shimmer: ^3.0.0
   material_dialogs: ^1.1.5
+  flutter_local_notifications: ^19.5.0
+  firebase_messaging: ^16.1.1
+  firebase_core: ^4.4.0
 
 dev_dependencies:
   flutter_test:
