@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ServiceCard extends StatelessWidget {
@@ -14,12 +14,15 @@ class ServiceCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.network(
-            ImageUrl ?? "",
-            width: 40,
-            height: 40,
-            fit: BoxFit.contain,
-          ),
+          if (ImageUrl != null && ImageUrl!.isNotEmpty)
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: ScalableImageWidget.fromSISource(
+                si: ScalableImageSource.fromSvgHttpUrl(Uri.parse(ImageUrl!)),
+                fit: BoxFit.contain,
+              ),
+            ),
           SizedBox(height: 5),
           Text(
             serviceTitle ?? "",
