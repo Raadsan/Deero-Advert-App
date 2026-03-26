@@ -1,4 +1,4 @@
-const String BaseUrl = "http://192.168.8.135:5000/";
+const String BaseUrl = "https://deero-advert-production-a27c.up.railway.app/";
 const String EndPoint = "${BaseUrl}api/";
 
 

@@ -18,10 +18,22 @@ class ServiceCard extends StatelessWidget {
             SizedBox(
               width: 40,
               height: 40,
-              child: ScalableImageWidget.fromSISource(
-                si: ScalableImageSource.fromSvgHttpUrl(Uri.parse(ImageUrl!)),
-                fit: BoxFit.contain,
-              ),
+              child: ImageUrl!.toLowerCase().endsWith('.svg')
+                  ? ScalableImageWidget.fromSISource(
+                      si: ScalableImageSource.fromSvgHttpUrl(
+                        Uri.parse(ImageUrl!),
+                      ),
+                      fit: BoxFit.contain,
+                    )
+                  : Image.network(
+                      ImageUrl!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.broken_image,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    ),
             ),
           SizedBox(height: 5),
           Text(

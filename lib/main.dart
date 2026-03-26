@@ -7,6 +7,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/controllers/notification_provider.dart';
 import 'package:deero_enterprise_app/features/common/splash_page.dart';
+import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Deero Enterprice',
-        home: SplashPage(),
+        home: AdvertNavigationpage(),
       ),
     );
   }

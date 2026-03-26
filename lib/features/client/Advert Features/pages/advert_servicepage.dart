@@ -40,19 +40,18 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
         final services = serviceProvider.serviceModel?.data ?? [];
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF9FAFB),
           appBar: AppBar(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
+            backgroundColor: const Color(0xFFF9FAFB),
+            surfaceTintColor: const Color(0xFFF9FAFB),
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
             title: Text(
               "Our Services",
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w500,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
                 color: const Color(0xff111827),
               ),
             ),
@@ -60,66 +59,92 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
+              // Modern Category Row
               SizedBox(
-                height: 43,
+                height: 55,
                 child: serviceProvider.isLoading
                     ? ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         scrollDirection: Axis.horizontal,
                         itemCount: 4,
                         separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          return Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
-                            child: Container(
-                              width: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                        itemBuilder: (context, index) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(
+                            width: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       )
-                    : ListView.separated(
+                    : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         scrollDirection: Axis.horizontal,
                         itemCount: services.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
                         itemBuilder: (context, index) {
                           final service = services[index];
                           final isSelected = _selectedIndex == index;
-                          return GestureDetector(
-                            onTap: () => setState(() => _selectedIndex = index),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 15,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? const Color(0xff660E0D)
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? const Color(0xff660E0D)
-                                      : Colors.grey.shade300,
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _selectedIndex = index),
+                              borderRadius: BorderRadius.circular(16),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
                                 ),
-                              ),
-                              child: Text(
-                                service.serviceTitle ?? "Service",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w500
-                                      : FontWeight.w500,
+                                decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Colors.white
-                                      : Colors.grey[700],
+                                      ? const Color(0xff651313)
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xff651313,
+                                            ).withOpacity(0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.03,
+                                            ),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xff651313)
+                                        : Colors.grey.withOpacity(0.1),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    service.serviceTitle ?? "Service",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 15,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w600,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : const Color(0xff4B5563),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -517,8 +542,8 @@ class _PackageCardState extends State<PackageCard> {
   @override
   Widget build(BuildContext context) {
     final features = widget.package.features ?? [];
-    final showExpandButton = features.length > 4;
-    final displayedFeatures = isExpanded ? features : features.take(4).toList();
+    final showExpandButton = features.length > 5;
+    final displayedFeatures = isExpanded ? features : features.take(5).toList();
 
     return Consumer2<UserProvider, TransactionProvider>(
       builder: (context, userProvider, transactionProvider, child) {
@@ -526,143 +551,108 @@ class _PackageCardState extends State<PackageCard> {
         final isLoggedIn = box.hasData(isLogged);
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
-            color: const Color(0xffFCD9CC),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+            color: const Color(0xffFCD9CC).withOpacity(0.35),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.withOpacity(0.08), width: 2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.package.packageTitle ?? "Plan",
+                  style: GoogleFonts.outfit(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff111827),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.package.packageTitle ?? "Plan",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          letterSpacing: 1,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xff651313),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        "\$${widget.package.price?.toStringAsFixed(0) ?? "0"}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFEB4724),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 12),
+                Text(
+                  "\$${widget.package.price?.toStringAsFixed(0) ?? "0"}",
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFFEB4724),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...displayedFeatures.map((feature) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Icon(
-                                Icons.check,
-                                color: const Color(0xff651313),
-                                size: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                feature,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: const Color(0xff651313),
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    if (showExpandButton)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = !isExpanded;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  isExpanded
-                                      ? Icons.expand_less
-                                      : Icons.expand_more,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "Expand Feature",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                const SizedBox(height: 10),
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
+                const SizedBox(height: 24),
+                ...displayedFeatures.map((feature) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEB4724).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check,
+                            color: Color(0xFFEB4724),
+                            size: 14,
                           ),
                         ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            feature,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: const Color(0xff4B5563),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                if (showExpandButton)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: InkWell(
+                      onTap: () => setState(() => isExpanded = !isExpanded),
+                      child: Row(
+                        children: [
+                          Text(
+                            isExpanded ? "Show Less" : "Show All Features",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xff111827),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            isExpanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            size: 20,
+                            color: const Color(0xff111827),
+                          ),
+                        ],
                       ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: SizedBox(
+                    ),
+                  ),
+                const SizedBox(height: 32),
+                SizedBox(
                   width: double.infinity,
+                  height: 56,
                   child: ElevatedButton(
                     onPressed: () {
                       if (isLoggedIn) {
@@ -674,30 +664,32 @@ class _PackageCardState extends State<PackageCard> {
                       } else {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
                         );
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFEB4724),
+                      foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shadowColor: const Color(0xFFEB4724).withOpacity(0.3),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: Text(
                       "Purchase Plan",
                       style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

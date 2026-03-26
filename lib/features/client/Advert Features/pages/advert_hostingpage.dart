@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/pricing_toggle.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
@@ -41,106 +42,65 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
         final hostingData = hostingProvider.hostingModel?.data ?? [];
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF9FAFB),
           appBar: AppBar(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
+            backgroundColor: const Color(0xFFF9FAFB),
+            surfaceTintColor: Colors.white,
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
             title: Text(
-              "Web Hosting Packages",
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w500,
+              "Hosting Plans",
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
                 color: const Color(0xff111827),
               ),
             ),
           ),
           body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
-              // Monthly/Yearly Toggle
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Monthly",
-                    style: GoogleFonts.poppins(
-                      color: !isYearly ? const Color(0xFFEB4724) : Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Switch(
-                    value: isYearly,
-                    activeColor: const Color(0xFFEB4724),
-                    onChanged: (value) {
-                      setState(() {
-                        isYearly = value;
-                      });
-                    },
-                  ),
-                  Text(
-                    "Yearly",
-                    style: GoogleFonts.poppins(
-                      color: isYearly ? const Color(0xFFEB4724) : Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 25),
+              PricingToggle(
+                isYearly: isYearly,
+                onChanged: (value) {
+                  setState(() {
+                    isYearly = value;
+                  });
+                },
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  child: hostingProvider.isLoading
-                      ? const HostingPackageCardShimmer()
-                      : Builder(
-                          builder: (context) {
-                            // Find the maximum price
-                            final maxPrice = hostingData.isEmpty
-                                ? 0.0
-                                : hostingData
-                                      .map((h) => h.price ?? 0.0)
-                                      .reduce((a, b) => a > b ? a : b);
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16),
-                                if (hostingData.isNotEmpty)
-                                  ...hostingData.map(
-                                    (hostingPackage) => HostingPackageCard(
-                                      hostingPackage: hostingPackage,
-                                      isYearly: isYearly,
-                                      isMaxPrice:
-                                          (hostingPackage.price ?? 0.0) ==
-                                          maxPrice,
-                                    ),
-                                  )
-                                else
-                                  Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Center(
-                                      child: Text(
-                                        "No hosting packages available yet.",
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(height: 30),
-                              ],
-                            );
-                          },
+                child: hostingProvider.isLoading
+                    ? const HostingPackageCardShimmer()
+                    : hostingData.isEmpty
+                    ? Center(
+                        child: Text(
+                          "No hosting packages available yet.",
+                          style: GoogleFonts.poppins(color: Colors.grey),
                         ),
-                ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        itemCount: hostingData.length,
+                        itemBuilder: (context, index) {
+                          final hostingPackage = hostingData[index];
+                          final maxPrice = hostingData
+                              .map((h) => h.price ?? 0.0)
+                              .reduce((a, b) => a > b ? a : b);
+
+                          return HostingPackageCard(
+                            hostingPackage: hostingPackage,
+                            isYearly: isYearly,
+                            isMaxPrice:
+                                (hostingPackage.price ?? 0.0) == maxPrice,
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -499,11 +459,10 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
   @override
   Widget build(BuildContext context) {
     final features = widget.hostingPackage.features ?? [];
-    final showExpandButton = features.length > 4;
-    final displayedFeatures = isExpanded ? features : features.take(4).toList();
-    final price = widget.isYearly
-        ? (widget.hostingPackage.price ?? 0) * 12
-        : (widget.hostingPackage.price ?? 0);
+    final showExpandButton = features.length > 5;
+    final displayedFeatures = isExpanded ? features : features.take(5).toList();
+    final unitPrice = widget.hostingPackage.price ?? 0;
+    final totalPrice = widget.isYearly ? unitPrice * 12 : unitPrice;
 
     return Consumer2<UserProvider, TransactionProvider>(
       builder: (context, userProvider, transactionProvider, child) {
@@ -511,90 +470,123 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
         final isLoggedIn = box.hasData(isLogged);
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
-            color: const Color(0xffFCD9CC),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+            color: const Color(0xffFCD9CC).withOpacity(0.35),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: widget.isMaxPrice
+                  ? const Color(0xff651313).withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.08),
+              width: 2,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.hostingPackage.name ?? "Plan",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          letterSpacing: 1,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xff651313),
-                        ),
+              if (widget.isMaxPrice)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xff651313),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(22),
+                        bottomLeft: Radius.circular(22),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        "\$${price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFEB4724),
-                        ),
+                    child: Text(
+                      "MOST POPULAR",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      widget.hostingPackage.name ?? "Plan",
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xff111827),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          "\$${totalPrice.toStringAsFixed(2)}",
+                          style: GoogleFonts.outfit(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFFEB4724),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.isYearly ? "/year" : "/month",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF3F4F6),
+                    ),
+                    const SizedBox(height: 24),
                     ...displayedFeatures.map((feature) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: 16),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Icon(
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEB4724).withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
                                 Icons.check,
-                                color: const Color(0xff651313),
-                                size: 18,
+                                color: Color(0xFFEB4724),
+                                size: 14,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Text(
                                 feature,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
-                                  color: const Color(0xff651313),
-                                  height: 1.4,
+                                  color: const Color(0xff4B5563),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -603,85 +595,78 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       );
                     }),
                     if (showExpandButton)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = !isExpanded;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: InkWell(
+                          onTap: () => setState(() => isExpanded = !isExpanded),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  isExpanded
-                                      ? Icons.expand_less
-                                      : Icons.expand_more,
-                                  size: 18,
-                                  color: Colors.white,
+                              Text(
+                                isExpanded ? "Show Less" : "Show All Features",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xff111827),
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                "Expand Feature",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              Icon(
+                                isExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                size: 20,
+                                color: const Color(0xff111827),
                               ),
                             ],
                           ),
                         ),
                       ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (isLoggedIn) {
+                            _showPurchaseDialog(
+                              context,
+                              userProvider,
+                              transactionProvider,
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.isMaxPrice
+                              ? const Color(0xff651313)
+                              : const Color(0xFFEB4724),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shadowColor:
+                              (widget.isMaxPrice
+                                      ? const Color(0xff651313)
+                                      : const Color(0xFFEB4724))
+                                  .withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          "Purchase Plan",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (isLoggedIn) {
-                        _showPurchaseDialog(
-                          context,
-                          userProvider,
-                          transactionProvider,
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.isMaxPrice
-                          ? const Color(0xff651313)
-                          : const Color(0xFFEB4724),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      "Purchase Plan",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ],
