@@ -265,7 +265,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
         color: const Color(0xff651313),
       ),
       customView: StatefulBuilder(
-        builder: (context, setDialogState) {
+        builder: (dialogContext, setDialogState) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -375,7 +375,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                         ? null
                         : () async {
                             if (_accountController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
                                 const SnackBar(
                                   content: Text("Please enter account number"),
                                 ),
@@ -384,7 +384,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                             }
                             final userId = userProvider.userModel?.user?.id;
                             if (userId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
                                 const SnackBar(
                                   content: Text(
                                     "User session error. Please login again.",
@@ -405,7 +405,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                   hostingPackageId: widget.hostingPackage.sId,
                                   paymentMethod: "Waafipay",
                                   accountNo: _accountController.text,
-                                  context: context,
+                                  context: dialogContext,
                                 );
 
                             setDialogState(() {
@@ -413,12 +413,15 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                             });
 
                             if (success) {
-                              Navigator.pop(context); // Close Purchase Sheet
-                              CustomBottomSheet.showCongratulations(
-                                context: context,
-                                message:
-                                    "Your hosting plan ${widget.hostingPackage.name} is now active!",
-                              );
+                              Navigator.pop(dialogContext); // Close Purchase Sheet
+                              
+                              if (context.mounted) {
+                                CustomBottomSheet.showCongratulations(
+                                  context: context,
+                                  message:
+                                      "Your hosting plan ${widget.hostingPackage.name} is now active!",
+                                );
+                              }
                             }
                           },
                     style: ElevatedButton.styleFrom(

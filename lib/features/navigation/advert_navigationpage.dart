@@ -1,7 +1,7 @@
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_hostingpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_settingpage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
@@ -17,9 +17,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
   @override
   List<Widget> _pages = [
     AdvertHomepage(),
+    AdvertAboutpage(),
     AdvertServicepage(),
     AdvertHostingpage(),
-    AdvertSettingpage(),
   ];
 
   int currentPage = 0;
@@ -60,9 +60,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               ), // navigation bar padding
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
+                GButton(icon: LineIcons.infoCircle, text: 'About'),
                 GButton(icon: LineIcons.cubes, text: 'Service'),
                 GButton(icon: LineIcons.server, text: 'Hosting'),
-                GButton(icon: LineIcons.cog, text: 'Setting'),
               ],
             ),
           ),

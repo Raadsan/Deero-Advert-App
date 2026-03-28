@@ -192,7 +192,7 @@ class _DomainCardState extends State<_DomainCard> {
         color: const Color(0xff651313),
       ),
       customView: StatefulBuilder(
-        builder: (context, setDialogState) {
+        builder: (dialogContext, setDialogState) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -302,7 +302,7 @@ class _DomainCardState extends State<_DomainCard> {
                         ? null
                         : () async {
                             if (_accountController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
                                 const SnackBar(
                                   content: Text("Please enter account number"),
                                 ),
@@ -311,7 +311,7 @@ class _DomainCardState extends State<_DomainCard> {
                             }
                             final userId = userProvider.userModel?.user?.id;
                             if (userId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
                                 const SnackBar(
                                   content: Text(
                                     "User session error. Please login again.",
@@ -339,7 +339,7 @@ class _DomainCardState extends State<_DomainCard> {
                                       "Domain Purchase: ${widget.domain}",
                                   paymentMethod: "Waafipay",
                                   accountNo: _accountController.text,
-                                  context: context,
+                                  context: dialogContext,
                                 );
 
                             setDialogState(() {
@@ -347,12 +347,15 @@ class _DomainCardState extends State<_DomainCard> {
                             });
 
                             if (success) {
-                              Navigator.pop(context); // Close Purchase Sheet
-                              CustomBottomSheet.showCongratulations(
-                                context: context,
-                                message:
-                                    "Your purchase for ${widget.domain} was successful!",
-                              );
+                              Navigator.pop(dialogContext); // Close Purchase Sheet
+                              
+                              if (context.mounted) {
+                                CustomBottomSheet.showCongratulations(
+                                  context: context,
+                                  message:
+                                      "Your purchase for ${widget.domain} was successful!",
+                                );
+                              }
                             }
                           },
                     style: ElevatedButton.styleFrom(

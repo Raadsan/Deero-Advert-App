@@ -55,6 +55,7 @@ dependencies:
   firebase_messaging: ^16.1.1
   firebase_core: ^4.4.0
   jovial_svg: ^1.1.28
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,8 @@
 const String BaseUrl = "https://deero-advert-production-a27c.up.railway.app/";
 const String EndPoint = "${BaseUrl}api/";
+const String WHOISXML_API_KEY = "at_YxhHaYdXUyaU9qLH7w0vnZarnjRHi";
 
-
-const String isLogged="isLogged";
+const String isLogged = "isLogged";
 
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';

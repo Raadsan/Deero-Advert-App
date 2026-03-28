@@ -1,11 +1,40 @@
 import 'dart:convert';
 
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/models/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class TransactionProvider extends ChangeNotifier {
   bool isLoading = false;
+  String errorMessage = "";
+  TransactionModel? transactionModel;
+
+  Future<TransactionModel?> getTransactionHistoryByUserId(String userId) async {
+    try {
+      isLoading = true;
+      errorMessage = "";
+      notifyListeners();
+
+      var response = await http.get(Uri.parse(EndPoint + "transactions/user/$userId"));
+
+      var decodedData = jsonDecode(response.body);
+      print("Backend Response: $decodedData");
+
+      if (response.statusCode == 200 || decodedData['success'] == true) {
+        transactionModel = TransactionModel.fromJson(decodedData);
+      } else {
+        errorMessage = decodedData['message'] ?? "Failed to load transaction history";
+      }
+    } catch (e) {
+      print("Error getting transaction history: $e");
+      errorMessage = "Error: $e";
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+    return transactionModel;
+  }
 
   Future<bool> CreateTransaction({
     String? domainId,

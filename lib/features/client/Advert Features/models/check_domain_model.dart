@@ -48,8 +48,8 @@ class DomainPrice {
     return DomainPrice(
       sId: json['_id'],
       tld: json['tld'],
-      newPrice: (json['newPrice'] as num).toDouble(),
-      duration: json['duration'],
+      newPrice: (json['price'] as num).toDouble(),
+      duration: json['duration'] ?? "1 Year",
     );
   }
 }

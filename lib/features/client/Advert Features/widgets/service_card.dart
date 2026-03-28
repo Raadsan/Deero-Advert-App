@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jovial_svg/jovial_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ServiceCard extends StatelessWidget {
   const ServiceCard({super.key, this.serviceTitle, this.ImageUrl});
@@ -14,34 +14,51 @@ class ServiceCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (ImageUrl != null && ImageUrl!.isNotEmpty)
             SizedBox(
-              width: 40,
-              height: 40,
-              child: ImageUrl!.toLowerCase().endsWith('.svg')
-                  ? ScalableImageWidget.fromSISource(
-                      si: ScalableImageSource.fromSvgHttpUrl(
-                        Uri.parse(ImageUrl!),
-                      ),
-                      fit: BoxFit.contain,
-                    )
-                  : Image.network(
+              width: 44,
+              height: 44,
+              child: (ImageUrl != null && ImageUrl!.isNotEmpty)
+                  ? Image.network(
                       ImageUrl!,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey.shade200,
+                          highlightColor: Colors.grey.shade50,
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.broken_image,
-                        size: 20,
-                        color: Colors.grey,
+                        size: 24,
+                        color: Colors.grey.shade400,
                       ),
+                    )
+                  : Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 24,
+                      color: Colors.grey.shade300,
                     ),
             ),
-          SizedBox(height: 5),
+          const SizedBox(height: 8),
           Text(
             serviceTitle ?? "",
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 10),
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xff4B5563),
+            ),
           ),
         ],
       ),

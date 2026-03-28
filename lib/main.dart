@@ -2,6 +2,7 @@ import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dar
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => HostingProvider()),
         ChangeNotifierProvider(create: (_) => CheckDomainProvider()),
+        ChangeNotifierProvider(create: (_) => PortfolioProvider()),
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(),
           lazy: false,

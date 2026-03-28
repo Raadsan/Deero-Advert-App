@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdvertHomepage extends StatefulWidget {
   const AdvertHomepage({super.key});
@@ -34,6 +37,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
   @override
   FutureOr<void> afterFirstLayout(BuildContext context) {
     Provider.of<ServiceProvider>(context, listen: false).getAllServices();
+    Provider.of<HostingProvider>(context, listen: false).getAllHosting();
   }
 
   void _searchDomain(BuildContext context) {
@@ -96,12 +100,32 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     );
   }
 
+  void _launchWhatsApp() async {
+    const String whatsappNumber = "252615930944";
+    final String url =
+        "https://wa.me/$whatsappNumber?text=Hello Deero Advert, I'm interested in your services.";
+
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ma suurtagelin in la furo WhatsApp")),
+        );
+      }
+    }
+  }
+
   Widget build(BuildContext context) {
     return Consumer<ServiceProvider>(
       builder: (context, serviceprovider, _) {
         final service = serviceprovider.serviceModel?.data ?? [];
         return Scaffold(
           backgroundColor: Colors.white,
+          drawer: const AdvertDrawer(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: _launchWhatsApp,
+            child: Image.asset("images/advertimages/whatsapp.png"),
+          ),
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.white,
@@ -109,9 +133,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             backgroundColor: Colors.white,
-            leading: IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.menu, size: 30),
+            leading: Builder(
+              builder: (context) => IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu, size: 30),
+              ),
             ),
             automaticallyImplyLeading: false,
             title: Image.asset(fullAdvertLogo, width: 170, height: 50),
@@ -259,9 +285,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               children: service
                                   .map(
                                     (s) => ServiceCard(
-                                      ImageUrl:
-                                          "https://deero-advert.onrender.com/" +
-                                          (s.serviceIcon ?? ""),
+                                      ImageUrl: s.serviceIcon != null
+                                          ? (s.serviceIcon!.startsWith('http')
+                                              ? s.serviceIcon!
+                                              : BaseUrl + "uploads/" + s.serviceIcon!)
+                                          : "",
                                       serviceTitle: s.serviceTitle,
                                     ),
                                   )

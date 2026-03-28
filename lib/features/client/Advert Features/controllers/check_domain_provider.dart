@@ -17,7 +17,7 @@ class CheckDomainProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          return (data['prices'] as List)
+          return (data['data'] as List)
               .map((e) => DomainPrice.fromJson(e))
               .toList();
         }
@@ -68,11 +68,22 @@ class CheckDomainProvider extends ChangeNotifier {
       final price = foundPrice;
 
       try {
-        final response = await http.get(
-          Uri.parse("https://rdap.org/domain/$domainToCheck"),
-        );
+        final rdapUrl = _getRDAPUrl(domainToCheck);
+        print("Checking RDAP: $rdapUrl");
+        final response = await http.get(Uri.parse(rdapUrl));
 
-        if (response.statusCode == 429) {
+        if (response.statusCode == 200) {
+          // Domain exists (Taken)
+          results.add(
+            DomainCheckResult(
+              sId: domainId,
+              domain: domainToCheck,
+              available: false,
+              price: "\$${price.toStringAsFixed(2)}/Year",
+            ),
+          );
+        } else if (response.statusCode == 404) {
+          // Domain not found (Available)
           results.add(
             DomainCheckResult(
               sId: domainId,
@@ -82,16 +93,19 @@ class CheckDomainProvider extends ChangeNotifier {
             ),
           );
         } else {
+          // Rate limit or server error fallback
+          print("RDAP Status Code: ${response.statusCode}");
           results.add(
             DomainCheckResult(
               sId: domainId,
               domain: domainToCheck,
-              available: response.statusCode == 404,
+              available: true, // Optimistic fallback if server error
               price: "\$${price.toStringAsFixed(2)}/Year",
             ),
           );
         }
-      } catch (_) {
+      } catch (e) {
+        print("RDAP Error: $e");
         results.add(
           DomainCheckResult(
             sId: domainId,
@@ -107,6 +121,20 @@ class CheckDomainProvider extends ChangeNotifier {
     } finally {
       loading = false;
       notifyListeners();
+    }
+  }
+
+  String _getRDAPUrl(String domain) {
+    if (domain.endsWith(".so")) {
+      return "https://rdap.nic.so/domain/$domain";
+    } else if (domain.endsWith(".com") || domain.endsWith(".net")) {
+      return "https://rdap.verisign.com/com/v1/domain/$domain";
+    } else if (domain.endsWith(".org")) {
+      return "https://rdap.pir.org/domain/$domain";
+    } else if (domain.endsWith(".edu")) {
+      return "https://rdap.educause.edu/domain/$domain";
+    } else {
+      return "https://rdap.org/domain/$domain";
     }
   }
 }
