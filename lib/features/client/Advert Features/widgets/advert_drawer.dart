@@ -6,6 +6,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
 import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/profilepage.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,12 @@ class AdvertDrawer extends StatelessWidget {
                     icon: Icons.notifications_none_rounded,
                     title: "Notifications",
                     delay: 200,
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdvertNotificationpage(),
+                      ),
+                    ),
                   ),
                   _buildMenuItem(
                     context: context,

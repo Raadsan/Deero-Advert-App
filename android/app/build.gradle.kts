@@ -1,9 +1,11 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // Ku dar xariiqan:
+    id("com.google.gms.google-services") 
     id("dev.flutter.flutter-gradle-plugin")
 }
+
 
 android {
     namespace = "com.example.deero_enterprise_app"
@@ -41,8 +43,13 @@ android {
     }
 }
 dependencies {
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-    }
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    
+    // Halkan ku dar xariiqyadan:
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+    implementation("com.google.firebase:firebase-analytics")
+}
+
 
 flutter {
     source = "../.."

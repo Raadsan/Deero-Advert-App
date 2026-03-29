@@ -28,6 +28,16 @@ class _AdvertNewspageState extends State<AdvertNewspage> {
     return Consumer<NewsProvider>(
       builder: (context, newsProvider, child) {
         final newsList = newsProvider.newsModel?.data ?? [];
+        if(newsProvider.isLoading){
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if(newsProvider.error != null){
+          return Center(
+            child: Text(newsProvider.error!),
+          );
+        }
         return Scaffold(
           backgroundColor: const Color(0xffF9FAFB),
           appBar: AppBar(

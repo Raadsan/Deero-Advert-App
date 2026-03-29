@@ -6,30 +6,34 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/controllers/notification_provider.dart';
-import 'package:deero_enterprise_app/features/common/splash_page.dart';
+// import 'package:deero_enterprise_app/features/client/Enterprise%20Features/controllers/notification_provider.dart';
 import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
+  }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: FirebaseOptions(
-      apiKey: "AIzaSyB6ZJZJZJZJZJZJZJZJZJZJZJZJZJZJZJ",
-      appId: "1:1234567890:android:12345678901234567890",
-      messagingSenderId: "12345678901234567890",
-      projectId: "deeroenterpriceapp",
-    ),
-  );
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: "AIzaSyBJO9fy4lDbh7dkCj-MzCnkVItYJ3Q9ez8",
+        appId: "1:599859938752:android:e5829a3712b2ea66faf425",
+        messagingSenderId: "599859938752",
+        projectId: "deeroenterpriceapp",
+      ),
+    );
+  }
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await NotificationService.init();
   await GetStorage.init();

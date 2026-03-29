@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 
+
 class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
 
@@ -54,11 +55,11 @@ class NotificationService {
   }
 }
 
-class NotificationProvider extends ChangeNotifier {
+class NotificationProviders extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  NotificationProvider() {
+  NotificationProviders() {
     // Automatically attempt to save token when the provider is loaded
     saveToken();
     // Check if it's the first launch to send a welcome sample

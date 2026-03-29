@@ -3,47 +3,73 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AdvertSliderCard extends StatelessWidget {
-  const AdvertSliderCard({super.key});
+  final String title;
+  final String description;
+  final String imagePath;
+
+  const AdvertSliderCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.imagePath,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.only(left: 20, right: 10, top: 15, bottom: 25),
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Expanded(
-            child: FadeInUp(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Event Branding",
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "We offer a full suite of event branding and consulting services, including event digital strategy,",
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+          // Image on the right side
+          Positioned(
+            right: -10, // Slight overflow to the right
+            top: -10,
+            bottom: -10,
+            child: FadeInRight(
+              child: Image.asset(imagePath, width: 155, fit: BoxFit.contain),
             ),
           ),
 
-          Expanded(
-            child: FadeInDown(
-              child: Image.asset("images/advertimages/event.png"),
-            ),
+          // Content Left side
+          Row(
+            children: [
+              Expanded(
+                flex: 6,
+                child: FadeInLeft(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        description,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: Colors.white.withOpacity(0.9),
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Expanded(
+                flex: 4,
+                child: SizedBox(), // Empty space for the image to show
+              ),
+            ],
           ),
         ],
       ),

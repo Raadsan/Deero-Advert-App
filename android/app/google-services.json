@@ -1,13 +1,29 @@
 {
-  "type": "service_account",
-  "project_id": "deeroenterpriceapp",
-  "private_key_id": "847fb9cb694964c8bb8ede7dc85b2489fe899908",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCWzJE0VJBENsJx\nG6el3nKsZWXCpICEDPsWFOFjFFszweqEH2dXO1p6Mwvs6fr+QoFTgBz1YRhimrxR\nr2Vk1xvVNHe9hQ0v8XyMGAYEPB7GWb6JteyjVkg+OZkgxHXF9nmlHPXwL0i/iI7y\ny3D5y2+6dzs9aW67AWdFwKModhzca37YHr1ywYq5NQqg40kW/PS8HNsYztbymtLS\nnL+FJsNhjgCd3O1c75j5SJmyhwrU7UAQPwVuaBYiiSy3CUgNWSN28gqydwnNXKrd\nDP7Y1RIkeoNWTAMVGd1V6HYU+HWtpgYWTE+7TIuFdrMnYkr/YLy1xoxthNOaFZNw\nUDu8GWLFAgMBAAECggEAM4GWvQF/LxVnD3wLJH/YuiJ+Ad/vF2tZnX6vRwiuZ/y9\nbbhOM0DOE/v4gEig1pR/mLYi7frmedNxLBNU9f70/jsIBP77dJsuV6li8LJaLpR7\nnIy7UUTIsxw4PbVsppubi/Za2FlGJ0lszegH5AIE3PMZlE29KPl/PRdhgxHopK46\nZwFUiD4oQORcLN0jrVvWw3P3ovNOrJHKEBpm0eEWYOdnforO8//+zgPMAqevHrYI\nFR9L9rWP2bpIEcz5dG3D2FkDqplSgaKZR14KdKWPeHXDcnIk1lArHud5KPmjnk9T\niA3Z9UMs+vQdMZ/XIXkO9HjdKApJ2OQDA9e0az3MBwKBgQDJjflRhyBDrwz1uQ5i\nbxN/NQKcDxgRD1o3ukrTOrROyTqmVROYzmFzB6K08WJwtS8cXkNf0ISYkN/B+wtB\n/vZJHTLE5yebZFHdNHZWxV29wfMX6rAacy6tURMEiflL30B/HbBYQ04J0YdLaXq+\nlna34M6vMwtPT2Hp4KgPR0/ZOwKBgQC/iLfe/N/BS44IDGVt2jKvfX+7isxXPboQ\nxZ4S39HxAcXAxGw+OrQbr29xta5v6EwC6qEY+3NCBBIkpRiPIRl0xrFWTSv0QIKV\nmOfJ+6qnvU2sEYLnw4lDb+yG/5aZNDL35XdFx1yhwgMtX3wGg3qa/5I6BnB12efG\nFd4Ga0fz/wKBgEw0xN6Bc76DkifaF0k6bCm9lkYBIv1YS6kkY6Qn3wKm7Oj049rz\ntT6z1V4KokixCKX2Mg0pHuk8ZY3HaINEbkRIqOhv6bbEIHu9mTzHlODpUwto7bqi\ncDSRodomfL6mI5GsXP+SOxBVS41EzWcAJtTxR9RQPWd4QTIXghN8yAD/AoGAbxmg\nBoHKTPZFodeG8kyyP+ddM20UkLpmdpoa0jnwLotnqSSG4SXuGW0PCPdpAtLNXJe6\n8KHSvoVb/NOjRkrd2EX00embyGevF5WFRj1sRTZimp/hvgxHT83ZdolFUwLbWb5K\nDDjTO6UtcKFFcQXNFaGPsYbQrxvB/L3sdu694wMCgYBD7mGRCWr+33QkDgCLMUt7\ncE8NUd299R2AFYc0SkS/SqbAXWkoFsk5HQ17irZeYMzCIydQwF6D9dYn/Ipk3Dp2\nRDBlbeiau2XQvHL9c38G/Taw4npRs5ijBEcULl+1Es5oXASQWtoRh5A8ukysVu2g\n6EupCBgueSfFJhrHIUl4zQ==\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-fbsvc@deeroenterpriceapp.iam.gserviceaccount.com",
-  "client_id": "105158092149971053361",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40deeroenterpriceapp.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
+  "project_info": {
+    "project_number": "599859938752",
+    "project_id": "deeroenterpriceapp",
+    "storage_bucket": "deeroenterpriceapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599859938752:android:e5829a3712b2ea66faf425",
+        "android_client_info": {
+          "package_name": "com.example.deero_enterprise_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJO9fy4lDbh7dkCj-MzCnkVItYJ3Q9ez8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }

@@ -8,11 +8,13 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +29,7 @@ class AdvertHomepage extends StatefulWidget {
 class _AdvertHomepageState extends State<AdvertHomepage>
     with AfterLayoutMixin<AdvertHomepage> {
   final TextEditingController _domainController = TextEditingController();
+  int _currentIndex = 0;
 
   @override
   void dispose() {
@@ -38,6 +41,10 @@ class _AdvertHomepageState extends State<AdvertHomepage>
   FutureOr<void> afterFirstLayout(BuildContext context) {
     Provider.of<ServiceProvider>(context, listen: false).getAllServices();
     Provider.of<HostingProvider>(context, listen: false).getAllHosting();
+    Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    ).activeNotification();
   }
 
   void _searchDomain(BuildContext context) {
@@ -133,18 +140,22 @@ class _AdvertHomepageState extends State<AdvertHomepage>
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             backgroundColor: Colors.white,
+            // title:Image.asset(advertfulllogo),
             leading: Builder(
               builder: (context) => IconButton(
                 onPressed: () => Scaffold.of(context).openDrawer(),
-                icon: const Icon(Icons.menu, size: 30),
+                icon: Image.asset(
+                  "images/advertimages/menu.png",
+                  // width: 30,
+                  // height: 30,
+                ),
               ),
             ),
             automaticallyImplyLeading: false,
-            title: Image.asset(fullAdvertLogo, width: 170, height: 50),
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -153,113 +164,127 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                   Container(
                     height: 160,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          Color(0xFF651313),
-                          Color(0xFF651313),
-                          Color(0xFFEB4724),
+                          Color(0xFF7B1710),
+                          Color(0xFFB52E1D),
+                          Color(0xFFE24122),
                         ],
                         stops: [0.0, 0.6, 1.0],
                       ),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    child: CarouselSlider(
-                      items: [AdvertSliderCard(), AdvertSliderCard()],
-                      options: CarouselOptions(
-                        height: 160,
-                        viewportFraction: 1,
-                        aspectRatio: 16 / 9,
-                        autoPlay: true,
-                        autoPlayInterval: Duration(seconds: 3),
-                        autoPlayAnimationDuration: Duration(milliseconds: 800),
-                        autoPlayCurve: Curves.fastOutSlowIn,
-                        enlargeCenterPage: true,
-                        scrollDirection: Axis.horizontal,
-                      ),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CarouselSlider(
+                            items: const [
+                              AdvertSliderCard(
+                                title: "Web Solution",
+                                description:
+                                    "Professional web solutions including design, hosting, and domain services.",
+                                imagePath: "images/advertimages/web.png",
+                              ),
+                              AdvertSliderCard(
+                                title: "Graphic Design",
+                                description:
+                                    "Stunning graphics that communicate your brand's core values effectively.",
+                                imagePath: "images/advertimages/graphic.png",
+                              ),
+                              AdvertSliderCard(
+                                title: "Digital Marketing",
+                                description:
+                                    "Data-driven marketing strategies to increase brand visibility online.",
+                                imagePath: "images/advertimages/marketing.png",
+                              ),
+                            ],
+                            options: CarouselOptions(
+                              height: 160,
+                              viewportFraction: 1,
+                              aspectRatio: 16 / 9,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 4),
+                              autoPlayAnimationDuration: const Duration(
+                                milliseconds: 800,
+                              ),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              enlargeCenterPage: true,
+                              scrollDirection: Axis.horizontal,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        // Indicator dots
+                        Positioned(
+                          bottom: 12,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(3, (index) {
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                width: _currentIndex == index ? 20 : 8,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: _currentIndex == index
+                                      ? const Color(
+                                          0xFFF3664C,
+                                        ) // Active button-like color
+                                      : Colors.white.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 20),
-                  Container(
+                  SizedBox(
+                    height: 41,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Color(0xffFCD7C3).withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Choose Your Domain Today!",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                height: 45,
-                                width: MediaQuery.of(context).size.width * 0.6,
-                                child: TextFormField(
-                                  controller: _domainController,
-                                  onFieldSubmitted: (_) =>
-                                      _searchDomain(context),
-                                  decoration: InputDecoration(
-                                    hintText: "e.g. mywebsite.com",
-                                    fillColor: Colors.white,
-                                    hintStyle: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide.none,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              ElevatedButton(
-                                onPressed: () => _searchDomain(context),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xff660E0D),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  "Search",
-                                  style: GoogleFonts.poppins(fontSize: 14),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    child: TextFormField(
+                      controller: _domainController,
+                      onFieldSubmitted: (_) => _searchDomain(context),
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(LineIcons.search),
+                        hintText: "search your domain",
+                        fillColor: Color(0xffEAE8DA).withOpacity(0.30),
+                        hintStyle: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(46),
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(height: 20),
                   Text(
                     "Our Services",
-                    style: GoogleFonts.poppins(fontSize: 17),
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      color: Colors.grey,
+                    ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: serviceprovider.isLoading
-                          ? Colors.white
-                          : Color(0xffFCD7C3).withOpacity(0.30),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
                     child: serviceprovider.isLoading
                         ? const Center(child: ServiceCardShimmer())
                         : serviceprovider.error != null
@@ -278,17 +303,20 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             ),
                           )
                         : Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
+                              spacing: 12,
+                              runSpacing: 12,
+                              alignment: WrapAlignment.start,
                               children: service
                                   .map(
                                     (s) => ServiceCard(
                                       ImageUrl: s.serviceIcon != null
                                           ? (s.serviceIcon!.startsWith('http')
-                                              ? s.serviceIcon!
-                                              : BaseUrl + "uploads/" + s.serviceIcon!)
+                                                ? s.serviceIcon!
+                                                : BaseUrl +
+                                                      "uploads/" +
+                                                      s.serviceIcon!)
                                           : "",
                                       serviceTitle: s.serviceTitle,
                                     ),
@@ -298,7 +326,155 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                           ),
                   ),
 
-                  SizedBox(height: 50),
+                  SizedBox(height: 35),
+
+                  // Our Portfolio Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Our Portfolio",
+                        style: GoogleFonts.poppins(
+                          fontSize: 17,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(50, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          "See All",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: const Color(
+                              0xFFE24122,
+                            ), // Matching light orange text
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: const Color(
+                        0xFFA71206,
+                      ), // Deep red color identical to the mockup background
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        // Left Side - Text & Button
+                        Expanded(
+                          flex: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 18,
+                              top: 20,
+                              bottom: 20,
+                              right: 8,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Graphic Design",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Expanded(
+                                  child: Text(
+                                    "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 9,
+                                      color: Colors.white.withOpacity(0.9),
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                InkWell(
+                                  onTap: () {},
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFFFDF6F4,
+                                      ), // Light cream color for the button
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      "View project",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 10,
+                                        color: const Color(0xFFA71206),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Right Side - Image
+                        Expanded(
+                          flex: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: 12,
+                              top: 12,
+                              bottom: 12,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                color: Colors.blue.withOpacity(
+                                  0.1,
+                                ), // Optional placeholder background
+                                child: Image.asset(
+                                  "images/advertimages/9.png", // Tried 9.png, which usually exists for portfolios. If missing, it will handle it via flutter asset errors, user can adjust filename.
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Fallback if the image doesn't exist
+                                    return Container(
+                                      color: Colors.grey.shade300,
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.image,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 40),
 
                   Text(
                     "Our Major Clients",
