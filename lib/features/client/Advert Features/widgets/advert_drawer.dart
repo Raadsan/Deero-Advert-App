@@ -4,6 +4,7 @@ import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dar
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
@@ -125,7 +126,14 @@ class AdvertDrawer extends StatelessWidget {
                     icon: Icons.help_outline_rounded,
                     title: "Help Center",
                     delay: 600,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertHelpcenterPage(),
+                        ),
+                      );
+                    },
                   ),
                   const Divider(height: 40, thickness: 0.5),
                   _buildMenuItem(

@@ -4,6 +4,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_project_details.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
@@ -45,6 +48,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
       context,
       listen: false,
     ).activeNotification();
+    Provider.of<PortfolioProvider>(context, listen: false).getPortfolio();
   }
 
   void _searchDomain(BuildContext context) {
@@ -107,32 +111,16 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     );
   }
 
-  void _launchWhatsApp() async {
-    const String whatsappNumber = "252615930944";
-    final String url =
-        "https://wa.me/$whatsappNumber?text=Hello Deero Advert, I'm interested in your services.";
-
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Ma suurtagelin in la furo WhatsApp")),
-        );
-      }
-    }
-  }
+  
 
   Widget build(BuildContext context) {
-    return Consumer<ServiceProvider>(
-      builder: (context, serviceprovider, _) {
+    return Consumer2<ServiceProvider, PortfolioProvider>(
+      builder: (context, serviceprovider, portfolioProvider, _) {
         final service = serviceprovider.serviceModel?.data ?? [];
         return Scaffold(
           backgroundColor: Colors.white,
           drawer: const AdvertDrawer(),
-          floatingActionButton: FloatingActionButton(
-            onPressed: _launchWhatsApp,
-            child: Image.asset("images/advertimages/whatsapp.png"),
-          ),
+          
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.white,
@@ -340,7 +328,14 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdvertPortfoliopage(),
+                            ),
+                          );
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(50, 30),
@@ -358,74 +353,73 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: const Color(
-                        0xFFA71206,
-                      ), // Deep red color identical to the mockup background
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        // Left Side - Text & Button
-                        Expanded(
-                          flex: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 18,
-                              top: 20,
-                              bottom: 20,
-                              right: 8,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
+                  const SizedBox(height: 10),
+                  portfolioProvider.isLoading
+                      ? Container(
+                          height: 140,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: const EdgeInsets.only(
+                            left: 18,
+                            top: 20,
+                            bottom: 20,
+                            right: 8,
+                          ),
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: Row(
                               children: [
-                                Text(
-                                  "Graphic Design",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
                                 Expanded(
-                                  child: Text(
-                                    "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 9,
-                                      color: Colors.white.withOpacity(0.9),
-                                      height: 1.3,
-                                    ),
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
+                                  flex: 6,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        height: 20,
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        height: 10,
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Container(
+                                        height: 10,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.4,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Container(
+                                        height: 10,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.2,
+                                        color: Colors.white,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                InkWell(
-                                  onTap: () {},
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(
-                                        0xFFFDF6F4,
-                                      ), // Light cream color for the button
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      "View project",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 10,
-                                        color: const Color(0xFFA71206),
-                                        fontWeight: FontWeight.w500,
+                                Expanded(
+                                  flex: 4,
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Container(
+                                      height: 30,
+                                      width: 30,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
                                       ),
                                     ),
                                   ),
@@ -433,46 +427,154 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               ],
                             ),
                           ),
-                        ),
-
-                        // Right Side - Image
-                        Expanded(
-                          flex: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              right: 12,
-                              top: 12,
-                              bottom: 12,
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                color: Colors.blue.withOpacity(
-                                  0.1,
-                                ), // Optional placeholder background
-                                child: Image.asset(
-                                  "images/advertimages/9.png", // Tried 9.png, which usually exists for portfolios. If missing, it will handle it via flutter asset errors, user can adjust filename.
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // Fallback if the image doesn't exist
-                                    return Container(
-                                      color: Colors.grey.shade300,
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.image,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
+                        )
+                      : portfolioProvider.error.isNotEmpty
+                      ? Container(
+                          height: 140,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Error: ${portfolioProvider.error}",
+                              style: const TextStyle(color: Colors.red),
                             ),
                           ),
+                        )
+                      : (portfolioProvider
+                                .portfolioModel
+                                ?.portfolios
+                                ?.isEmpty ??
+                            true)
+                      ? Container(
+                          height: 140,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "No portfolio projects yet",
+                              style: GoogleFonts.poppins(color: Colors.grey),
+                            ),
+                          ),
+                        )
+                      : CarouselSlider(
+                          items: (portfolioProvider.portfolioModel?.portfolios ?? []).map((
+                            project,
+                          ) {
+                            final imageUrl = project.mainImage != null
+                                ? (project.mainImage!.startsWith('http')
+                                      ? project.mainImage!
+                                      : BaseUrl + project.mainImage!)
+                                : "";
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AdvertProjectDetailsPage(
+                                          project: project,
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  color: Colors
+                                      .grey
+                                      .shade900, // Keeps text readable while the image is loading
+                                  image: DecorationImage(
+                                    image: imageUrl.isNotEmpty
+                                        ? NetworkImage(imageUrl)
+                                              as ImageProvider
+                                        : const AssetImage(
+                                            "images/advertimages/1.png",
+                                          ),
+                                    fit: BoxFit.cover,
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.black.withOpacity(0.45),
+                                      BlendMode.darken,
+                                    ),
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 6,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 18,
+                                          top: 20,
+                                          bottom: 20,
+                                          right: 8,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              project.title ?? "Graphic Design",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Expanded(
+                                              child: Text(
+                                                project.description ??
+                                                    "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 10,
+                                                  color: Colors.white
+                                                      .withOpacity(0.9),
+                                                  height: 1.3,
+                                                ),
+                                                maxLines: 4,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // Empty space on the right side to let the background image shine through
+                                    Expanded(
+                                      flex: 4,
+                                      child: const SizedBox(
+                                        child: Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          options: CarouselOptions(
+                            height: 140,
+                            viewportFraction: 1.0,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 4),
+                            enlargeCenterPage: false,
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
 
                   SizedBox(height: 40),
 
@@ -481,32 +583,275 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     style: GoogleFonts.poppins(
                       fontSize: 17,
                       letterSpacing: 1,
-                      // color: Colors.grey,
+                      color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Container(
-                    height: 90,
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 80,
                     width: double.infinity,
                     child: CarouselSlider(
-                      items: [
-                        Image.asset("images/advertimages/2.png"),
-                        Image.asset("images/advertimages/3.png"),
-                        Image.asset("images/advertimages/4.png"),
-                        Image.asset("images/advertimages/5.png"),
-                        Image.asset("images/advertimages/6.png"),
-                      ],
+                      items:
+                          [
+                            "images/advertimages/2.png",
+                            "images/advertimages/3.png",
+                            "images/advertimages/4.png",
+                            "images/advertimages/5.png",
+                            "images/advertimages/6.png",
+                          ].map((imagePath) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFF3664C,
+                                  ).withOpacity(0.5),
+                                  width: 1.0,
+                                ),
+                              ),
+                              child: ClipOval(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Image.asset(
+                                    imagePath,
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                       options: CarouselOptions(
-                        height: 120,
-                        aspectRatio: 16 / 9,
-                        viewportFraction: 0.4,
+                        height: 80,
+                        viewportFraction: 0.25,
                         autoPlay: true,
                         scrollDirection: Axis.horizontal,
-                        enlargeFactor: 0.2,
-                        scrollPhysics: BouncingScrollPhysics(),
+                        enableInfiniteScroll: true,
+                        enlargeCenterPage: false,
+                        scrollPhysics: const BouncingScrollPhysics(),
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 40),
+                  Text(
+                    "Our Achievements",
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      letterSpacing: 1,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // 3,059+ Happy Clients Card
+                            Container(
+                              height: 130,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF6F0),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFF3D0C3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Image.asset(
+                                    "images/advertimages/happyclients.png",
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "3,059+",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 22,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF5C1B1B),
+                                    ),
+                                  ),
+                                  Text(
+                                    "Happy Clients",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      letterSpacing: 1,
+                                      color: const Color(0xFF5C1B1B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // 11+ Pro Team Card
+                            Container(
+                              height: 80,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFE0D2), // Light orange
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFF3A086,
+                                  ), // Darker orange border
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "11+",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1,
+                                          color: const Color(0xFF5C1B1B),
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Pro Team",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          letterSpacing: 1,
+                                          color: const Color(0xFF5C1B1B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Image.asset("images/advertimages/team.png"),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Right Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // 7,089+ Completed Project Card
+                            Container(
+                              height: 80,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffEF7044),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "images/advertimages/completeprojects.png",
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "7,089+",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 1,
+                                            color: Colors.white,
+                                            height: 1.1,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Completed Project",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 9,
+                                            letterSpacing: 1,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // 9+ Awards won Card
+                            Container(
+                              height: 130,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF6F0),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFF3D0C3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "9+",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF5C1B1B),
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Awards won",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: const Color(0xFF5C1B1B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Image.asset("images/advertimages/award.png"),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

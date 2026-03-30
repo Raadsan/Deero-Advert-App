@@ -46,13 +46,13 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
+      color: const Color(0xffEF7044),
       styleInformation: BigTextStyleInformation(
         body,
-        contentTitle: title,
-        summaryText: "Deero Announcement",
+        contentTitle: '<b>$title</b>',
+        htmlFormatContentTitle: true,
+        htmlFormatBigText: true,
       ),
-      // icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       ticker: 'ticker',
       category: AndroidNotificationCategory.reminder,
     );
