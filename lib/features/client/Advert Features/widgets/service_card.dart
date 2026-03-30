@@ -66,7 +66,6 @@ class ServiceCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             serviceTitle ?? "",
-            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(

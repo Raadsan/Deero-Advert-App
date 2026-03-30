@@ -140,7 +140,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             backgroundColor: Colors.white,
-            // title:Image.asset(advertfulllogo),
+            title: Image.asset(fullAdvertLogo, width: 120),
             leading: Builder(
               builder: (context) => IconButton(
                 onPressed: () => Scaffold.of(context).openDrawer(),
@@ -326,7 +326,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                           ),
                   ),
 
-                  SizedBox(height: 35),
+                  SizedBox(height: 15),
 
                   // Our Portfolio Section
                   Row(
@@ -388,7 +388,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                   "Graphic Design",
                                   style: GoogleFonts.poppins(
                                     fontSize: 17,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                   ),
                                 ),
