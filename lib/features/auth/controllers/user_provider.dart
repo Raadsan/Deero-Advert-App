@@ -32,9 +32,12 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void login(BuildContext context) async {
+  String? loginError;
+
+  Future<bool> login(BuildContext context) async {
     try {
       isLoading = true;
+      loginError = null;
       notifyListeners();
       var data = {"email": email, "password": password};
 
@@ -44,18 +47,24 @@ class UserProvider extends ChangeNotifier {
         headers: {"Content-Type": "application/json"},
       );
       if (response.statusCode == 200) {
-        print(data);
-        print(response.body);
         var datadecoded = jsonDecode(response.body);
         userModel = UserModel.fromJson(datadecoded);
         saveUser(userModel!);
         isLoading = false;
         notifyListeners();
+        return true;
+      } else {
+        loginError = "Invalid email or password";
+        isLoading = false;
+        notifyListeners();
+        return false;
       }
     } catch (e) {
+      loginError = "Connection error. Please try again.";
       isLoading = false;
       notifyListeners();
       print(e);
+      return false;
     }
   }
 

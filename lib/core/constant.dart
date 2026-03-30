@@ -1,4 +1,5 @@
 const String BaseUrl = "https://deero-advert-production-a27c.up.railway.app";
+// const String BaseUrl = "http://192.168.8.37:5000";
 const String EndPoint = "${BaseUrl}/api/";
 const String WHOISXML_API_KEY = "at_YxhHaYdXUyaU9qLH7w0vnZarnjRHi";
 
