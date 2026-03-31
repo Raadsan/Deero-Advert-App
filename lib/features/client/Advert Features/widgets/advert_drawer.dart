@@ -82,7 +82,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   _buildMenuItem(
                     context: context,
                     icon: Icons.history,
-                    title: "History",
+                    title: "Transactions",
                     delay: 150,
                     onTap: () => Navigator.push(
                       context,

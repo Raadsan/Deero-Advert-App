@@ -22,21 +22,45 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
     });
   }
 
+  String _getTimeAgo(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return "Recently";
+    try {
+      DateTime dateTime = DateTime.parse(dateStr);
+      Duration difference = DateTime.now().difference(dateTime);
+
+      if (difference.inDays >= 365)
+        return "${(difference.inDays / 365).floor()} years ago";
+      if (difference.inDays >= 30)
+        return "${(difference.inDays / 30).floor()} months ago";
+      if (difference.inDays >= 7)
+        return "${(difference.inDays / 7).floor()} weeks ago";
+      if (difference.inDays >= 1) return "${difference.inDays} days ago";
+      if (difference.inHours >= 1) return "${difference.inHours} hours ago";
+      if (difference.inMinutes >= 1)
+        return "${difference.inMinutes} minutes ago";
+      return "Just now";
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         title: Text(
           "Notifications",
           style: GoogleFonts.poppins(
             color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 0.5,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Consumer<NotificationProvider>(
@@ -215,67 +239,94 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
             },
             color: const Color(0xffEF7044),
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.all(16),
               physics: const AlwaysScrollableScrollPhysics(),
-              separatorBuilder: (context, index) =>
-                  Divider(color: Colors.grey.shade200, height: 1, indent: 80),
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemCount: notificationList.length,
               itemBuilder: (context, index) {
                 final notification = notificationList[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  leading: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xffFFF6F0),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      LineIcons.bell,
-                      color: Color(0xffEF7044),
-                      size: 26,
-                    ),
-                  ),
-                  title: Text(
-                    notification.title ?? "No title",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notification.message ?? "No message",
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                            height: 1.4,
-                          ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        // Navigate to details if needed
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 52,
+                              width: 52,
+                              decoration: BoxDecoration(
+                                color: const Color(0xffFFF6F0),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Image.asset(
+                                "images/advertimages/advertlogo.png",
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          notification.title ?? "No title",
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    notification.message ?? "No message",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    _getTimeAgo(notification.createdAt),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade400,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Ends on: ${notification.endDate}",
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            color: Colors.grey.shade400,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  onTap: () {
-                    // Navigate to details if needed
-                  },
                 );
               },
             ),

@@ -12,7 +12,7 @@ class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
 
   static Future init() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@mipmap/launcher_icon');
     await _local.initialize(const InitializationSettings(android: android));
 
     // Listen for foreground messages
@@ -46,7 +46,8 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
-      color: const Color(0xffEF7044),
+      // icon: '@mipmap/launcher_icon',
+      // largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'),
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: '<b>$title</b>',
@@ -54,7 +55,7 @@ class NotificationService {
         htmlFormatBigText: true,
       ),
       ticker: 'ticker',
-      category: AndroidNotificationCategory.reminder,
+      category: AndroidNotificationCategory.message,
     );
 
     await _local.show(
