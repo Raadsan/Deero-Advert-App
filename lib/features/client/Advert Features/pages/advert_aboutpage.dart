@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AdvertAboutpage extends StatelessWidget {
@@ -10,6 +11,12 @@ class AdvertAboutpage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xffFDF8F5), // Light cream background
       appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarContrastEnforced: true,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -20,7 +27,7 @@ class AdvertAboutpage extends StatelessWidget {
             "About Deero",
             style: GoogleFonts.outfit(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: const Color(0xff651313),
               letterSpacing: 1,
             ),

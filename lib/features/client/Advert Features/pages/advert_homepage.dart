@@ -122,6 +122,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           drawer: const AdvertDrawer(),
 
           appBar: AppBar(
+            surfaceTintColor: Colors.transparent,
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.white,
               systemNavigationBarColor: Colors.white,
