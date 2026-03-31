@@ -13,18 +13,20 @@ import 'package:shimmer/shimmer.dart';
 import 'package:material_dialogs/material_dialogs.dart';
 
 class AdvertServicepage extends StatefulWidget {
-  const AdvertServicepage({super.key});
+  final int initialIndex;
+  const AdvertServicepage({super.key, this.initialIndex = 0});
 
   @override
   State<AdvertServicepage> createState() => _AdvertServicepageState();
 }
 
 class _AdvertServicepageState extends State<AdvertServicepage> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialIndex;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ServiceProvider>();
       if (provider.serviceModel == null && !provider.isLoading) {
@@ -47,12 +49,22 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
+            leading: Navigator.canPop(context)
+                ? IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  )
+                : null,
             title: Text(
               "Our Services",
               style: GoogleFonts.outfit(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xff111827),
+                fontWeight: FontWeight.w500,
+                color: const Color(0xff651313),
               ),
             ),
           ),
@@ -496,8 +508,10 @@ class _PackageCardState extends State<PackageCard> {
                             });
 
                             if (success) {
-                              Navigator.pop(dialogContext); // Close Purchase Sheet
-                              
+                              Navigator.pop(
+                                dialogContext,
+                              ); // Close Purchase Sheet
+
                               if (context.mounted) {
                                 CustomBottomSheet.showCongratulations(
                                   context: context,
@@ -592,36 +606,41 @@ class _PackageCardState extends State<PackageCard> {
                 const SizedBox(height: 10),
                 Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
                 const SizedBox(height: 24),
-                ...displayedFeatures.map((feature) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEB4724).withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            color: Color(0xFFEB4724),
-                            size: 14,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            feature,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: const Color(0xff4B5563),
-                              fontWeight: FontWeight.w500,
+                ...displayedFeatures.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String feature = entry.value;
+                  return AnimatedFeatureItem(
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEB4724).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Color(0xFFEB4724),
+                              size: 14,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              feature,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: const Color(0xff4B5563),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -696,6 +715,62 @@ class _PackageCardState extends State<PackageCard> {
           ),
         );
       },
+    );
+  }
+}
+
+class AnimatedFeatureItem extends StatefulWidget {
+  final int index;
+  final Widget child;
+  const AnimatedFeatureItem({
+    super.key,
+    required this.index,
+    required this.child,
+  });
+
+  @override
+  State<AnimatedFeatureItem> createState() => _AnimatedFeatureItemState();
+}
+
+class _AnimatedFeatureItemState extends State<AnimatedFeatureItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _opacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _slide = Tween<Offset>(
+      begin: const Offset(0.0, 0.4),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // Staggered delay: 200ms per item
+    Future.delayed(Duration(milliseconds: widget.index * 200), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }

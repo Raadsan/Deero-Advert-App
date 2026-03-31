@@ -14,11 +14,29 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class AdvertDrawer extends StatelessWidget {
+class AdvertDrawer extends StatefulWidget {
   const AdvertDrawer({super.key});
 
   @override
+  State<AdvertDrawer> createState() => _AdvertDrawerState();
+}
+
+class _AdvertDrawerState extends State<AdvertDrawer> {
+  @override
+  void _launchUrl() async {
+    String urlString = "https://thisradsan.vercel.app/";
+    final Uri uri = Uri.parse(urlString);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
+      }
+    }
+  }
+
   Widget build(BuildContext context) {
     final box = GetStorage();
     final isLoggedIn = box.hasData(isLogged);
@@ -159,14 +177,29 @@ class AdvertDrawer extends StatelessWidget {
 
           // Version Info
           Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              "Version 1.0.0",
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey[400],
-                fontWeight: FontWeight.w500,
-              ),
+            padding: const EdgeInsets.only(top: 5),
+            child: Column(
+              children: [
+                Text(
+                  "Version 1.0.0",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _launchUrl(),
+                  child: Text(
+                    "Developed by Raadsan",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey[400],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -209,7 +242,7 @@ class AdvertDrawer extends StatelessWidget {
     return FadeInLeft(
       delay: Duration(milliseconds: delay),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 2),
         child: Material(
           color: Colors.transparent,
           child: InkWell(

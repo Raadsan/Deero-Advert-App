@@ -1,7 +1,7 @@
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_enterprise_app/features/auth/pages/register_page.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/profilepage.dart';
+import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
@@ -31,10 +31,10 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 60),
 
                     // Logo
-                    Center(child: Image.asset(fullAdvertLogo, height: 120)),
+                    Center(child: Image.asset(fullAdvertLogo, height: 80)),
                     const SizedBox(height: 30),
 
                     // Welcome Text
@@ -42,8 +42,9 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         "Welcome back",
                         style: GoogleFonts.poppins(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black87,
                         ),
                       ),
@@ -54,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                         "sign in to access your account",
                         style: GoogleFonts.poppins(
                           fontSize: 14,
+                          letterSpacing: 1,
                           color: Colors.grey.shade500,
                         ),
                       ),
@@ -232,18 +234,19 @@ class _LoginPageState extends State<LoginPage> {
                                   return;
                                 }
 
-                                final success =
-                                    await userprovider.login(context);
+                                final success = await userprovider.login(
+                                  context,
+                                );
 
                                 if (!context.mounted) return;
 
                                 if (success) {
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const Profilepage(),
+                                      builder: (context) => AdvertNavigationpage(),
                                     ),
+                                    (route) => false,
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -281,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                                   Text(
                                     "Login",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 17,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       letterSpacing: 1.2,
                                     ),
@@ -303,24 +306,25 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         },
-                        child: RichText(
-                          text: TextSpan(
-                            text: "New Member? ",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey.shade500,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Register now",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xffEF7044),
-                                ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Don't have an account? ",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey.shade500,
                               ),
-                            ],
-                          ),
+                            ),
+                            Text(
+                              "Register now",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xffEF7044),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

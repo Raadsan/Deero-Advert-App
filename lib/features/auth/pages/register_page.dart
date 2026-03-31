@@ -1,5 +1,6 @@
 import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/auth/controllers/register_user_provider.dart';
+import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,8 +34,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(
-      builder: (context, userprovider, _) {
+    return Consumer<RegisterUserProvider>(
+      builder: (context, registerProvider, _) {
         return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
@@ -47,12 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 40),
 
                     // Logo
-                    Center(
-                      child: Image.asset(
-                        fullAdvertLogo,
-                        height: 120,
-                      ),
-                    ),
+                    Center(child: Image.asset(fullAdvertLogo, height: 80)),
                     const SizedBox(height: 25),
 
                     // Get Started Text
@@ -61,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         "Get Started",
                         style: GoogleFonts.poppins(
                           fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black87,
                         ),
                       ),
@@ -84,6 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintText: "Full name",
                       icon: LineIcons.user,
                       keyboardType: TextInputType.name,
+                      onChanged: (value) => registerProvider.setName(value),
                     ),
                     const SizedBox(height: 16),
 
@@ -93,7 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintText: "Valid email",
                       icon: LineIcons.envelope,
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (value) => userprovider.setEmail(value),
+                      onChanged: (value) => registerProvider.setEmail(value),
                     ),
                     const SizedBox(height: 16),
 
@@ -103,13 +100,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintText: "Phone number",
                       icon: LineIcons.mobilePhone,
                       keyboardType: TextInputType.phone,
+                      onChanged: (value) => registerProvider.setPhone(value),
                     ),
                     const SizedBox(height: 16),
 
                     // Password Field
                     TextFormField(
                       controller: _passwordController,
-                      onChanged: (value) => userprovider.setPassword(value),
+                      onChanged: (value) => registerProvider.setPassword(value),
                       obscureText: _obscurePassword,
                       style: GoogleFonts.poppins(fontSize: 15),
                       decoration: InputDecoration(
@@ -229,18 +227,38 @@ class _RegisterPageState extends State<RegisterPage> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: _agreeTerms
-                            ? () {
-                                // TODO: Implement registration
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      "Registration coming soon!",
-                                      style: GoogleFonts.poppins(),
+                        onPressed: _agreeTerms && !registerProvider.isLoading
+                            ? () async {
+                                if (registerProvider.fullname == null || registerProvider.fullname!.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your full name"), backgroundColor: Colors.red));
+                                  return;
+                                }
+                                if (registerProvider.email == null || registerProvider.email!.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your email"), backgroundColor: Colors.red));
+                                  return;
+                                }
+                                if (registerProvider.password == null || registerProvider.password!.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a password"), backgroundColor: Colors.red));
+                                  return;
+                                }
+
+                                final success = await registerProvider.register(context);
+                                if (!context.mounted) return;
+
+                                if (success) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => AdvertNavigationpage()),
+                                    (route) => false,
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(registerProvider.registerError ?? "Registration failed"),
+                                      backgroundColor: Colors.red,
                                     ),
-                                    backgroundColor: const Color(0xffEF7044),
-                                  ),
-                                );
+                                  );
+                                }
                               }
                             : null,
                         style: ElevatedButton.styleFrom(
@@ -252,20 +270,24 @@ class _RegisterPageState extends State<RegisterPage> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Next",
-                              style: GoogleFonts.poppins(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
+                        child: registerProvider.isLoading
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Sign up",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, size: 20),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -281,24 +303,25 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           );
                         },
-                        child: RichText(
-                          text: TextSpan(
-                            text: "Already a member? ",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey.shade500,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Log In",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xffEF7044),
-                                ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Already a member? ",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey.shade500,
                               ),
-                            ],
-                          ),
+                            ),
+                            Text(
+                              "Log In",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xffEF7044),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -331,10 +354,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fontSize: 14,
           color: Colors.grey.shade400,
         ),
-        suffixIcon: Icon(
-          icon,
-          color: Colors.grey.shade400,
-        ),
+        suffixIcon: Icon(icon, color: Colors.grey.shade400),
         filled: true,
         fillColor: Colors.grey.shade50,
         contentPadding: const EdgeInsets.symmetric(
@@ -351,10 +371,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color(0xffEF7044),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xffEF7044), width: 1.5),
         ),
       ),
     );

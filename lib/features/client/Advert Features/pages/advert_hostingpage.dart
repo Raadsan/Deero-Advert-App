@@ -564,8 +564,12 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       color: Color(0xFFF3F4F6),
                     ),
                     const SizedBox(height: 24),
-                    ...displayedFeatures.map((feature) {
-                      return Padding(
+                    ...displayedFeatures.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String feature = entry.value;
+                      return AnimatedFeatureItem(
+                        index: index,
+                        child: Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -676,6 +680,51 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
           ),
         );
       },
+    );
+  }
+}
+
+class AnimatedFeatureItem extends StatefulWidget {
+  final int index;
+  final Widget child;
+  const AnimatedFeatureItem({super.key, required this.index, required this.child});
+
+  @override
+  State<AnimatedFeatureItem> createState() => _AnimatedFeatureItemState();
+}
+
+class _AnimatedFeatureItemState extends State<AnimatedFeatureItem> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _slide = Tween<Offset>(begin: const Offset(0.0, 0.4), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // Staggered delay: 200ms per item
+    Future.delayed(Duration(milliseconds: widget.index * 200), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
+      ),
     );
   }
 }

@@ -219,6 +219,222 @@ class AdvertAboutpage extends StatelessWidget {
                     delay: 1600,
                   ),
                   const SizedBox(height: 40),
+                  Text(
+                    "Our Achievements",
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      letterSpacing: 1,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // 3,059+ Happy Clients Card
+                            Container(
+                              height: 130,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF6F0),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFF3D0C3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Image.asset(
+                                    "images/advertimages/happyclients.png",
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "3,059+",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 22,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF5C1B1B),
+                                    ),
+                                  ),
+                                  Text(
+                                    "Happy Clients",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      letterSpacing: 1,
+                                      color: const Color(0xFF5C1B1B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // 11+ Pro Team Card
+                            Container(
+                              height: 80,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFE0D2), // Light orange
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFF3A086,
+                                  ), // Darker orange border
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "11+",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1,
+                                          color: const Color(0xFF5C1B1B),
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Pro Team",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          letterSpacing: 1,
+                                          color: const Color(0xFF5C1B1B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Image.asset("images/advertimages/team.png"),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Right Column
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // 7,089+ Completed Project Card
+                            Container(
+                              height: 80,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffEF7044),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "images/advertimages/completeprojects.png",
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "7,089+",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 1,
+                                            color: Colors.white,
+                                            height: 1.1,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Completed Project",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 9,
+                                            letterSpacing: 1,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // 9+ Awards won Card
+                            Container(
+                              height: 130,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF6F0),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFF3D0C3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "9+",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF5C1B1B),
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Awards won",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: const Color(0xFF5C1B1B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Image.asset("images/advertimages/award.png"),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

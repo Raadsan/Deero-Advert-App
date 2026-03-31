@@ -25,15 +25,14 @@ class _ProfilepageState extends State<Profilepage>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
     _animController.forward();
   }
 
@@ -58,7 +57,12 @@ class _ProfilepageState extends State<Profilepage>
         }
 
         final initials = (user.fullname?.isNotEmpty == true)
-            ? user.fullname!.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+            ? user.fullname!
+                  .split(' ')
+                  .map((e) => e.isNotEmpty ? e[0] : '')
+                  .take(2)
+                  .join()
+                  .toUpperCase()
             : "U";
 
         return Scaffold(
@@ -128,7 +132,9 @@ class _ProfilepageState extends State<Profilepage>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xffEF7044).withOpacity(0.4),
+                                  color: const Color(
+                                    0xffEF7044,
+                                  ).withOpacity(0.4),
                                   blurRadius: 30,
                                   spreadRadius: 2,
                                 ),
@@ -235,33 +241,6 @@ class _ProfilepageState extends State<Profilepage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Quick Stats Row
-                          Row(
-                            children: [
-                              _buildStatCard(
-                                icon: LineIcons.shoppingBag,
-                                label: "Orders",
-                                value: "0",
-                                color: const Color(0xffEF7044),
-                              ),
-                              const SizedBox(width: 12),
-                              _buildStatCard(
-                                icon: LineIcons.heart,
-                                label: "Wishlist",
-                                value: "0",
-                                color: const Color(0xff660E0D),
-                              ),
-                              const SizedBox(width: 12),
-                              _buildStatCard(
-                                icon: LineIcons.star,
-                                label: "Points",
-                                value: "0",
-                                color: const Color(0xffF5A623),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-
                           // Personal Info Section
                           _buildSectionTitle("Personal Information"),
                           const SizedBox(height: 14),
@@ -283,46 +262,19 @@ class _ProfilepageState extends State<Profilepage>
 
                           const SizedBox(height: 28),
 
-                          // General Section
-                          _buildSectionTitle("General"),
-                          const SizedBox(height: 14),
-                          _buildMenuTile(
-                            icon: LineIcons.bell,
-                            title: "Notifications",
-                            color: const Color(0xffEF7044),
-                            onTap: () {},
-                          ),
-                          _buildMenuTile(
-                            icon: LineIcons.lock,
-                            title: "Change Password",
-                            color: const Color(0xff5B5FC7),
-                            onTap: () {},
-                          ),
-                          _buildMenuTile(
-                            icon: LineIcons.language,
-                            title: "Language",
-                            color: const Color(0xff2DB87E),
-                            onTap: () {},
-                          ),
-                          _buildMenuTile(
-                            icon: LineIcons.questionCircle,
-                            title: "Help & Support",
-                            color: const Color(0xffF5A623),
-                            onTap: () {},
-                          ),
-
-                          const SizedBox(height: 30),
-
                           // Logout Button
                           GestureDetector(
-                            onTap: () => _showLogoutDialog(context, userProvider),
+                            onTap: () =>
+                                _showLogoutDialog(context, userProvider),
                             child: Container(
                               width: double.infinity,
                               height: 54,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: const Color(0xff660E0D).withOpacity(0.3),
+                                  color: const Color(
+                                    0xff660E0D,
+                                  ).withOpacity(0.3),
                                 ),
                               ),
                               child: Row(
@@ -383,9 +335,7 @@ class _ProfilepageState extends State<Profilepage>
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.12),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.15),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.15)),
         ),
         child: Icon(icon, color: Colors.white, size: 18),
       ),

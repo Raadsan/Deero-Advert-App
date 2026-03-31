@@ -1,4 +1,5 @@
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/auth/controllers/register_user_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
@@ -6,6 +7,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_introduction_page.dart';
 // import 'package:deero_enterprise_app/features/client/Enterprise%20Features/controllers/notification_provider.dart';
 import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +55,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HostingProvider()),
         ChangeNotifierProvider(create: (_) => CheckDomainProvider()),
         ChangeNotifierProvider(create: (_) => PortfolioProvider()),
+        ChangeNotifierProvider(create: (_) => RegisterUserProvider()),
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(),
           lazy: false,
@@ -61,7 +64,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Deero Enterprice',
-        home: AdvertNavigationpage(),
+        home: AdvertIntroductionPage(),
       ),
     );
   }

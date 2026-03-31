@@ -5,10 +5,12 @@ import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_project_details.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
@@ -111,8 +113,6 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     );
   }
 
-  
-
   Widget build(BuildContext context) {
     return Consumer2<ServiceProvider, PortfolioProvider>(
       builder: (context, serviceprovider, portfolioProvider, _) {
@@ -120,14 +120,32 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         return Scaffold(
           backgroundColor: Colors.white,
           drawer: const AdvertDrawer(),
-          
+
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.white,
               systemNavigationBarColor: Colors.white,
               systemNavigationBarContrastEnforced: true,
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             backgroundColor: Colors.white,
+            centerTitle: true,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdvertNotificationpage(),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.notifications_outlined,
+                  color: Color(0xff660E0D),
+                ),
+              ),
+            ],
             title: Image.asset(fullAdvertLogo, width: 120),
             leading: Builder(
               builder: (context) => IconButton(
@@ -296,20 +314,30 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               spacing: 12,
                               runSpacing: 12,
                               alignment: WrapAlignment.start,
-                              children: service
-                                  .map(
-                                    (s) => ServiceCard(
-                                      ImageUrl: s.serviceIcon != null
-                                          ? (s.serviceIcon!.startsWith('http')
-                                                ? s.serviceIcon!
-                                                : BaseUrl +
-                                                      "uploads/" +
-                                                      s.serviceIcon!)
-                                          : "",
-                                      serviceTitle: s.serviceTitle,
-                                    ),
-                                  )
-                                  .toList(),
+                              children: service.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                var s = entry.value;
+                                return ServiceCard(
+                                  ImageUrl: s.serviceIcon != null
+                                      ? (s.serviceIcon!.startsWith('http')
+                                            ? s.serviceIcon!
+                                            : BaseUrl +
+                                                  "uploads/" +
+                                                  s.serviceIcon!)
+                                      : "",
+                                  serviceTitle: s.serviceTitle,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AdvertServicepage(
+                                          initialIndex: index,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
                             ),
                           ),
                   ),
