@@ -26,10 +26,10 @@ class AdvertAboutpage extends StatelessWidget {
           child: Text(
             "About Deero",
             style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xff651313),
-              letterSpacing: 1,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xff651210),
+              letterSpacing: 0.5,
             ),
           ),
         ),
@@ -102,50 +102,78 @@ class AdvertAboutpage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
 
                   // About Text Card
                   FadeInUp(
                     delay: const Duration(milliseconds: 200),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: const Color(0xff651313).withOpacity(0.1),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            spreadRadius: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "WHO WE ARE",
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.8,
+                            color: const Color(0xff651313).withOpacity(0.75),
                           ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xff651313).withOpacity(0.08),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xff651313).withOpacity(0.06),
+                                blurRadius: 24,
+                                offset: const Offset(0, 8),
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
+                            child: Text(
                               "Deero Advertising Agency is one of the innovative digital service providers in Somalia, founded in 2019 to offer a wide range of digital creative services. Deero Advert is the first advertising company that provides a wide variety of one-stop digital creative services in Somalia.",
+                              textAlign: TextAlign.justify,
                               style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                height: 1.6,
-                                color: const Color(0xff374151),
+                                fontSize: 15,
+                                height: 1.7,
+                                letterSpacing: 0.15,
+                                color: const Color(0xff1f2937),
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
 
                   // Vision & Mission Section
+                  Text(
+                    "VISION & MISSION",
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.8,
+                      color: const Color(0xff651313).withOpacity(0.75),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: _buildInfoCard(
@@ -157,15 +185,15 @@ class AdvertAboutpage extends StatelessWidget {
                           color: const Color(0xff651313),
                         ),
                       ),
-                      const SizedBox(width: 15),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildInfoCard(
                           title: "Mission",
                           icon: Icons.auto_awesome_outlined,
                           description:
-                              "To provide quality services that exceeds the expectations of our esteemed customers.",
+                              "To provide quality services that exceed the expectations of our esteemed customers.",
                           delay: 600,
-                          color: const Color(0xff912323),
+                          color: const Color(0xff7a1c1c),
                         ),
                       ),
                     ],
@@ -178,17 +206,28 @@ class AdvertAboutpage extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            "Our Core Values",
+                            "OUR CORE VALUES",
+                            style: GoogleFonts.outfit(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.8,
+                              color: const Color(0xff651313).withOpacity(0.75),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "What drives us",
                             style: GoogleFonts.outfit(
                               fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: const Color(0xff111827),
+                              letterSpacing: -0.3,
                             ),
                           ),
                           Container(
                             height: 3,
-                            width: 60,
-                            margin: const EdgeInsets.only(top: 8),
+                            width: 48,
+                            margin: const EdgeInsets.only(top: 10),
                             decoration: BoxDecoration(
                               color: const Color(0xff651313),
                               borderRadius: BorderRadius.circular(10),
@@ -225,16 +264,27 @@ class AdvertAboutpage extends StatelessWidget {
                     icon: Icons.verified_user_outlined,
                     delay: 1600,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
                   Text(
-                    "Our Achievements",
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      letterSpacing: 1,
-                      color: Colors.grey,
+                    "OUR ACHIEVEMENTS",
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.8,
+                      color: const Color(0xff651313).withOpacity(0.75),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
+                  Text(
+                    "By the numbers",
+                    style: GoogleFonts.outfit(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xff111827),
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -461,57 +511,61 @@ class AdvertAboutpage extends StatelessWidget {
     return FadeInUp(
       delay: Duration(milliseconds: delay),
       child: Container(
-        height: 240,
+        constraints: const BoxConstraints(minHeight: 252),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: color.withOpacity(0.35),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Stack(
           children: [
             Positioned(
-              right: -20,
-              top: -20,
+              right: -24,
+              top: -24,
               child: Opacity(
-                opacity: 0.1,
-                child: Icon(icon, size: 100, color: Colors.white),
+                opacity: 0.12,
+                child: Icon(icon, size: 110, color: Colors.white),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(11),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.22),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(icon, color: Colors.white, size: 28),
+                    child: Icon(icon, color: Colors.white, size: 26),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Text(
                     title,
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      letterSpacing: 0.2,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Text(
                     description,
+                    textAlign: TextAlign.justify,
                     style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.9),
-                      height: 1.5,
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.92),
+                      height: 1.55,
+                      letterSpacing: 0.1,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],

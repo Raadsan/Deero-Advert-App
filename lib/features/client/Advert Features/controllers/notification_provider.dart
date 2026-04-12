@@ -67,6 +67,24 @@ class NotificationService {
   }
 }
 
+/// App-ka: ogeysiis ka da'da weyn ma ahan in la muujiyo.
+const Duration _kNotificationMaxAge = Duration(days: 30);
+
+void _filterNotificationsOlderThan(NotificationModel? model, Duration maxAge) {
+  if (model?.data == null) return;
+  final cutoff = DateTime.now().toUtc().subtract(maxAge);
+  model!.data = model.data!.where((item) {
+    final raw = item.createdAt;
+    if (raw == null || raw.isEmpty) return true;
+    try {
+      final created = DateTime.parse(raw).toUtc();
+      return !created.isBefore(cutoff);
+    } catch (_) {
+      return true;
+    }
+  }).toList();
+}
+
 class NotificationProvider extends ChangeNotifier {
   ActiveNotificationModel? activeNotificationModel;
   NotificationModel? notificationModel;
@@ -103,17 +121,32 @@ class NotificationProvider extends ChangeNotifier {
       print("FCM Token retrieved: $token");
 
       final box = GetStorage();
-      String? userId;
+      // MySQL backend: userId waa inuu ahaadaa User.id (integer). Mongo ObjectId ha dirin.
+      int? mysqlUserId;
       if (box.hasData("userInfo")) {
         final userData = box.read("userInfo");
-        if (userData != null && userData['user'] != null) {
-          userId = userData['user']['id'] ?? userData['user']['_id'];
+        final u = userData != null ? userData['user'] : null;
+        if (u != null) {
+          final id = u['id'];
+          if (id is int) {
+            mysqlUserId = id;
+          } else if (id is String && RegExp(r'^\d+$').hasMatch(id)) {
+            mysqlUserId = int.tryParse(id);
+          } else {
+            final oid = u['_id']?.toString();
+            if (oid != null && RegExp(r'^\d+$').hasMatch(oid)) {
+              mysqlUserId = int.tryParse(oid);
+            }
+          }
         }
       }
 
+      final body = <String, dynamic>{"token": token};
+      if (mysqlUserId != null) body["userId"] = mysqlUserId;
+
       final response = await http.post(
         Uri.parse("${EndPoint}announcements/save-token"),
-        body: jsonEncode({"userId": userId, "token": token}),
+        body: jsonEncode(body),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -133,6 +166,7 @@ class NotificationProvider extends ChangeNotifier {
   Future<void> getAllNotifications() async {
     try {
       isLoading = true;
+      error = null;
       notifyListeners();
 
       final box = GetStorage();
@@ -149,6 +183,8 @@ class NotificationProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final decodeData = jsonDecode(response.body);
         notificationModel = NotificationModel.fromJson(decodeData);
+        _filterNotificationsOlderThan(notificationModel, _kNotificationMaxAge);
+        error = null;
       } else {
         error =
             "Failed to load notifications. Status code: ${response.statusCode}";

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/transaction_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 class TransactionProvider extends ChangeNotifier {
@@ -16,7 +17,17 @@ class TransactionProvider extends ChangeNotifier {
       errorMessage = "";
       notifyListeners();
 
-      var response = await http.get(Uri.parse(EndPoint + "transactions/user/$userId"));
+      final box = GetStorage();
+      final userInfo = box.read("userInfo");
+      final token = userInfo != null ? userInfo["token"] : null;
+
+      var response = await http.get(
+        Uri.parse(EndPoint + "transactions/user/$userId"),
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
+      );
 
       var decodedData = jsonDecode(response.body);
       print("Backend Response: $decodedData");
@@ -24,16 +35,33 @@ class TransactionProvider extends ChangeNotifier {
       if (response.statusCode == 200 || decodedData['success'] == true) {
         transactionModel = TransactionModel.fromJson(decodedData);
       } else {
-        errorMessage = decodedData['message'] ?? "Failed to load transaction history";
+        final raw = decodedData['message']?.toString() ?? "";
+        errorMessage = _friendlyTransactionError(raw, response.statusCode);
       }
     } catch (e) {
       print("Error getting transaction history: $e");
-      errorMessage = "Error: $e";
+      errorMessage = _friendlyTransactionError(e.toString(), null);
     } finally {
       isLoading = false;
       notifyListeners();
     }
     return transactionModel;
+  }
+
+  /// User-facing copy (avoid raw "No token" from API).
+  static String _friendlyTransactionError(String raw, int? status) {
+    final s = raw.toLowerCase();
+    final auth = status == 401 ||
+        s.contains("no token") ||
+        s.contains("unauthorized") ||
+        s.contains("invalid signature") ||
+        s.contains("jsonwebtoken") ||
+        s.contains("jwt");
+    if (auth) {
+      return "LOGIN_REQUIRED";
+    }
+    if (raw.isEmpty) return "Failed to load transaction history";
+    return raw;
   }
 
   Future<bool> CreateTransaction({

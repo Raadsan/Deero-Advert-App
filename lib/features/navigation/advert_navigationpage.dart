@@ -6,6 +6,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdvertNavigationpage extends StatefulWidget {
   AdvertNavigationpage({super.key});
@@ -15,8 +16,61 @@ class AdvertNavigationpage extends StatefulWidget {
 }
 
 class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
-  @override
-  List<Widget> _pages = [
+  bool _socialFabOpen = false;
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open link")),
+        );
+      }
+    }
+  }
+
+  Future<void> _openMailto() async {
+    if (!await launchUrl(
+      kAdvertSocialMailtoUri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open email")),
+        );
+      }
+    }
+  }
+
+  Widget _miniSocialButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: color,
+        elevation: 4,
+        shadowColor: Colors.black26,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () {
+            onTap();
+            setState(() => _socialFabOpen = false);
+          },
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+        ),
+      ),
+    );
+  }
+
+  final List<Widget> _pages = [
     AdvertHomepage(),
     AdvertAboutpage(),
     AdvertServicepage(),
@@ -25,9 +79,51 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
 
   int currentPage = 0;
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[currentPage],
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (_socialFabOpen) ...[
+              _miniSocialButton(
+                icon: LineIcons.whatSApp,
+                color: const Color(0xFF25D366),
+                onTap: () => _openUrl(kAdvertSocialWhatsAppUrl),
+              ),
+              _miniSocialButton(
+                icon: LineIcons.music,
+                color: const Color(0xFF000000),
+                onTap: () => _openUrl(kAdvertSocialTikTokUrl),
+              ),
+              _miniSocialButton(
+                icon: LineIcons.behance,
+                color: const Color(0xFF1769FF),
+                onTap: () => _openUrl(kAdvertSocialBehanceUrl),
+              ),
+              _miniSocialButton(
+                icon: LineIcons.envelope,
+                color: const Color(0xff660E0D),
+                onTap: _openMailto,
+              ),
+            ],
+            FloatingActionButton(
+              onPressed: () =>
+                  setState(() => _socialFabOpen = !_socialFabOpen),
+              backgroundColor: const Color(0xffEF7044),
+              child: Icon(
+                _socialFabOpen ? Icons.close : Icons.chat_bubble_outline,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,

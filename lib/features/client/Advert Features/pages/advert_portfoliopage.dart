@@ -29,7 +29,7 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
   }
 
   void _launcherBehance() async {
-    final String url = "https://www.behance.net/deeroadvert";
+    final String url = kAdvertSocialBehanceUrl;
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {

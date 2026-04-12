@@ -1,4 +1,3 @@
-import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -75,81 +74,8 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
             );
           }
 
-          // Error State: Check for 401 Unauthorized
+          // Error state (network / server) — list is public; no login gate
           if (notificationProvider.error != null && notificationList.isEmpty) {
-            if (notificationProvider.error!.contains("401")) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffFFF6F0),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          LineIcons.userLock,
-                          size: 60,
-                          color: const Color(0xffEF7044),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        "Authentication Required",
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        "You are not logged in. Please sign up or log in to view and receive all notifications securely.",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
-                            ),
-                          ).then((_) {
-                            notificationProvider.getAllNotifications();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff660E0D),
-                          minimumSize: const Size(double.infinity, 55),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          "Login",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
             // Other errors
             return Center(
               child: Padding(

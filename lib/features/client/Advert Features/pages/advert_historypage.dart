@@ -79,31 +79,123 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
           }
 
           if (provider.errorMessage.isNotEmpty) {
+            final needsLogin = provider.errorMessage == "LOGIN_REQUIRED";
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    provider.errorMessage,
-                    style: GoogleFonts.poppins(color: Colors.grey.shade700),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _checkLoginAndFetchHistory,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEB4724),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffFFF6F0),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        needsLogin ? Icons.lock_outline_rounded : Icons.error_outline,
+                        size: 48,
+                        color: needsLogin
+                            ? const Color(0xffEF7044)
+                            : Colors.red,
                       ),
                     ),
-                    child: Text(
-                      "Retry",
-                      style: GoogleFonts.poppins(color: Colors.white),
+                    const SizedBox(height: 20),
+                    Text(
+                      needsLogin ? "Gal account-kaaga" : "Something went wrong",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xff111827),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    Text(
+                      needsLogin
+                          ? "Waxaad u baahan tahay inaad login gasho si aad u aragto taariikhda lacag bixintaada. Haddii aad horey u login gashay, mar kale isku day (session-ku wuu dhamaaday)."
+                          : provider.errorMessage,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        height: 1.45,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    if (needsLogin) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            ).then((_) {
+                              if (!context.mounted) return;
+                              context.read<TransactionProvider>().errorMessage =
+                                  "";
+                              _checkLoginAndFetchHistory();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff660E0D),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            "Login",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xff660E0D),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: Color(0xff660E0D)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            "Back",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      ElevatedButton(
+                        onPressed: _checkLoginAndFetchHistory,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEB4724),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Retry",
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             );
           }
