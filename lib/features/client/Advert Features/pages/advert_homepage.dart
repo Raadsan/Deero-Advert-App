@@ -26,6 +26,7 @@ import 'package:after_layout/after_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
+import 'package:get_storage/get_storage.dart';
 
 class AdvertHomepage extends StatefulWidget {
   const AdvertHomepage({super.key});
@@ -37,7 +38,10 @@ class AdvertHomepage extends StatefulWidget {
 class _AdvertHomepageState extends State<AdvertHomepage>
     with AfterLayoutMixin<AdvertHomepage> {
   final TextEditingController _domainController = TextEditingController();
+  final GetStorage _box = GetStorage();
+  static const String _bonusSeenKey = "advert_bonus_seen_points";
   int _currentIndex = 0;
+  int? _lastProcessedBonus;
 
   @override
   void dispose() {
@@ -103,6 +107,114 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     );
   }
 
+  void _maybeShowBonusCelebration(int currentBonus) {
+    if (_lastProcessedBonus == currentBonus || !mounted) return;
+    _lastProcessedBonus = currentBonus;
+
+    final storedValue = _box.read(_bonusSeenKey);
+    final previousBonus = storedValue is int
+        ? storedValue
+        : int.tryParse("$storedValue") ?? 0;
+
+    if (currentBonus > previousBonus) {
+      final addedPoints = currentBonus - previousBonus;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierColor: Colors.black.withOpacity(0.45),
+          builder: (context) => Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 26),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF7B1710),
+                    Color(0xFFB52E1D),
+                    Color(0xFFE24122),
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.celebration,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Congratulations!",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 21,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "You earned +$addedPoints bonus points",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white.withOpacity(0.95),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Total: $currentBonus/100",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFFB52E1D),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        "Awesome!",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      });
+    }
+
+    _box.write(_bonusSeenKey, currentBonus);
+  }
+
   Widget build(BuildContext context) {
     return Consumer2<ServiceProvider, PortfolioProvider>(
       builder: (context, serviceprovider, portfolioProvider, _) {
@@ -111,6 +223,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         final bonus = loggedUser?.bonus ?? 0;
         final bonusStatus = loggedUser?.bonusStatus ?? "BonusNotAvailable";
         final registerSource = loggedUser?.registerSource ?? "website";
+        _maybeShowBonusCelebration(bonus);
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -139,7 +252,27 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                 icon: Icon(IconlyLight.notification, color: Color(0xff660E0D)),
               ),
             ],
-            title: Image.asset(fullAdvertLogo, width: 120),
+            title: SizedBox(
+              height: 48,
+              child: TextFormField(
+                controller: _domainController,
+                onFieldSubmitted: (_) => _searchDomain(context),
+                decoration: InputDecoration(
+                  hintText: "Search your domain",
+                  fillColor: const Color(0xffEAE8DA).withOpacity(0.30),
+                  hintStyle: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(46),
+                  ),
+                ),
+              ),
+            ),
             leading: Builder(
               builder: (context) => IconButton(
                 onPressed: () => Scaffold.of(context).openDrawer(),
@@ -160,6 +293,12 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                 children: [
                   SizedBox(height: 10),
 
+                  BonusProgressCard(
+                    bonus: bonus,
+                    bonusStatus: bonusStatus,
+                    registerSource: registerSource,
+                  ),
+                  SizedBox(height: 16),
                   Container(
                     height: 160,
                     decoration: BoxDecoration(
@@ -249,61 +388,55 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
-                  BonusProgressCard(
-                    bonus: bonus,
-                    bonusStatus: bonusStatus,
-                    registerSource: registerSource,
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 48,
-                          child: TextFormField(
-                            controller: _domainController,
-                            onFieldSubmitted: (_) => _searchDomain(context),
-                            decoration: InputDecoration(
-                              hintText: "Search your domain",
-                              fillColor: const Color(
-                                0xffEAE8DA,
-                              ).withOpacity(0.30),
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.circular(46),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => _searchDomain(context),
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xffEF7044).withOpacity(0.80),
-                            borderRadius: BorderRadius.circular(46),
-                          ),
-                          child: const Icon(
-                            IconlyLight.search,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: SizedBox(
+                  //         height: 48,
+                  //         child: TextFormField(
+                  //           controller: _domainController,
+                  //           onFieldSubmitted: (_) => _searchDomain(context),
+                  //           decoration: InputDecoration(
+                  //             hintText: "Search your domain",
+                  //             fillColor: const Color(
+                  //               0xffEAE8DA,
+                  //             ).withOpacity(0.30),
+                  //             hintStyle: GoogleFonts.poppins(
+                  //               fontSize: 14,
+                  //               color: Colors.grey,
+                  //             ),
+                  //             contentPadding: const EdgeInsets.symmetric(
+                  //               horizontal: 20,
+                  //             ),
+                  //             filled: true,
+                  //             border: OutlineInputBorder(
+                  //               borderSide: BorderSide.none,
+                  //               borderRadius: BorderRadius.circular(46),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 10),
+                  //     GestureDetector(
+                  //       onTap: () => _searchDomain(context),
+                  //       child: Container(
+                  //         height: 40,
+                  //         width: 40,
+                  //         decoration: BoxDecoration(
+                  //           color: const Color(0xffEF7044).withOpacity(0.80),
+                  //           borderRadius: BorderRadius.circular(46),
+                  //         ),
+                  //         child: const Icon(
+                  //           IconlyLight.search,
+                  //           color: Colors.white,
+                  //           size: 24,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   SizedBox(height: 20),
                   Text(
                     "Our Services",

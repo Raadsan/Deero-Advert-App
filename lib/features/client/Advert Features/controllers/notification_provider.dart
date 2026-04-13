@@ -7,13 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
 
   static Future init() async {
     const android = AndroidInitializationSettings('@mipmap/launcher_icon');
-    await _local.initialize(const InitializationSettings(android: android));
+    await _local.initialize(
+      const InitializationSettings(android: android),
+      onDidReceiveNotificationResponse: (response) async {
+        await _openLink(response.payload);
+      },
+    );
 
     // Listen for foreground messages
     FirebaseMessaging.onMessage.listen((message) {
@@ -21,9 +27,21 @@ class NotificationService {
         show(
           message.notification?.title ?? '',
           message.notification?.body ?? '',
+          payload: message.data['linkUrl'],
         );
       }
     });
+
+    // When app is opened by tapping a push notification
+    FirebaseMessaging.onMessageOpenedApp.listen((message) async {
+      await _openLink(message.data['linkUrl']);
+    });
+
+    // Cold start via notification tap
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      await _openLink(initialMessage.data['linkUrl']);
+    }
 
     // Request permissions
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -38,7 +56,7 @@ class NotificationService {
     );
   }
 
-  static Future show(String title, String body) async {
+  static Future show(String title, String body, {String? payload}) async {
     final android = AndroidNotificationDetails(
       'deero_notifications',
       'Deero App Notifications',
@@ -63,7 +81,21 @@ class NotificationService {
       title,
       body,
       NotificationDetails(android: android),
+      payload: payload,
     );
+  }
+
+  static Future<void> _openLink(String? rawLink) async {
+    if (rawLink == null || rawLink.trim().isEmpty) return;
+    final trimmed = rawLink.trim();
+    final hasScheme =
+        trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final normalized = hasScheme ? trimmed : 'https://$trimmed';
+    final uri = Uri.tryParse(normalized);
+    if (uri == null) return;
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 }
 
@@ -226,6 +258,7 @@ class NotificationProvider extends ChangeNotifier {
             NotificationService.show(
               activeItem.title ?? "Active Update",
               activeItem.message ?? "New announcement is active.",
+              payload: activeItem.linkUrl,
             );
             // Save this ID so we don't show it again until a new one comes
             box.write('lastActiveNotificationId', activeItem.sId);

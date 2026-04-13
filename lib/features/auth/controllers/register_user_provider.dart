@@ -51,7 +51,7 @@ class RegisterUserProvider extends ChangeNotifier {
         "email": email,
         "password": password,
         "phone": phone,
-        "role": "6953956770d76d4794728165",
+        "role": "user",
         "registerSource": "mobile",
       };
 
@@ -73,7 +73,13 @@ class RegisterUserProvider extends ChangeNotifier {
         notifyListeners();
         return loginSuccess;
       } else {
-        registerError = "Invalid email or password";
+        try {
+          final responseBody = jsonDecode(response.body);
+          registerError =
+              responseBody["message"]?.toString() ?? "Registration failed";
+        } catch (_) {
+          registerError = "Registration failed";
+        }
         isLoading = false;
         notifyListeners();
         return false;

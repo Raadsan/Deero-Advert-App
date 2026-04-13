@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class AdvertNotificationpage extends StatefulWidget {
@@ -14,6 +15,24 @@ class AdvertNotificationpage extends StatefulWidget {
 }
 
 class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
+  Future<void> _openAnnouncementLink(String? rawLink) async {
+    if (rawLink == null || rawLink.trim().isEmpty) return;
+
+    final trimmed = rawLink.trim();
+    final hasScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final normalized = hasScheme ? trimmed : 'https://$trimmed';
+    final uri = Uri.tryParse(normalized);
+    if (uri == null) return;
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open this link")),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -188,7 +207,7 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
-                        // Navigate to details if needed
+                        _openAnnouncementLink(notification.linkUrl);
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),

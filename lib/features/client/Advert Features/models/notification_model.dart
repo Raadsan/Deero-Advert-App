@@ -28,6 +28,7 @@ class Data {
   String? sId;
   String? title;
   String? message;
+  String? linkUrl;
   String? startDate;
   String? endDate;
   CreatedBy? createdBy;
@@ -38,6 +39,7 @@ class Data {
       {this.sId,
       this.title,
       this.message,
+      this.linkUrl,
       this.startDate,
       this.endDate,
       this.createdBy,
@@ -48,6 +50,7 @@ class Data {
     sId = json['_id'];
     title = json['title'];
     message = json['message'];
+    linkUrl = json['linkUrl'];
     startDate = json['startDate'];
     endDate = json['endDate'];
     createdBy = json['createdBy'] != null
@@ -62,6 +65,7 @@ class Data {
     data['_id'] = this.sId;
     data['title'] = this.title;
     data['message'] = this.message;
+    data['linkUrl'] = this.linkUrl;
     data['startDate'] = this.startDate;
     data['endDate'] = this.endDate;
     if (this.createdBy != null) {
