@@ -97,10 +97,17 @@ class TransactionProvider extends ChangeNotifier {
 
       print("Sending Transaction Data: ${jsonEncode(data)}");
 
+      final box = GetStorage();
+      final userInfo = box.read("userInfo");
+      final token = userInfo != null ? userInfo["token"] : null;
+
       var response = await http.post(
         Uri.parse(EndPoint + "transactions"),
         body: jsonEncode(data),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
       );
 
       var decodedResponse = jsonDecode(response.body);
@@ -108,28 +115,34 @@ class TransactionProvider extends ChangeNotifier {
 
       if (response.statusCode == 200 || decodedResponse['success'] == true) {
         isSuccess = true;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              decodedResponse['message'] ?? "Transaction successful",
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                decodedResponse['message'] ?? "Transaction successful",
+              ),
+              backgroundColor: Colors.green,
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
+          );
+        }
       } else {
         isSuccess = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(decodedResponse['message'] ?? "Transaction failed"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(decodedResponse['message'] ?? "Transaction failed"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       print("Error creating transaction: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       isLoading = false;
       notifyListeners();

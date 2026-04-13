@@ -1,8 +1,10 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/portfolio_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AdvertProjectDetailsPage extends StatelessWidget {
   final Portfolios project;
@@ -41,17 +43,73 @@ class AdvertProjectDetailsPage extends StatelessWidget {
             ),
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: const [StretchMode.zoomBackground],
+              title: Text(
+                project.title ?? "Project Details",
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    project.mainImage != null
-                        ? (project.mainImage!.startsWith('http')
-                              ? project.mainImage!
-                              : BaseUrl + project.mainImage!)
-                        : "",
-                    fit: BoxFit.cover,
-                  ),
+                  gallery.isNotEmpty
+                      ? CarouselSlider(
+                          options: CarouselOptions(
+                            height: double.infinity,
+                            viewportFraction: 1.0,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 4),
+                            autoPlayAnimationDuration: const Duration(
+                              milliseconds: 1000,
+                            ),
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                          ),
+                          items: gallery.map((url) {
+                            final fullUrl = url.startsWith('http')
+                                ? url
+                                : BaseUrl + url;
+                            return Image.network(
+                              fullUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.grey.shade300,
+                                  highlightColor: Colors.grey.shade100,
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            );
+                          }).toList(),
+                        )
+                      : Image.network(
+                          project.mainImage != null
+                              ? (project.mainImage!.startsWith('http')
+                                    ? project.mainImage!
+                                    : BaseUrl + project.mainImage!)
+                              : "",
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: Colors.white,
+                              ),
+                            );
+                          },
+                        ),
                   // Gradient Overlay
                   DecoratedBox(
                     decoration: BoxDecoration(
@@ -66,72 +124,50 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Title in FlexibleSpace
-                  Positioned(
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                    child: FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEB4724),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  project.industry?.toUpperCase() ?? "GENERAL",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                project.year ?? "",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            project.title ?? "Project Details",
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
 
-          // Project Description
+          // Project Overview & Year
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEB4724),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          project.industry?.toUpperCase() ?? "GENERAL",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        project.year ?? "",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xff4B5563),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     "Overview",
                     style: GoogleFonts.outfit(
@@ -159,104 +195,93 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                       color: const Color(0xff111827),
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
 
           // Gallery Grid
-          gallery.isEmpty
-              ? SliverToBoxAdapter(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child: Text(
-                        "No additional images in gallery",
-                        style: GoogleFonts.poppins(color: Colors.grey),
-                      ),
-                    ),
+          if (gallery.isEmpty)
+            SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: Text(
+                    "No additional images in gallery",
+                    style: GoogleFonts.poppins(color: Colors.grey),
                   ),
-                )
-              : SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.85,
-                        ),
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final img = gallery[index];
-                      final fullImageUrl = img.startsWith('http')
-                          ? img
-                          : BaseUrl + img;
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.85,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final img = gallery[index];
+                  final fullImageUrl = img.startsWith('http')
+                      ? img
+                      : BaseUrl + img;
 
-                      return FadeIn(
-                        delay: Duration(milliseconds: 100 * index),
-                        child: GestureDetector(
-                          onTap: () =>
-                              _showFullscreenImage(context, gallery, index),
-                          child: Hero(
-                            tag: 'gallery_$index',
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
+                  return FadeIn(
+                    delay: Duration(milliseconds: 100 * index),
+                    child: GestureDetector(
+                      onTap: () =>
+                          _showFullscreenImage(context, gallery, index),
+                      child: Hero(
+                        tag: 'gallery_$index',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(
+                              fullImageUrl,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.grey.shade300,
+                                  highlightColor: Colors.grey.shade100,
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    color: Colors.white,
                                   ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.network(
-                                  fullImageUrl,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
-                                          return child;
-                                        return Container(
-                                          color: Colors.grey.shade100,
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              value:
-                                                  loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                  : null,
-                                              strokeWidth: 2,
-                                              color: const Color(0xFFEB4724),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        color: Colors.grey.shade100,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                ),
-                              ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    color: Colors.grey.shade100,
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
-                      );
-                    }, childCount: gallery.length),
-                  ),
-                ),
+                      ),
+                    ),
+                  );
+                }, childCount: gallery.length),
+              ),
+            ),
         ],
       ),
     );

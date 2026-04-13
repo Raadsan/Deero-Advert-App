@@ -6,6 +6,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:iconly/iconly.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdvertNavigationpage extends StatefulWidget {
@@ -22,9 +23,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open link")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Could not open link")));
       }
     }
   }
@@ -35,15 +36,16 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
       mode: LaunchMode.externalApplication,
     )) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open email")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Could not open email")));
       }
     }
   }
 
   Widget _miniSocialButton({
-    required IconData icon,
+    IconData? icon,
+    String? imagePath,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -63,7 +65,11 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
           child: SizedBox(
             width: 48,
             height: 48,
-            child: Icon(icon, color: Colors.white, size: 22),
+            child: Center(
+              child: imagePath != null
+                  ? Image.asset(imagePath, width: 28, height: 28)
+                  : Icon(icon, color: Colors.white, size: 22),
+            ),
           ),
         ),
       ),
@@ -98,6 +104,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               ),
               _miniSocialButton(
                 icon: LineIcons.music,
+                imagePath: "images/advertimages/tiktok.png",
                 color: const Color(0xFF000000),
                 onTap: () => _openUrl(kAdvertSocialTikTokUrl),
               ),
@@ -107,18 +114,18 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                 onTap: () => _openUrl(kAdvertSocialBehanceUrl),
               ),
               _miniSocialButton(
-                icon: LineIcons.envelope,
+                icon: IconlyLight.message,
                 color: const Color(0xff660E0D),
                 onTap: _openMailto,
               ),
             ],
             FloatingActionButton(
-              onPressed: () =>
-                  setState(() => _socialFabOpen = !_socialFabOpen),
+              onPressed: () => setState(() => _socialFabOpen = !_socialFabOpen),
               backgroundColor: const Color(0xffEF7044),
               child: Icon(
-                _socialFabOpen ? Icons.close : Icons.chat_bubble_outline,
+                _socialFabOpen ? IconlyLight.close_square : IconlyLight.chat,
                 color: Colors.white,
+                size: 28,
               ),
             ),
           ],
@@ -141,7 +148,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                   currentPage = value;
                 }),
               },
-              hoverColor: Colors.cyan, // tab button hover color
+              hoverColor: Colors.transparent, // tab button hover color
               haptic: true, // haptic feedback
               tabBorderRadius: 35,
               // tabBackgroundColor: Color(0xFF651313),
@@ -156,37 +163,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                 vertical: 15,
               ), // navigation bar padding
               tabs: [
-                GButton(
-                  icon: Icons.circle, // dummy icon
-                  leading: Image.asset(
-                    "images/advertimages/home.png",
-                    width: 20,
-                    height: 20,
-                    color: currentPage == 0
-                        ? const Color(0xffEF7044)
-                        : Colors.grey,
-                  ),
-                  text: 'Home',
-                ),
-                GButton(
-                  icon: Icons.info_outline,
-                  iconColor: currentPage == 1
-                      ? const Color(0xffEF7044)
-                      : Colors.grey,
-                  text: 'About',
-                ),
-                GButton(
-                  icon: Icons.circle,
-                  leading: Image.asset(
-                    "images/advertimages/service.png",
-                    width: 24,
-                    height: 24,
-                    color: currentPage == 2
-                        ? const Color(0xffEF7044)
-                        : Colors.grey,
-                  ),
-                  text: 'Service',
-                ),
+                GButton(icon: IconlyLight.home, text: 'Home'),
+                GButton(icon: IconlyLight.info_square, text: 'About'),
+                GButton(icon: IconlyLight.category, text: 'Service'),
                 GButton(
                   icon: Icons.circle,
                   leading: Image.asset(

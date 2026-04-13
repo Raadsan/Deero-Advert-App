@@ -5,6 +5,8 @@ import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/achievement_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_project_details.dart';
@@ -13,16 +15,17 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
+import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
-import 'package:line_icons/line_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:iconly/iconly.dart';
 
 class AdvertHomepage extends StatefulWidget {
   const AdvertHomepage({super.key});
@@ -51,6 +54,8 @@ class _AdvertHomepageState extends State<AdvertHomepage>
       listen: false,
     ).activeNotification();
     Provider.of<PortfolioProvider>(context, listen: false).getPortfolio();
+    Provider.of<AchievementProvider>(context, listen: false).getAchievements();
+    Provider.of<MajorClientProvider>(context, listen: false).getMajorClients();
   }
 
   void _searchDomain(BuildContext context) {
@@ -70,27 +75,12 @@ class _AdvertHomepageState extends State<AdvertHomepage>
       return;
     }
 
-    // Check if domain has a TLD (like .com, .org, .so, etc.)
-    if (!domainName.contains('.') || domainName.endsWith('.')) {
+    // Remove strict TLD requirements since we will auto-generate all extensions
+    if (domainName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "Please include domain extension (e.g., .com, .org, .so)",
-            style: GoogleFonts.poppins(),
-          ),
-          backgroundColor: const Color(0xFFEB4724),
-        ),
-      );
-      return;
-    }
-
-    // Validate TLD format
-    final parts = domainName.split('.');
-    if (parts.length < 2 || parts.last.isEmpty || parts.last.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Please enter a valid domain with extension (e.g., mywebsite.com)",
+            "Please enter a domain name idea",
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: const Color(0xFFEB4724),
@@ -117,6 +107,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     return Consumer2<ServiceProvider, PortfolioProvider>(
       builder: (context, serviceprovider, portfolioProvider, _) {
         final service = serviceprovider.serviceModel?.data ?? [];
+        final loggedUser = Provider.of<UserProvider>(context).userModel?.user;
+        final bonus = loggedUser?.bonus ?? 0;
+        final bonusStatus = loggedUser?.bonusStatus ?? "BonusNotAvailable";
+        final registerSource = loggedUser?.registerSource ?? "website";
+
         return Scaffold(
           backgroundColor: Colors.white,
           drawer: const AdvertDrawer(),
@@ -141,10 +136,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     ),
                   );
                 },
-                icon: Icon(
-                  Icons.notifications_outlined,
-                  color: Color(0xff660E0D),
-                ),
+                icon: Icon(IconlyLight.notification, color: Color(0xff660E0D)),
               ),
             ],
             title: Image.asset(fullAdvertLogo, width: 120),
@@ -258,27 +250,59 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     ),
                   ),
                   SizedBox(height: 20),
-                  SizedBox(
-                    height: 41,
-                    width: double.infinity,
-                    child: TextFormField(
-                      controller: _domainController,
-                      onFieldSubmitted: (_) => _searchDomain(context),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(LineIcons.search),
-                        hintText: "search your domain",
-                        fillColor: Color(0xffEAE8DA).withOpacity(0.30),
-                        hintStyle: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(46),
+                  BonusProgressCard(
+                    bonus: bonus,
+                    bonusStatus: bonusStatus,
+                    registerSource: registerSource,
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: TextFormField(
+                            controller: _domainController,
+                            onFieldSubmitted: (_) => _searchDomain(context),
+                            decoration: InputDecoration(
+                              hintText: "Search your domain",
+                              fillColor: const Color(
+                                0xffEAE8DA,
+                              ).withOpacity(0.30),
+                              hintStyle: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(46),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () => _searchDomain(context),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xffEF7044).withOpacity(0.80),
+                            borderRadius: BorderRadius.circular(46),
+                          ),
+                          child: const Icon(
+                            IconlyLight.search,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20),
                   Text(
@@ -586,7 +610,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                       flex: 4,
                                       child: const SizedBox(
                                         child: Icon(
-                                          Icons.arrow_forward_ios,
+                                          IconlyLight.arrow_right_2,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -616,51 +640,77 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     ),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 80,
-                    width: double.infinity,
-                    child: CarouselSlider(
-                      items:
-                          [
-                            "images/advertimages/2.png",
-                            "images/advertimages/3.png",
-                            "images/advertimages/4.png",
-                            "images/advertimages/5.png",
-                            "images/advertimages/6.png",
-                          ].map((imagePath) {
+                  Consumer<MajorClientProvider>(
+                    builder: (context, clientProvider, child) {
+                      if (clientProvider.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final clients =
+                          clientProvider.majorClientModel?.clients ?? [];
+                      if (clients.isEmpty) return const SizedBox.shrink();
+
+                      return SizedBox(
+                        height: 80,
+                        width: double.infinity,
+                        child: CarouselSlider(
+                          items: clients.map((client) {
+                            String imagePath =
+                                (client.images != null &&
+                                    client.images!.isNotEmpty)
+                                ? client.images![0].replaceAll('\\', '/')
+                                : "";
+
+                            String fullUrl = imagePath.startsWith('http')
+                                ? imagePath
+                                : "${EndPoint.replaceAll('api/', '')}$imagePath";
+
                             return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                shape: BoxShape.circle,
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: const Color(
-                                    0xFFF3664C,
-                                  ).withOpacity(0.5),
+                                  color: Colors.grey.withOpacity(0.1),
                                   width: 1.0,
                                 ),
-                              ),
-                              child: ClipOval(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Image.asset(
-                                    imagePath,
-                                    fit: BoxFit.fitHeight,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.02),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  fullUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                        Icons.business,
+                                        color: Colors.grey,
+                                      ),
                                 ),
                               ),
                             );
                           }).toList(),
-                      options: CarouselOptions(
-                        height: 80,
-                        viewportFraction: 0.25,
-                        autoPlay: true,
-                        scrollDirection: Axis.horizontal,
-                        enableInfiniteScroll: true,
-                        enlargeCenterPage: false,
-                        scrollPhysics: const BouncingScrollPhysics(),
-                      ),
-                    ),
+                          options: CarouselOptions(
+                            height: 80,
+                            viewportFraction: 0.32,
+                            autoPlay: true,
+                            scrollDirection: Axis.horizontal,
+                            enableInfiniteScroll: true,
+                            enlargeCenterPage: false,
+                            scrollPhysics: const BouncingScrollPhysics(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 40),
@@ -673,212 +723,51 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left Column
-                      Expanded(
-                        child: Column(
-                          children: [
-                            // 3,059+ Happy Clients Card
-                            Container(
-                              height: 130,
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF6F0),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(0xFFF3D0C3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.asset(
-                                    "images/advertimages/happyclients.png",
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    "3,059+",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 22,
-                                      letterSpacing: 1,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF5C1B1B),
-                                    ),
-                                  ),
-                                  Text(
-                                    "Happy Clients",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      letterSpacing: 1,
-                                      color: const Color(0xFF5C1B1B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            // 11+ Pro Team Card
-                            Container(
-                              height: 80,
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFE0D2), // Light orange
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(
-                                    0xFFF3A086,
-                                  ), // Darker orange border
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "11+",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 1,
-                                          color: const Color(0xFF5C1B1B),
-                                          height: 1.1,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Pro Team",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          letterSpacing: 1,
-                                          color: const Color(0xFF5C1B1B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Image.asset("images/advertimages/team.png"),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      // Right Column
-                      Expanded(
-                        child: Column(
-                          children: [
-                            // 7,089+ Completed Project Card
-                            Container(
-                              height: 80,
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffEF7044),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    "images/advertimages/completeprojects.png",
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "7,089+",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600,
-                                            letterSpacing: 1,
-                                            color: Colors.white,
-                                            height: 1.1,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Completed Project",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 9,
-                                            letterSpacing: 1,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            // 9+ Awards won Card
-                            Container(
-                              height: 130,
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF6F0),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(0xFFF3D0C3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "9+",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF5C1B1B),
-                                          height: 1.1,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Awards won",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: const Color(0xFF5C1B1B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Image.asset("images/advertimages/award.png"),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Consumer<AchievementProvider>(
+                    builder: (context, achProvider, child) {
+                      if (achProvider.isLoading) {
+                        return const AchievementShimmer();
+                      }
+
+                      final achievements =
+                          achProvider.achievementModel?.data ?? [];
+                      if (achievements.isEmpty) {
+                        return const SizedBox(height: 30);
+                      }
+
+                      List<Widget> leftChildren = [];
+                      List<Widget> rightChildren = [];
+
+                      for (int i = 0; i < achievements.length; i++) {
+                        int styleType =
+                            i %
+                            4; // 0: Left Top, 1: Left Bottom, 2: Right Top, 3: Right Bottom
+
+                        Widget card = AnimatedAchievementCard(
+                          achievement: achievements[i],
+                          styleType: styleType,
+                        );
+
+                        if (styleType == 0 || styleType == 1) {
+                          leftChildren.add(card);
+                          if (i != achievements.length - 1)
+                            leftChildren.add(const SizedBox(height: 10));
+                        } else {
+                          rightChildren.add(card);
+                          if (i != achievements.length - 1)
+                            rightChildren.add(const SizedBox(height: 10));
+                        }
+                      }
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: Column(children: leftChildren)),
+                          const SizedBox(width: 10),
+                          Expanded(child: Column(children: rightChildren)),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 30),
                 ],
@@ -887,6 +776,235 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           ),
         );
       },
+    );
+  }
+}
+
+class AnimatedAchievementCard extends StatelessWidget {
+  final dynamic achievement;
+  final int styleType;
+
+  const AnimatedAchievementCard({
+    super.key,
+    required this.achievement,
+    required this.styleType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double height;
+    Color bgColor;
+    Color? borderColor;
+    Color textColor;
+
+    // Style Mapping:
+    // 0 -> Tall Card (Happy Clients Style - FFF6F0)
+    // 1 -> Short Card (Pro Team Style - FFE0D2)
+    // 2 -> Short Card (Completed Projects Style - EF7044)
+    // 3 -> Tall Card (Awards Won Style - FFF6F0)
+
+    if (styleType == 0 || styleType == 3) {
+      height = 130;
+      bgColor = const Color(0xFFFFF6F0);
+      borderColor = const Color(0xFFF3D0C3);
+      textColor = const Color(0xFF5C1B1B);
+    } else if (styleType == 1) {
+      height = 80;
+      bgColor = const Color(0xFFFFE0D2);
+      borderColor = const Color(0xFFF3A086);
+      textColor = const Color(0xFF5C1B1B);
+    } else {
+      height = 80;
+      bgColor = const Color(0xffEF7044);
+      borderColor = null;
+      textColor = Colors.white;
+    }
+
+    int targetValue = achievement.count ?? 0;
+
+    Widget tweenNumber = TweenAnimationBuilder<int>(
+      tween: IntTween(begin: 0, end: targetValue),
+      duration: const Duration(seconds: 2),
+      builder: (context, value, child) {
+        return Text(
+          "${value.toString()}+",
+          style: GoogleFonts.poppins(
+            fontSize: height == 130 ? 22 : 20,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+            color: textColor,
+            height: 1.1,
+          ),
+        );
+      },
+    );
+
+    Widget iconWidget = const SizedBox();
+    if (achievement.icon != null && achievement.icon!.isNotEmpty) {
+      String fullUrl = achievement.icon!;
+      if (!fullUrl.startsWith('http')) {
+        String imagePath = achievement.icon!.replaceAll('\\', '/');
+        fullUrl = "${EndPoint.replaceAll('api/', '')}$imagePath";
+      }
+
+      iconWidget = Image.network(
+        fullUrl,
+        errorBuilder: (c, e, s) => const SizedBox(),
+      );
+    }
+
+    Widget content;
+    if (styleType == 0) {
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 35, width: 35, child: iconWidget),
+          const Spacer(),
+          tweenNumber,
+          Text(
+            achievement.title ?? "",
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              letterSpacing: 1,
+              color: textColor,
+            ),
+          ),
+        ],
+      );
+    } else if (styleType == 1) {
+      content = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              tweenNumber,
+              Text(
+                achievement.title ?? "",
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  letterSpacing: 1,
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 35, width: 35, child: iconWidget),
+        ],
+      );
+    } else if (styleType == 2) {
+      content = Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 35, width: 35, child: iconWidget),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                tweenNumber,
+                Text(
+                  achievement.title ?? "",
+                  style: GoogleFonts.poppins(
+                    fontSize: 9,
+                    letterSpacing: 1,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      // styleType == 3
+      content = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              tweenNumber,
+              Text(
+                achievement.title ?? "",
+                style: GoogleFonts.poppins(fontSize: 12, color: textColor),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: SizedBox(height: 35, width: 35, child: iconWidget),
+          ),
+        ],
+      );
+    }
+
+    return Container(
+      height: height,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: height == 130 ? 16 : 10,
+        vertical: height == 130 ? 16 : 8,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1)
+            : null,
+      ),
+      child: content,
+    );
+  }
+}
+
+class AchievementShimmer extends StatelessWidget {
+  const AchievementShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade100,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                _buildShimmerBox(130),
+                const SizedBox(height: 10),
+                _buildShimmerBox(80),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              children: [
+                _buildShimmerBox(80),
+                const SizedBox(height: 10),
+                _buildShimmerBox(130),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerBox(double height) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
     );
   }
 }

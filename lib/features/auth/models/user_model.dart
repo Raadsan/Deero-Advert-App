@@ -27,15 +27,30 @@ class User {
   String? fullname;
   String? email;
   String? phone;
+  int? bonus;
+  String? bonusStatus;
+  String? registerSource;
   Role? role;
 
-  User({this.id, this.fullname, this.email, this.phone, this.role});
+  User({
+    this.id,
+    this.fullname,
+    this.email,
+    this.phone,
+    this.bonus,
+    this.bonusStatus,
+    this.registerSource,
+    this.role,
+  });
 
   User.fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? json['_id'];
+    id = (json['id'] ?? json['_id'])?.toString();
     fullname = json['fullname'];
     email = json['email'];
     phone = json['phone'];
+    bonus = json['bonus'];
+    bonusStatus = json['bonusStatus'];
+    registerSource = json['registerSource'];
     role = json['role'] != null ? new Role.fromJson(json['role']) : null;
   }
 
@@ -45,6 +60,9 @@ class User {
     data['fullname'] = this.fullname;
     data['email'] = this.email;
     data['phone'] = this.phone;
+    data['bonus'] = this.bonus;
+    data['bonusStatus'] = this.bonusStatus;
+    data['registerSource'] = this.registerSource;
     if (this.role != null) {
       data['role'] = this.role!.toJson();
     }

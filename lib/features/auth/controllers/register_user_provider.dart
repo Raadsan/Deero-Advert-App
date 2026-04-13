@@ -52,6 +52,7 @@ class RegisterUserProvider extends ChangeNotifier {
         "password": password,
         "phone": phone,
         "role": "6953956770d76d4794728165",
+        "registerSource": "mobile",
       };
 
       var response = await http.post(

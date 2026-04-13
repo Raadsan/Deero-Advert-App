@@ -54,11 +54,28 @@ class Portfolios {
   Portfolios.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     title = json['title'];
-    mainImage = json['mainImage'];
+    if (json['mainImage'] is String) {
+      mainImage = json['mainImage'];
+    } else if (json['mainImage'] is Map) {
+      mainImage = json['mainImage']['url'] ??
+          json['mainImage']['image'] ??
+          json['mainImage']['path'];
+    }
     description = json['description'];
     year = json['year'];
     industry = json['industry'];
-    gallery = json['gallery'].cast<String>();
+    if (json['gallery'] != null) {
+      gallery = <String>[];
+      json['gallery'].forEach((v) {
+        if (v is String) {
+          gallery!.add(v);
+        } else if (v is Map) {
+          // Robustly handle if images are returned as objects
+          final val = v['url'] ?? v['image'] ?? v['path'] ?? v['url_link'] ?? v['imagePath'];
+          if (val != null) gallery!.add(val.toString());
+        }
+      });
+    }
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];

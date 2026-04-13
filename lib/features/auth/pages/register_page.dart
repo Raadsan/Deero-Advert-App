@@ -1,6 +1,6 @@
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/register_user_provider.dart';
-import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

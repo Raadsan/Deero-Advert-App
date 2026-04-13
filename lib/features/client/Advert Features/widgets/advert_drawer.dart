@@ -1,20 +1,20 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
-import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
-import 'package:deero_enterprise_app/features/client/Enterprise%20Features/pages/profilepage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:iconly/iconly.dart';
+
 
 class AdvertDrawer extends StatefulWidget {
   const AdvertDrawer({super.key});
@@ -56,20 +56,19 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                 children: [
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.person_outline_rounded,
+                    icon: IconlyLight.profile,
                     title: "My Account",
                     delay: 100,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            isLoggedIn ? Profilepage() : LoginPage(),
+                        builder: (context) => const AdvertProfilePage(),
                       ),
                     ),
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.history,
+                    icon: IconlyLight.paper,
                     title: "Portfolio",
                     delay: 150,
                     onTap: () => Navigator.push(
@@ -81,7 +80,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.history,
+                    icon: IconlyLight.time_square,
                     title: "Transactions",
                     delay: 150,
                     onTap: () => Navigator.push(
@@ -93,7 +92,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.notifications_none_rounded,
+                    icon: IconlyLight.notification,
                     title: "Notifications",
                     delay: 200,
                     onTap: () => Navigator.push(
@@ -105,7 +104,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.newspaper_rounded,
+                    icon: IconlyLight.document,
                     title: "Latest News",
                     delay: 300,
                     onTap: () => Navigator.push(
@@ -117,7 +116,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.work_outline_rounded,
+                    icon: IconlyLight.bag,
                     title: "Careers",
                     delay: 400,
                     onTap: () => Navigator.push(
@@ -129,19 +128,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.info_outline_rounded,
-                    title: "About Us",
-                    delay: 500,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdvertAboutpage(),
-                      ),
-                    ),
-                  ),
-                  _buildMenuItem(
-                    context: context,
-                    icon: Icons.help_outline_rounded,
+                    icon: IconlyLight.info_circle,
                     title: "Help Center",
                     delay: 600,
                     onTap: () {
@@ -156,7 +143,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   const Divider(height: 40, thickness: 0.5),
                   _buildMenuItem(
                     context: context,
-                    icon: Icons.logout_rounded,
+                    icon: IconlyLight.logout,
                     title: "Log Out",
                     delay: 700,
                     onTap: () {
@@ -270,7 +257,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   const Spacer(),
                   Icon(
-                    Icons.arrow_forward_ios,
+                    IconlyLight.arrow_right_2,
                     color: Colors.grey.withOpacity(0.3),
                     size: 14,
                   ),

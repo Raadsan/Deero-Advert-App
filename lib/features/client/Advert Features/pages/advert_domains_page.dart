@@ -10,6 +10,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:material_dialogs/material_dialogs.dart';
+import 'package:iconly/iconly.dart';
+
 
 class AdvertDomainsPage extends StatelessWidget {
   final String searchedDomain;
@@ -33,7 +35,7 @@ class AdvertDomainsPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.arrow_back_ios, size: 20),
+              icon: const Icon(IconlyLight.arrow_left_2, size: 20),
             ),
             title: Text(
               "Domain Availability",
@@ -183,212 +185,251 @@ class _DomainCardState extends State<_DomainCard> {
       print("Error parsing price: $e");
     }
 
-    Dialogs.bottomMaterialDialog(
+    showModalBottomSheet(
       context: context,
-      title: "Purchase ${widget.domain}",
-      titleStyle: GoogleFonts.poppins(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: const Color(0xff651313),
-      ),
-      customView: StatefulBuilder(
-        builder: (dialogContext, setDialogState) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffFCD9CC).withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: StatefulBuilder(
+            builder: (dialogContext, setDialogState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Total Price",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            widget.price,
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFEB4724),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Method",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          Text(
-                            "Waafipay",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xff651313),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  Text(
+                    "Purchase ${widget.domain}",
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xff651313),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Account Number",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xff111827),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _accountController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: "Enter phone number",
-                    prefixIcon: const Icon(Icons.phone_android, size: 20),
-                    hintStyle: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey.shade400,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade200),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade200),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFEB4724)),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                  ),
-                  style: GoogleFonts.poppins(fontSize: 14),
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: _isLocalLoading
-                        ? null
-                        : () async {
-                            if (_accountController.text.isEmpty) {
-                              ScaffoldMessenger.of(dialogContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Please enter account number"),
-                                ),
-                              );
-                              return;
-                            }
-                            final userId = userProvider.userModel?.user?.id;
-                            if (userId == null) {
-                              ScaffoldMessenger.of(dialogContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "User session error. Please login again.",
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffFCD9CC).withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Total Price",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
-                                ),
-                              );
-                              return;
-                            }
-
-                            setDialogState(() {
-                              _isLocalLoading = true;
-                            });
-
-                            final success =
-                                await transactionProvider.CreateTransaction(
-                                  userId: userId,
-                                  amount: parsedPrice,
-                                  domain: {
-                                    "name": widget.domain,
-                                    "_id": widget.id,
-                                  },
-                                  hostingPackageId: null,
-                                  serviceId: null,
-                                  description:
-                                      "Domain Purchase: ${widget.domain}",
-                                  paymentMethod: "Waafipay",
-                                  accountNo: _accountController.text,
-                                  context: dialogContext,
-                                );
-
-                            setDialogState(() {
-                              _isLocalLoading = false;
-                            });
-
-                            if (success) {
-                              Navigator.pop(dialogContext); // Close Purchase Sheet
-                              
-                              if (context.mounted) {
-                                CustomBottomSheet.showCongratulations(
-                                  context: context,
-                                  message:
-                                      "Your purchase for ${widget.domain} was successful!",
-                                );
-                              }
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff651313),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isLocalLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            "Confirm Purchase",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                                  Text(
+                                    widget.price,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFFEB4724),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Method",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Waafipay",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xff651313),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Account Number",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xff111827),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _accountController,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            hintText: "Enter phone number",
+                            prefixIcon:
+                                const Icon(Icons.phone_android, size: 20),
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade400,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade200),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade200),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFFEB4724)),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                        const SizedBox(height: 30),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: _isLocalLoading
+                                ? null
+                                : () async {
+                                    if (_accountController.text.isEmpty) {
+                                      ScaffoldMessenger.of(dialogContext)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              "Please enter account number"),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    final userId =
+                                        userProvider.userModel?.user?.id;
+                                    if (userId == null) {
+                                      ScaffoldMessenger.of(dialogContext)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "User session error. Please login again.",
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    setDialogState(() {
+                                      _isLocalLoading = true;
+                                    });
+
+                                    final success = await transactionProvider
+                                        .CreateTransaction(
+                                      userId: userId,
+                                      amount: parsedPrice,
+                                      domain: {
+                                        "name": widget.domain,
+                                        "_id": widget.id,
+                                      },
+                                      hostingPackageId: null,
+                                      serviceId: null,
+                                      description:
+                                          "Domain Purchase: ${widget.domain}",
+                                      paymentMethod: "Waafipay",
+                                      accountNo: _accountController.text,
+                                      context: dialogContext,
+                                    );
+
+                                    setDialogState(() {
+                                      _isLocalLoading = false;
+                                    });
+
+                                    if (success) {
+                                      Navigator.pop(
+                                          dialogContext); // Close Purchase Sheet
+
+                                      if (context.mounted) {
+                                        CustomBottomSheet
+                                            .showCongratulations(
+                                          context: context,
+                                          message:
+                                              "Your purchase for ${widget.domain} was successful!",
+                                        );
+                                      }
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff651313),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isLocalLoading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    "Confirm Purchase",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        },
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -528,7 +569,7 @@ class _DomainCardState extends State<_DomainCard> {
                           }
                         },
                         child: const Icon(
-                          Icons.add_shopping_cart_outlined,
+                          IconlyLight.buy,
                           color: Color(0xff111827),
                           size: 24,
                         ),

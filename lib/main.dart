@@ -4,17 +4,17 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/achievement_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_introduction_page.dart';
-// import 'package:deero_enterprise_app/features/client/Enterprise%20Features/controllers/notification_provider.dart';
-import 'package:deero_enterprise_app/features/navigation/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 
 @pragma('vm:entry-point')
@@ -60,6 +60,8 @@ class MyApp extends StatelessWidget {
           create: (_) => NotificationProvider(),
           lazy: false,
         ),
+        ChangeNotifierProvider(create: (_) => AchievementProvider()),
+        ChangeNotifierProvider(create: (_) => MajorClientProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

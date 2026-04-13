@@ -50,7 +50,7 @@ class Data {
   });
 
   Data.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
+    sId = json['_id'] ?? json['id']?.toString();
     serviceTitle = json['serviceTitle'];
     serviceIcon = json['serviceIcon'];
     if (json['packages'] != null) {
@@ -91,7 +91,7 @@ class Packages {
     packageTitle = json['packageTitle'];
     price = json['price']?.toDouble();
     features = json['features'].cast<String>();
-    sId = json['_id'];
+    sId = json['_id'] ?? json['id']?.toString();
   }
 
   Map<String, dynamic> toJson() {

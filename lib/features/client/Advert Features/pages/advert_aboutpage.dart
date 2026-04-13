@@ -130,7 +130,9 @@ class AdvertAboutpage extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xff651313).withOpacity(0.06),
+                                color: const Color(
+                                  0xff651313,
+                                ).withOpacity(0.06),
                                 blurRadius: 24,
                                 offset: const Offset(0, 8),
                               ),

@@ -104,7 +104,7 @@ class NotificationProvider extends ChangeNotifier {
 
     if (!isFirstLaunch) {
       NotificationService.show(
-        "Welcome to Deero Enterprise!",
+        "Welcome to Deero Advert!",
         "Thank you for installing our application. You will receive important updates here.",
       );
       box.write('isFirstLaunchNotificationSent', true);
