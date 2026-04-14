@@ -58,7 +58,7 @@ class CheckDomainProvider extends ChangeNotifier {
             String tld = p.tld.toLowerCase();
             if (!tld.startsWith('.')) tld = '.$tld';
             String fullDomain = "$baseName$tld";
-            double price = p.newPrice ?? 0.0;
+            double price = p.newPrice;
 
             try {
               final rdapUrl = _getRDAPUrl(fullDomain);
