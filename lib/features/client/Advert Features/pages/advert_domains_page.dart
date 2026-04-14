@@ -9,7 +9,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:material_dialogs/material_dialogs.dart';
 import 'package:iconly/iconly.dart';
 
 
