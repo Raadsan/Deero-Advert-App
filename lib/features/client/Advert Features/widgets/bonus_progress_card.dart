@@ -27,7 +27,6 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
     final pointsLeft = 100 - normalizedBonus;
     final pointWord = pointsLeft == 1 ? "point" : "points";
     final isAvailable = widget.bonusStatus == "BonusAvailable";
-    final sourceLabel = widget.registerSource == "mobile" ? "Mobile" : "Website";
     const milestones = [0, 15, 30, 60, 100];
     const cardBg = Color(0xFFFCD7C3);
     const borderColor = Color(0xFFE24122);
@@ -58,7 +57,10 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.65),
                   borderRadius: BorderRadius.circular(20),
@@ -82,8 +84,8 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
               Text(
                 "$normalizedBonus/100",
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: primaryText,
                 ),
               ),
@@ -109,73 +111,81 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
             height: 52,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final trackWidth = constraints.maxWidth;
+                const horizontalPadding = 16.0;
+                final trackWidth = constraints.maxWidth - (horizontalPadding * 2);
                 final knobSize = 17.0;
                 final progressWidth = trackWidth * progressValue;
-                return Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    Positioned(
-                      top: 6,
-                      child: Container(
-                      height: 5,
-                      width: trackWidth,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE7E7E7).withOpacity(0.65),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    )),
-                    Positioned(
-                      top: 6,
-                      child: Container(
-                      height: 5,
-                      width: progressWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    )),
-                    ...milestones.map((milestone) {
-                      final left = (trackWidth * (milestone / 100)) - (knobSize / 2);
-                      final reached = normalizedBonus >= milestone;
-                      return Positioned(
-                        top: 0,
-                        left: left.clamp(0.0, trackWidth - knobSize),
-                        child: Column(
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 240),
-                              height: knobSize,
-                              width: knobSize,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: reached
-                                      ? accent
-                                      : const Color(0xFFCFCFCF),
-                                  width: 2.2,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: 32,
-                              child: Text(
-                                milestone.toString(),
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: mutedText,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        top: 6,
+                        child: Container(
+                          height: 5,
+                          width: trackWidth,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE7E7E7).withOpacity(0.65),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
                         ),
-                      );
-                    }),
-                  ],
+                      ),
+                      Positioned(
+                        top: 6,
+                        child: Container(
+                          height: 5,
+                          width: progressWidth,
+                          decoration: BoxDecoration(
+                            color: const Color(0xff651313),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                      ),
+                      ...milestones.map((milestone) {
+                        final left =
+                            (trackWidth * (milestone / 100)) - (knobSize / 2);
+                        final reached = normalizedBonus >= milestone;
+                        return Positioned(
+                          top: 0,
+                          left: left,
+                          child: Column(
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 240),
+                                height: knobSize,
+                                width: knobSize,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: reached
+                                        ? const Color(0xff651313)
+                                        : const Color(0xFFCFCFCF),
+                                    width: 2.2,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: 32,
+                                child: Text(
+                                  milestone.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: mutedText,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 );
               },
             ),
@@ -200,7 +210,10 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
                   const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -254,31 +267,15 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
     );
   }
 
-  Widget _buildMetaChip(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.poppins(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFF2D2D2D),
-        ),
-      ),
-    );
-  }
-
   Widget _rewardRow({
     required String points,
     required String text,
     required bool enabled,
     bool isLast = false,
   }) {
-    final rowColor = enabled ? const Color(0xFF252525) : const Color(0xFF5A5A5A);
+    final rowColor = enabled
+        ? const Color(0xFF252525)
+        : const Color(0xFF5A5A5A);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(

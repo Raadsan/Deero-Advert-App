@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
 
-
 class AdvertServicepage extends StatefulWidget {
   final int initialIndex;
   const AdvertServicepage({super.key, this.initialIndex = 0});
@@ -356,8 +355,9 @@ class _PackageCardState extends State<PackageCard> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -399,8 +399,7 @@ class _PackageCardState extends State<PackageCard> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +412,7 @@ class _PackageCardState extends State<PackageCard> {
                                     ),
                                   ),
                                   Text(
-                                    "\$${widget.package.price?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00$'), '') ?? '0'}",
+                                    "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -460,8 +459,10 @@ class _PackageCardState extends State<PackageCard> {
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             hintText: "Enter phone number",
-                            prefixIcon:
-                                const Icon(Icons.phone_android, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.phone_android,
+                              size: 20,
+                            ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.grey.shade400,
@@ -472,18 +473,21 @@ class _PackageCardState extends State<PackageCard> {
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFEB4724)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFEB4724),
+                              ),
                             ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
@@ -499,11 +503,13 @@ class _PackageCardState extends State<PackageCard> {
                                 ? null
                                 : () async {
                                     if (_accountController.text.isEmpty) {
-                                      ScaffoldMessenger.of(dialogContext)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        dialogContext,
+                                      ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                              "Please enter account number"),
+                                            "Please enter account number",
+                                          ),
                                         ),
                                       );
                                       return;
@@ -511,8 +517,9 @@ class _PackageCardState extends State<PackageCard> {
                                     final userId =
                                         userProvider.userModel?.user?.id;
                                     if (userId == null) {
-                                      ScaffoldMessenger.of(dialogContext)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        dialogContext,
+                                      ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                             "User session error. Please login again.",
@@ -526,16 +533,16 @@ class _PackageCardState extends State<PackageCard> {
                                       _isLocalLoading = true;
                                     });
 
-                                    final success = await transactionProvider
-                                        .CreateTransaction(
-                                      userId: userId,
-                                      amount: widget.package.price ?? 0,
-                                      serviceId: widget.serviceId,
-                                      packageId: widget.package.sId,
-                                      paymentMethod: "Waafipay",
-                                      accountNo: _accountController.text,
-                                      context: dialogContext,
-                                    );
+                                    final success =
+                                        await transactionProvider.CreateTransaction(
+                                          userId: userId,
+                                          amount: widget.package.price ?? 0,
+                                          serviceId: widget.serviceId,
+                                          packageId: widget.package.sId,
+                                          paymentMethod: "Waafipay",
+                                          accountNo: _accountController.text,
+                                          context: dialogContext,
+                                        );
 
                                     setDialogState(() {
                                       _isLocalLoading = false;
@@ -547,8 +554,7 @@ class _PackageCardState extends State<PackageCard> {
                                       ); // Close Purchase Sheet
 
                                       if (context.mounted) {
-                                        CustomBottomSheet
-                                            .showCongratulations(
+                                        CustomBottomSheet.showCongratulations(
                                           context: context,
                                           message:
                                               "Your purchase for ${widget.package.packageTitle} was successful!",
@@ -635,7 +641,7 @@ class _PackageCardState extends State<PackageCard> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "\$${widget.package.price?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00$'), '') ?? "0"}",
+                  "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
                   style: GoogleFonts.outfit(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
@@ -648,40 +654,42 @@ class _PackageCardState extends State<PackageCard> {
                 ...displayedFeatures.asMap().entries.map((entry) {
                   int index = entry.key;
                   String feature = entry.value;
-                  return AnimatedFeatureItem(
-                    index: index,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEB4724).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              IconlyLight.tick_square,
-                              color: Color(0xFFEB4724),
-                              size: 14,
+                  // Only animate the first 5 items (initial load), extras appear instantly
+                  final alreadyVisible = index < 5;
+                  Widget item = Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEB4724).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            IconlyLight.tick_square,
+                            color: Color(0xFFEB4724),
+                            size: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            feature,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: const Color(0xff4B5563),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              feature,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: const Color(0xff4B5563),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
+                  return alreadyVisible
+                      ? AnimatedFeatureItem(index: index, child: item)
+                      : item;
                 }),
                 if (showExpandButton)
                   Padding(

@@ -1,6 +1,9 @@
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_bonushistory_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,22 +20,20 @@ class AdvertProfilePage extends StatelessWidget {
     final isLoggedIn = box.hasData(isLogged);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: const Color(0xff660E0D),
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         title: Text(
           "My Profile",
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.poppins(
             color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
           ),
-        ),
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
       ),
       body: Consumer<UserProvider>(
@@ -117,6 +118,147 @@ class AdvertProfilePage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
+                      // Bonus & Transactions Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AdvertBonusHistoryPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.1),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xff660E0D,
+                                        ).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        IconlyLight.star,
+                                        color: Color(0xff660E0D),
+                                        size: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      "Bonus",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    Text(
+                                      "${user.bonus ?? 0} Pts",
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AdvertHistorypage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                  horizontal: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.1),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xff660E0D,
+                                        ).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        IconlyLight.document,
+                                        color: Color(0xff660E0D),
+                                        size: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      "Transactions",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    Text(
+                                      "History",
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xff111827),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       _buildProfileItem(
                         icon: IconlyLight.profile,
                         title: "Full Name",
@@ -284,9 +426,7 @@ class AdvertProfilePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -315,9 +455,7 @@ class AdvertProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           "Log Out",
           style: GoogleFonts.outfit(
@@ -345,9 +483,7 @@ class AdvertProfilePage extends StatelessWidget {
               userProvider.logout();
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => AdvertNavigationpage(),
-                ),
+                MaterialPageRoute(builder: (context) => AdvertNavigationpage()),
                 (route) => false,
               );
             },

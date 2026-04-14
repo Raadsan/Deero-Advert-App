@@ -1,7 +1,9 @@
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_hostingpage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -81,6 +83,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     AdvertAboutpage(),
     AdvertServicepage(),
     AdvertHostingpage(),
+    const AdvertProfilePage(),
   ];
 
   int currentPage = 0;
@@ -122,10 +125,13 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
             FloatingActionButton(
               onPressed: () => setState(() => _socialFabOpen = !_socialFabOpen),
               backgroundColor: const Color(0xffEF7044),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(60),
+              ),
               child: Icon(
                 _socialFabOpen ? IconlyLight.close_square : IconlyLight.chat,
                 color: Colors.white,
-                size: 28,
+                size: 30,
               ),
             ),
           ],
@@ -133,7 +139,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: bgColor,
           boxShadow: [
             BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1)),
           ],
@@ -154,13 +160,13 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               // tabBackgroundColor: Color(0xFF651313),
               curve: Curves.ease, // tab animation curves
               duration: Duration(milliseconds: 100), // tab animation duration
-              gap: 8, // the tab button gap between icon and text
+              gap: 4, // the tab button gap between icon and text
               color: Colors.black, // unselected icon color
               activeColor: Color(0xffEF7044), // selected icon and text color
-              iconSize: 24, // tab button icon size
+              iconSize: 22, // tab button icon size
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 15,
+                horizontal: 10,
+                vertical: 12,
               ), // navigation bar padding
               tabs: [
                 GButton(icon: IconlyLight.home, text: 'Home'),
@@ -174,10 +180,11 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                     height: 24,
                     color: currentPage == 3
                         ? const Color(0xffEF7044)
-                        : Colors.grey,
+                        : Colors.black,
                   ),
                   text: 'Hosting',
                 ),
+                GButton(icon: IconlyLight.profile, text: 'Profile'),
               ],
             ),
           ),

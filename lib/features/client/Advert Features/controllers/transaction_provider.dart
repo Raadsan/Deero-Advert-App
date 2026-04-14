@@ -90,7 +90,7 @@ class TransactionProvider extends ChangeNotifier {
         "hostingPackageId": hostingPackageId,
         "userId": userId,
         "amount": amount,
-        "description": description,
+        "description": description ?? "Deero Services Payment",
         "accountNo": accountNo,
         "paymentMethod": paymentMethod,
       };

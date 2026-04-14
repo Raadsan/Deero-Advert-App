@@ -63,12 +63,21 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
         surfaceTintColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: Color(0xff660E0D),
+          ),
+        ),
         title: Text(
           "Transaction History",
-          style: GoogleFonts.outfit(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xff111827),
+          style: GoogleFonts.poppins(
+            color: const Color(0xff660E0D),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -93,7 +102,9 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        needsLogin ? Icons.lock_outline_rounded : Icons.error_outline,
+                        needsLogin
+                            ? Icons.lock_outline_rounded
+                            : Icons.error_outline,
                         size: 48,
                         color: needsLogin
                             ? const Color(0xffEF7044)
@@ -302,7 +313,7 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              "\$${tx.amount?.toStringAsFixed(2) ?? "0.00"}",
+                              "\$${(tx.amount ?? 0) % 1 == 0 ? (tx.amount ?? 0).toInt() : (tx.amount ?? 0).toStringAsFixed(2)}",
                               style: GoogleFonts.outfit(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -436,7 +447,7 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "\$ ${tx.amount?.toStringAsFixed(2) ?? "0.00"}",
+                              "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
                               style: GoogleFonts.poppins(
                                 fontSize: 36,
                                 fontWeight: FontWeight.bold,
@@ -469,7 +480,9 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                           child: Column(
                             children: [
                               _buildReceiptRow(
-                                  "Transaction date", formattedDate),
+                                "Transaction date",
+                                formattedDate,
+                              ),
                               const SizedBox(height: 16),
                               _buildReceiptRow(
                                 "Magaca diraha",
@@ -485,16 +498,18 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                               const SizedBox(height: 16),
                               _buildReceiptRow(
                                 "Xaddiga lacagta",
-                                "\$ ${tx.amount?.toStringAsFixed(2) ?? "0.00"}",
+                                "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
                               ),
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16),
-                                child:
-                                    Divider(color: Colors.white, thickness: 1),
+                                child: Divider(
+                                  color: Colors.white,
+                                  thickness: 1,
+                                ),
                               ),
                               _buildReceiptRow(
                                 "Total",
-                                "\$ ${tx.amount?.toStringAsFixed(2) ?? "0.00"}",
+                                "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
                                 isBold: true,
                               ),
                             ],
@@ -541,24 +556,25 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                           try {
                             final Uint8List? imageBytes =
                                 await _screenshotController.capture(
-                                    delay: const Duration(milliseconds: 10));
+                                  delay: const Duration(milliseconds: 10),
+                                );
 
                             if (imageBytes != null) {
                               final tempDir = await getTemporaryDirectory();
                               final file = await File(
-                                      '${tempDir.path}/transaction_receipt.png')
-                                  .create();
+                                '${tempDir.path}/transaction_receipt.png',
+                              ).create();
                               await file.writeAsBytes(imageBytes);
 
-                              await Share.shareXFiles(
-                                [XFile(file.path)],
-                                text: "Deero Advert Transaction Receipt",
-                              );
+                              await Share.shareXFiles([
+                                XFile(file.path),
+                              ], text: "Deero Advert Transaction Receipt");
                             }
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text("Error sharing image: $e")),
+                                content: Text("Error sharing image: $e"),
+                              ),
                             );
                           }
                         },
@@ -599,20 +615,6 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
         ),
       ],
     );
-  }
-
-  Color _getStatusColor(String? status) {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-      case 'success':
-        return const Color(0xff00BD8B);
-      case 'pending':
-        return Colors.orange;
-      case 'failed':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }
 

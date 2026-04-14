@@ -86,6 +86,38 @@ class UserProvider extends ChangeNotifier {
     print("hasdata" + hasdata.toString());
   }
 
+  List<BonusHistory> bonusHistory = [];
+  bool isHistoryLoading = false;
+
+  Future<void> getBonusHistoryLocal() async {
+    if (userModel?.user?.id == null) return;
+    try {
+      isHistoryLoading = true;
+      notifyListeners();
+
+      var response = await http.get(
+        Uri.parse(EndPoint + "users/bonus-history/${userModel!.user!.id}"),
+        headers: {
+          "Content-Type": "application/json",
+          if (userModel?.token != null) "Authorization": "Bearer ${userModel!.token}",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          var historyList = data['history'] as List;
+          bonusHistory = historyList.map((e) => BonusHistory.fromJson(e)).toList();
+        }
+      }
+    } catch (e) {
+      print("Error fetching bonus history: $e");
+    } finally {
+      isHistoryLoading = false;
+      notifyListeners();
+    }
+  }
+
   void logout() {
     box.remove("userInfo");
     box.remove(isLogged);

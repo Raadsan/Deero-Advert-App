@@ -45,7 +45,7 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
           backgroundColor: const Color(0xFFF9FAFB),
           appBar: AppBar(
             backgroundColor: const Color(0xFFF9FAFB),
-            surfaceTintColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
@@ -53,8 +53,8 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
               "Hosting Plans",
               style: GoogleFonts.outfit(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xff111827),
+                fontWeight: FontWeight.w500,
+                color: const Color(0xff651313),
               ),
             ),
           ),
@@ -318,7 +318,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                     ),
                                   ),
                                   Text(
-                                    "\$${price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                    "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -587,7 +587,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          "\$${totalPrice.toStringAsFixed(2)}",
+                          "\$${totalPrice % 1 == 0 ? totalPrice.toInt() : totalPrice.toStringAsFixed(2)}",
                           style: GoogleFonts.outfit(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -615,42 +615,42 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                     ...displayedFeatures.asMap().entries.map((entry) {
                       int index = entry.key;
                       String feature = entry.value;
-                      return AnimatedFeatureItem(
-                        index: index,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFFEB4724,
-                                  ).withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  IconlyLight.tick_square,
-                                  color: Color(0xFFEB4724),
-                                  size: 14,
+                      // Only animate the first 5 items (initial load), extras appear instantly
+                      final alreadyVisible = index < 5;
+                      Widget item = Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEB4724).withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                IconlyLight.tick_square,
+                                color: Color(0xFFEB4724),
+                                size: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                feature,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: const Color(0xff4B5563),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  feature,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: const Color(0xff4B5563),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
+                      return alreadyVisible
+                          ? AnimatedFeatureItem(index: index, child: item)
+                          : item;
                     }),
                     if (showExpandButton)
                       Padding(

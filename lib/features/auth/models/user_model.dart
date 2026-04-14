@@ -52,6 +52,12 @@ class User {
     bonusStatus = json['bonusStatus'];
     registerSource = json['registerSource'];
     role = json['role'] != null ? new Role.fromJson(json['role']) : null;
+    if (json['bonusHistory'] != null) {
+      bonusHistory = <BonusHistory>[];
+      json['bonusHistory'].forEach((v) {
+        bonusHistory!.add(new BonusHistory.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -66,6 +72,49 @@ class User {
     if (this.role != null) {
       data['role'] = this.role!.toJson();
     }
+    if (this.bonusHistory != null) {
+      data['bonusHistory'] = this.bonusHistory!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+
+  List<BonusHistory>? bonusHistory;
+}
+
+class BonusHistory {
+  int? id;
+  int? userId;
+  int? amount;
+  String? reason;
+  String? type;
+  String? createdAt;
+
+  BonusHistory({
+    this.id,
+    this.userId,
+    this.amount,
+    this.reason,
+    this.type,
+    this.createdAt,
+  });
+
+  BonusHistory.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    userId = json['userId'];
+    amount = json['amount'];
+    reason = json['reason'];
+    type = json['type'];
+    createdAt = json['createdAt'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['userId'] = this.userId;
+    data['amount'] = this.amount;
+    data['reason'] = this.reason;
+    data['type'] = this.type;
+    data['createdAt'] = this.createdAt;
     return data;
   }
 }

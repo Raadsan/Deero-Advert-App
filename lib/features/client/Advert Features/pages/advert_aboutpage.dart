@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,15 +10,15 @@ class AdvertAboutpage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffFDF8F5), // Light cream background
+      backgroundColor: bgColor, // Light cream background
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          systemNavigationBarColor: Colors.white,
+          statusBarColor: bgColor,
+          systemNavigationBarColor: bgColor,
           systemNavigationBarContrastEnforced: true,
           systemNavigationBarIconBrightness: Brightness.dark,
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: bgColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,

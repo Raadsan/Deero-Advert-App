@@ -71,7 +71,7 @@ class CheckDomainProvider extends ChangeNotifier {
                     sId: p.sId,
                     domain: fullDomain,
                     available: false,
-                    price: "\$${price.toStringAsFixed(2)}/Year",
+                    price: "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}/Year",
                   ),
                 );
               } else if (response.statusCode == 404) {
@@ -81,7 +81,7 @@ class CheckDomainProvider extends ChangeNotifier {
                     sId: p.sId,
                     domain: fullDomain,
                     available: true,
-                    price: "\$${price.toStringAsFixed(2)}/Year",
+                    price: "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}/Year",
                   ),
                 );
               } else {
@@ -91,7 +91,7 @@ class CheckDomainProvider extends ChangeNotifier {
                     sId: p.sId,
                     domain: fullDomain,
                     available: false, // Default to false if we can't be sure
-                    price: "\$${price.toStringAsFixed(2)}/Year",
+                    price: "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}/Year",
                   ),
                 );
               }
@@ -101,7 +101,7 @@ class CheckDomainProvider extends ChangeNotifier {
                   sId: p.sId,
                   domain: fullDomain,
                   available: false,
-                  price: "\$${price.toStringAsFixed(2)}/Year",
+                  price: "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}/Year",
                 ),
               );
             }

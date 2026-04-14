@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
@@ -226,18 +227,18 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         _maybeShowBonusCelebration(bonus);
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: bgColor,
           drawer: const AdvertDrawer(),
 
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
+            backgroundColor: bgColor,
             systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.white,
-              systemNavigationBarColor: Colors.white,
+              statusBarColor: bgColor,
+              systemNavigationBarColor: bgColor,
               systemNavigationBarContrastEnforced: true,
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
-            backgroundColor: Colors.white,
             centerTitle: true,
             actions: [
               IconButton(
@@ -991,8 +992,7 @@ class AnimatedAchievementCard extends StatelessWidget {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 35, width: 35, child: iconWidget),
-          const Spacer(),
+          Center(child: SizedBox(height: 55, width: 55, child: iconWidget)),
           tweenNumber,
           Text(
             achievement.title ?? "",
@@ -1023,7 +1023,7 @@ class AnimatedAchievementCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 35, width: 35, child: iconWidget),
+          SizedBox(height: 25, width: 25, child: iconWidget),
         ],
       );
     } else if (styleType == 2) {

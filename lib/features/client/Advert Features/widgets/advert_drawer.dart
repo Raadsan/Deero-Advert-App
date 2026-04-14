@@ -12,9 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:iconly/iconly.dart';
-
 
 class AdvertDrawer extends StatefulWidget {
   const AdvertDrawer({super.key});
@@ -25,25 +23,24 @@ class AdvertDrawer extends StatefulWidget {
 
 class _AdvertDrawerState extends State<AdvertDrawer> {
   @override
-  void _launchUrl() async {
-    String urlString = "https://thisradsan.vercel.app/";
-    final Uri uri = Uri.parse(urlString);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
-      }
-    }
-  }
-
+  // void _launchUrl() async {
+  //   String urlString = "https://thisradsan.vercel.app/";
+  //   final Uri uri = Uri.parse(urlString);
+  //   if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
+  //     }
+  //   }
+  // }
   Widget build(BuildContext context) {
     final box = GetStorage();
     final isLoggedIn = box.hasData(isLogged);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9FAFB),
       child: Column(
         children: [
           // Drawer Header
@@ -54,18 +51,6 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: Column(
                 children: [
-                  _buildMenuItem(
-                    context: context,
-                    icon: IconlyLight.profile,
-                    title: "My Account",
-                    delay: 100,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdvertProfilePage(),
-                      ),
-                    ),
-                  ),
                   _buildMenuItem(
                     context: context,
                     icon: IconlyLight.paper,
@@ -176,7 +161,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => _launchUrl(),
+                  onPressed: () {},
                   child: Text(
                     "Developed by Raadsan",
                     style: GoogleFonts.poppins(
