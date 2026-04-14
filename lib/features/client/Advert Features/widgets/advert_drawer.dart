@@ -7,9 +7,9 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
+// import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
+// import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:iconly/iconly.dart';
@@ -35,8 +35,8 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
   //   }
   // }
   Widget build(BuildContext context) {
-    final box = GetStorage();
-    final isLoggedIn = box.hasData(isLogged);
+    // final box = GetStorage();
+    // final isLoggedIn = box.hasData(isLogged);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     return Drawer(
