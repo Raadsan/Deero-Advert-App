@@ -21,7 +21,6 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
