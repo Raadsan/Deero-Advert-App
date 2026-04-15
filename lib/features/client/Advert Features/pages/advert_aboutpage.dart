@@ -12,14 +12,8 @@ class AdvertAboutpage extends StatelessWidget {
     return Scaffold(
       backgroundColor: bgColor, // Light cream background
       appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: bgColor,
-          systemNavigationBarColor: bgColor,
-          systemNavigationBarContrastEnforced: true,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
         backgroundColor: bgColor,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: const Color(0xFFF9FAFB),
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,

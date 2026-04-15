@@ -38,15 +38,15 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     }
   }
 
-  Future<void> _openMailto() async {
+  Future<void> _openInstagram() async {
     if (!await launchUrl(
-      kAdvertSocialMailtoUri,
+      Uri.parse(kAdvertSocialInstagramUrl),
       mode: LaunchMode.externalApplication,
     )) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Could not open email")));
+        ).showSnackBar(const SnackBar(content: Text("Could not open Instagram")));
       }
     }
   }
@@ -201,9 +201,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                       onTap: () => _openUrl(kAdvertSocialBehanceUrl),
                     ),
                     _miniSocialButton(
-                      icon: IconlyLight.message,
-                      color: const Color(0xff660E0D),
-                      onTap: _openMailto,
+                      icon: LineIcons.instagram,
+                      color: const Color(0xFFE1306C), // Official Instagram Magenta
+                      onTap: _openInstagram,
                     ),
                   ],
                   FloatingActionButton(

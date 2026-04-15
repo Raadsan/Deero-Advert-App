@@ -10,16 +10,11 @@ const String userinfo = "userinfo";
 const String kAdvertWhatsAppNumber = "252618553839";
 const String kAdvertSocialTikTokUrl = "https://www.tiktok.com/@deeroadverts?_r=1&_t=ZS-95TiDt6Svki";
 const String kAdvertSocialBehanceUrl = "https://www.behance.net/deeroadvert/";
-const String kAdvertSocialEmail = "support@deero.com";
+const String kAdvertSocialInstagramUrl = "https://www.instagram.com/deeroadvert?igsh=Z24za2xsMmg4Mmxo";
 
 String get kAdvertSocialWhatsAppUrl =>
     "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert")}";
 
-Uri get kAdvertSocialMailtoUri => Uri(
-      scheme: "mailto",
-      path: kAdvertSocialEmail,
-      queryParameters: const {"subject": "Deero Advert"},
-    );
 
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';
