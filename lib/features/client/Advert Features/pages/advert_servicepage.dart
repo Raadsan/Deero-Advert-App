@@ -6,6 +6,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/service_model.dart';
 import 'package:deero_enterprise_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,9 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
           appBar: AppBar(
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: const Color(0xFFF9FAFB),
+            systemOverlayStyle: SystemUiOverlayStyle(
+              systemNavigationBarColor: const Color(0xFFF9FAFB),
+            ),
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
@@ -186,7 +190,8 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                   (package) => PackageCard(
                                     package: package,
                                     serviceId: services[_selectedIndex].sId,
-                                    serviceTitle: services[_selectedIndex].serviceTitle,
+                                    serviceTitle:
+                                        services[_selectedIndex].serviceTitle,
                                   ),
                                 )
                               else
@@ -596,7 +601,8 @@ class _PackageCardState extends State<PackageCard> {
                                           amount: finalAmount,
                                           serviceId: widget.serviceId,
                                           packageId: widget.package.sId,
-                                          description: "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
+                                          description:
+                                              "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           context: dialogContext,

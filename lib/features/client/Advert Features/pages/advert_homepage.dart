@@ -252,6 +252,9 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           backgroundColor: bgColor,
           drawer: const AdvertDrawer(),
           appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              systemNavigationBarColor: bgColor,
+            ),
             surfaceTintColor: const Color(0xFFF9FAFB),
             backgroundColor: bgColor,
             centerTitle: true,

@@ -1,6 +1,8 @@
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_career_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +33,9 @@ class _AdvertCareerPageState extends State<AdvertCareerPage> {
         return Scaffold(
           backgroundColor: const Color(0xffF9FAFB),
           appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle(
+          systemNavigationBarColor: bgColor,
+        ),
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
             elevation: 0,

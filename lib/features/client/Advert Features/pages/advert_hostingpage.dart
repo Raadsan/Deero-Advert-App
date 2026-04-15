@@ -1,3 +1,4 @@
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/pricing_toggle.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
@@ -8,6 +9,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/models/ho
     as hosting;
 import 'package:deero_enterprise_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +46,9 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
         return Scaffold(
           backgroundColor: const Color(0xFFF9FAFB),
           appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle(
+          systemNavigationBarColor: bgColor,
+        ),
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: Colors.transparent,
             elevation: 0,

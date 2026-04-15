@@ -5,6 +5,7 @@ import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_bonushistory_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
@@ -21,7 +22,11 @@ class AdvertProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
+      
       appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          systemNavigationBarColor: bgColor,
+        ),
         backgroundColor: const Color(0xff660E0D),
         elevation: 0,
         surfaceTintColor: Colors.transparent,

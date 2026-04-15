@@ -1,8 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_enterprise_app/core/themes/color_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/portfolio_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -47,6 +49,9 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF9FAFB),
         surfaceTintColor: Colors.white,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          systemNavigationBarColor: bgColor,
+        ),
         elevation: 0,
         centerTitle: true,
         title: Text(
