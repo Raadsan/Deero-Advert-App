@@ -317,14 +317,50 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
-                                  Text(
-                                    "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFFEB4724),
+                                  if (userProvider
+                                          .userModel
+                                          ?.user
+                                          ?.bonusStatus ==
+                                      "BonusAvailable") ...[
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "${userProvider.discountPercentage}% OFF",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                    Text(
+                                      "\$${(price * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
+                                  ] else
+                                    Text(
+                                      "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
                                 ],
                               ),
                               Column(
@@ -439,12 +475,28 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                       _isLocalLoading = true;
                                     });
 
+                                    final isBonusAvailable =
+                                        userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable";
+                                    final finalAmount = isBonusAvailable
+                                        ? price *
+                                              (1 -
+                                                  userProvider
+                                                          .discountPercentage /
+                                                      100)
+                                        : price;
+
                                     final success =
                                         await transactionProvider.CreateTransaction(
                                           userId: userId,
-                                          amount: price,
+                                          amount: finalAmount,
                                           hostingPackageId:
                                               widget.hostingPackage.sId,
+                                          description:
+                                              "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           context: dialogContext,
@@ -460,10 +512,20 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                       ); // Close Purchase Sheet
 
                                       if (context.mounted) {
+                                        // Update user points/bonus immediately
+                                        context
+                                            .read<UserProvider>()
+                                            .refreshUser();
+
                                         CustomBottomSheet.showCongratulations(
                                           context: context,
                                           message:
-                                              "Your hosting plan ${widget.hostingPackage.name} is now active!",
+                                              "Your hosting plan ${widget.hostingPackage.name} is now active!${isBonusAvailable ? ' (${userProvider.discountPercentage}% discount applied)' : ''}",
+                                          onDone: () {
+                                            Navigator.pop(
+                                              context,
+                                            ); // Return to previous page
+                                          },
                                         );
                                       }
                                     }
@@ -582,29 +644,90 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          "\$${totalPrice % 1 == 0 ? totalPrice.toInt() : totalPrice.toStringAsFixed(2)}",
-                          style: GoogleFonts.outfit(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFFEB4724),
+                    if (userProvider.userModel?.user?.bonusStatus ==
+                        "BonusAvailable") ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "\$${totalPrice % 1 == 0 ? totalPrice.toInt() : totalPrice.toStringAsFixed(2)}",
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: Colors.grey,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          widget.isYearly ? "/year" : "/month",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "${userProvider.discountPercentage}% OFF",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            "\$${(totalPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                            style: GoogleFonts.outfit(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFFEB4724),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            widget.isYearly ? "/year" : "/month",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            "\$${totalPrice % 1 == 0 ? totalPrice.toInt() : totalPrice.toStringAsFixed(2)}",
+                            style: GoogleFonts.outfit(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFFEB4724),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            widget.isYearly ? "/year" : "/month",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 24),
                     const Divider(
                       height: 1,
@@ -697,7 +820,15 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                               MaterialPageRoute(
                                 builder: (context) => const LoginPage(),
                               ),
-                            );
+                            ).then((_) {
+                              if (GetStorage().hasData(isLogged)) {
+                                _showPurchaseDialog(
+                                  context,
+                                  userProvider,
+                                  transactionProvider,
+                                );
+                              }
+                            });
                           }
                         },
                         style: ElevatedButton.styleFrom(

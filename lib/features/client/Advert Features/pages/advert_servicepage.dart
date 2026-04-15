@@ -186,6 +186,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                   (package) => PackageCard(
                                     package: package,
                                     serviceId: services[_selectedIndex].sId,
+                                    serviceTitle: services[_selectedIndex].serviceTitle,
                                   ),
                                 )
                               else
@@ -328,7 +329,13 @@ class PackageCardShimmer extends StatelessWidget {
 class PackageCard extends StatefulWidget {
   final Packages package;
   final String? serviceId;
-  const PackageCard({super.key, required this.package, this.serviceId});
+  final String? serviceTitle;
+  const PackageCard({
+    super.key,
+    required this.package,
+    this.serviceId,
+    this.serviceTitle,
+  });
 
   @override
   State<PackageCard> createState() => _PackageCardState();
@@ -411,14 +418,50 @@ class _PackageCardState extends State<PackageCard> {
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
-                                  Text(
-                                    "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFFEB4724),
+                                  if (userProvider
+                                          .userModel
+                                          ?.user
+                                          ?.bonusStatus ==
+                                      "BonusAvailable") ...[
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "${userProvider.discountPercentage}% OFF",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                    Text(
+                                      "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
+                                  ] else
+                                    Text(
+                                      "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
                                 ],
                               ),
                               Column(
@@ -533,12 +576,27 @@ class _PackageCardState extends State<PackageCard> {
                                       _isLocalLoading = true;
                                     });
 
+                                    final isBonusAvailable =
+                                        userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable";
+                                    final finalAmount = isBonusAvailable
+                                        ? (widget.package.price ?? 0) *
+                                              (1 -
+                                                  userProvider
+                                                          .discountPercentage /
+                                                      100)
+                                        : (widget.package.price ?? 0);
+
                                     final success =
                                         await transactionProvider.CreateTransaction(
                                           userId: userId,
-                                          amount: widget.package.price ?? 0,
+                                          amount: finalAmount,
                                           serviceId: widget.serviceId,
                                           packageId: widget.package.sId,
+                                          description: "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           context: dialogContext,
@@ -554,10 +612,20 @@ class _PackageCardState extends State<PackageCard> {
                                       ); // Close Purchase Sheet
 
                                       if (context.mounted) {
+                                        // Update user points/bonus immediately
+                                        context
+                                            .read<UserProvider>()
+                                            .refreshUser();
+
                                         CustomBottomSheet.showCongratulations(
                                           context: context,
                                           message:
-                                              "Your purchase for ${widget.package.packageTitle} was successful!",
+                                              "Your purchase for ${widget.package.packageTitle} was successful!${isBonusAvailable ? ' (${userProvider.discountPercentage}% discount applied)' : ''}",
+                                          onDone: () {
+                                            Navigator.pop(
+                                              context,
+                                            ); // Return to previous page (Home)
+                                          },
                                         );
                                       }
                                     }
@@ -640,14 +708,60 @@ class _PackageCardState extends State<PackageCard> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
-                  style: GoogleFonts.outfit(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFFEB4724),
+                if (userProvider.userModel?.user?.bonusStatus ==
+                    "BonusAvailable") ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: Colors.grey,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "${userProvider.discountPercentage}% OFF",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                    style: GoogleFonts.outfit(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFFEB4724),
+                    ),
+                  ),
+                ] else
+                  Text(
+                    "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                    style: GoogleFonts.outfit(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFFEB4724),
+                    ),
+                  ),
                 const SizedBox(height: 10),
                 Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
                 const SizedBox(height: 24),
@@ -736,7 +850,15 @@ class _PackageCardState extends State<PackageCard> {
                           MaterialPageRoute(
                             builder: (context) => const LoginPage(),
                           ),
-                        );
+                        ).then((_) {
+                          if (GetStorage().hasData(isLogged)) {
+                            _showPurchaseDialog(
+                              context,
+                              userProvider,
+                              transactionProvider,
+                            );
+                          }
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(

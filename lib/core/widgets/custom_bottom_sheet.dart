@@ -8,6 +8,7 @@ class CustomBottomSheet {
   static void showCongratulations({
     required BuildContext context,
     required String message,
+    VoidCallback? onDone,
   }) {
     Dialogs.bottomMaterialDialog(
       msg: message,
@@ -34,7 +35,12 @@ class CustomBottomSheet {
       actions: [
         IconsButton(
           onPressed: () {
-            Navigator.pop(context);
+            if (context.mounted && Navigator.canPop(context)) {
+              Navigator.pop(context); // Always close the dialog first
+            }
+            if (onDone != null) {
+              onDone();
+            }
           },
           text: 'Done',
           iconData: Icons.check_circle_outline,

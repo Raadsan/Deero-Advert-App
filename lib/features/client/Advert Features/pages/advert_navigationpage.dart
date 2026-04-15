@@ -1,15 +1,21 @@
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/core/themes/color_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_hostingpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:iconly/iconly.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/connectivity_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:animate_do/animate_do.dart';
+import 'dart:io';
 
 class AdvertNavigationpage extends StatefulWidget {
   AdvertNavigationpage({super.key});
@@ -78,118 +84,324 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     );
   }
 
-  final List<Widget> _pages = [
+  List<Widget> _buildPages(int serviceIndex) => [
     AdvertHomepage(),
     AdvertAboutpage(),
-    AdvertServicepage(),
+    AdvertServicepage(initialIndex: serviceIndex),
     AdvertHostingpage(),
     const AdvertProfilePage(),
   ];
 
-  int currentPage = 0;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[currentPage],
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (_socialFabOpen) ...[
-              _miniSocialButton(
-                icon: LineIcons.whatSApp,
-                color: const Color(0xFF25D366),
-                onTap: () => _openUrl(kAdvertSocialWhatsAppUrl),
-              ),
-              _miniSocialButton(
-                icon: LineIcons.music,
-                imagePath: "images/advertimages/tiktok.png",
-                color: const Color(0xFF000000),
-                onTap: () => _openUrl(kAdvertSocialTikTokUrl),
-              ),
-              _miniSocialButton(
-                icon: LineIcons.behance,
-                color: const Color(0xFF1769FF),
-                onTap: () => _openUrl(kAdvertSocialBehanceUrl),
-              ),
-              _miniSocialButton(
-                icon: IconlyLight.message,
-                color: const Color(0xff660E0D),
-                onTap: _openMailto,
-              ),
-            ],
-            FloatingActionButton(
-              onPressed: () => setState(() => _socialFabOpen = !_socialFabOpen),
-              backgroundColor: const Color(0xffEF7044),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(60),
-              ),
-              child: Icon(
-                _socialFabOpen ? IconlyLight.close_square : IconlyLight.chat,
-                color: Colors.white,
-                size: 30,
+    return Consumer2<NavigationProvider, ConnectivityProvider>(
+      builder: (context, navProvider, connectivityProvider, _) {
+        if (!connectivityProvider.isOnline) {
+          return Scaffold(
+            backgroundColor: bgColor,
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "images/advertimages/no_internet.png",
+                      width: 200,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.wifi_off_rounded,
+                        size: 100,
+                        color: Color(0xffEF7044),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      "No Internet Connection",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xff651313),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Please check your internet settings and try again.",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () {
+                        // ConnectivityProvider handles updates automatically,
+                        // but this can be used to re-trigger if needed.
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xffEF7044),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Text(
+                        "Try Again",
+                        style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          boxShadow: [
-            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1)),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 3),
-            child: GNav(
-              selectedIndex: currentPage,
-              onTabChange: (value) => {
-                setState(() {
-                  currentPage = value;
-                }),
-              },
-              hoverColor: Colors.transparent, // tab button hover color
-              haptic: true, // haptic feedback
-              tabBorderRadius: 35,
-              // tabBackgroundColor: Color(0xFF651313),
-              curve: Curves.ease, // tab animation curves
-              duration: Duration(milliseconds: 100), // tab animation duration
-              gap: 4, // the tab button gap between icon and text
-              color: Colors.black, // unselected icon color
-              activeColor: Color(0xffEF7044), // selected icon and text color
-              iconSize: 22, // tab button icon size
-              padding: EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 12,
-              ), // navigation bar padding
-              tabs: [
-                GButton(icon: IconlyLight.home, text: 'Home'),
-                GButton(icon: IconlyLight.info_square, text: 'About'),
-                GButton(icon: IconlyLight.category, text: 'Service'),
-                GButton(
-                  icon: Icons.circle,
-                  leading: Image.asset(
-                    "images/advertimages/hosting.png",
-                    width: 24,
-                    height: 24,
-                    color: currentPage == 3
-                        ? const Color(0xffEF7044)
-                        : Colors.black,
+          );
+        }
+
+        final pages = _buildPages(navProvider.serviceInitialIndex);
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+
+            if (navProvider.currentIndex != 0) {
+              // Redirect to Home if not already there
+              navProvider.setPageIndex(0);
+            } else {
+              // Show beautiful exit dialog
+              _showExitDialog(context);
+            }
+          },
+          child: Scaffold(
+            body: pages[navProvider.currentIndex],
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (_socialFabOpen) ...[
+                    _miniSocialButton(
+                      icon: LineIcons.whatSApp,
+                      color: const Color(0xFF25D366),
+                      onTap: () => _openUrl(kAdvertSocialWhatsAppUrl),
+                    ),
+                    _miniSocialButton(
+                      icon: LineIcons.music,
+                      imagePath: "images/advertimages/tiktok.png",
+                      color: const Color(0xFF000000),
+                      onTap: () => _openUrl(kAdvertSocialTikTokUrl),
+                    ),
+                    _miniSocialButton(
+                      icon: LineIcons.behance,
+                      color: const Color(0xFF1769FF),
+                      onTap: () => _openUrl(kAdvertSocialBehanceUrl),
+                    ),
+                    _miniSocialButton(
+                      icon: IconlyLight.message,
+                      color: const Color(0xff660E0D),
+                      onTap: _openMailto,
+                    ),
+                  ],
+                  FloatingActionButton(
+                    onPressed: () =>
+                        setState(() => _socialFabOpen = !_socialFabOpen),
+                    backgroundColor: const Color(0xffEF7044),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                    child: Icon(
+                      _socialFabOpen
+                          ? IconlyLight.close_square
+                          : IconlyLight.chat,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
-                  text: 'Hosting',
+                ],
+              ),
+            ),
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 20,
+                    color: Colors.black.withOpacity(.1),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15.0,
+                    vertical: 3,
+                  ),
+                  child: GNav(
+                    selectedIndex: navProvider.currentIndex,
+                    onTabChange: (value) {
+                      Provider.of<NavigationProvider>(
+                        context,
+                        listen: false,
+                      ).setPageIndex(value);
+                    },
+                    hoverColor: Colors.transparent,
+                    haptic: true,
+                    tabBorderRadius: 35,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 100),
+                    gap: 4,
+                    color: Colors.black,
+                    activeColor: const Color(0xffEF7044),
+                    iconSize: 22,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    tabs: [
+                      const GButton(icon: IconlyLight.home, text: 'Home'),
+                      const GButton(
+                        icon: IconlyLight.info_square,
+                        text: 'About',
+                      ),
+                      const GButton(
+                        icon: IconlyLight.category,
+                        text: 'Service',
+                      ),
+                      GButton(
+                        icon: Icons.circle,
+                        leading: Image.asset(
+                          "images/advertimages/hosting.png",
+                          width: 24,
+                          height: 24,
+                          color: navProvider.currentIndex == 3
+                              ? const Color(0xffEF7044)
+                              : Colors.black,
+                        ),
+                        text: 'Hosting',
+                      ),
+                      const GButton(icon: IconlyLight.profile, text: 'Profile'),
+                    ],
+                  ),
                 ),
-                GButton(icon: IconlyLight.profile, text: 'Profile'),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showExitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => FadeInScale(
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon or Image
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffEF7044).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    IconlyBold.logout,
+                    color: Color(0xffEF7044),
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Are you sure?",
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff651313),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "Do you want to exit the app?",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "No",
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => exit(0),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffEF7044),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Yes",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class FadeInScale extends StatelessWidget {
+  final Widget child;
+  const FadeInScale({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeIn(
+      duration: const Duration(milliseconds: 400),
+      child: ZoomIn(duration: const Duration(milliseconds: 400), child: child),
     );
   }
 }

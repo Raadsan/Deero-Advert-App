@@ -409,108 +409,123 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      // Logo and Status
-                      Center(
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 100,
-                              width: 100,
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.grey.shade100,
-                                  width: 2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: Image.asset(
-                                "images/advertimages/advertlogo.png",
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "Transfer Successful",
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xff111827),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              tx.user?.fullname?.toUpperCase() ??
-                                  "UNKNOWN USER",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xff111827),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      // Receipt Card
+                      // Wrap entire receipt content with Screenshot to include Logo
                       Screenshot(
                         controller: _screenshotController,
                         child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          color: Colors.white, // Background for screenshot
                           child: Column(
                             children: [
-                              _buildReceiptRow(
-                                "Transaction date",
-                                formattedDate,
-                              ),
-                              const SizedBox(height: 16),
-                              _buildReceiptRow(
-                                "Magaca diraha",
-                                tx.user?.fullname ?? "N/A",
-                              ),
-                              const SizedBox(height: 16),
-                              _buildReceiptRow(
-                                "Service",
-                                tx.description ??
-                                    tx.hostingPackage?.name ??
-                                    "Service Purchase",
-                              ),
-                              const SizedBox(height: 16),
-                              _buildReceiptRow(
-                                "Xaddiga lacagta",
-                                "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                child: Divider(
-                                  color: Colors.white,
-                                  thickness: 1,
+                              // Logo and Status
+                              Center(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 100,
+                                      width: 100,
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: Color(0xff660E0D),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.grey.shade100,
+                                          width: 2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.05,
+                                            ),
+                                            blurRadius: 15,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Image.asset(
+                                        "images/advertimages/advertlogoico.png",
+                                        width: 300,
+                                        height: 300,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      "Transfer Successful",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xff111827),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      tx.user?.fullname?.toUpperCase() ??
+                                          "UNKNOWN USER",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xff111827),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              _buildReceiptRow(
-                                "Total",
-                                "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\\.00\$'), '') ?? "0"}",
-                                isBold: true,
+                              const SizedBox(height: 40),
+                              // Receipt Card
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF3F4F6),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  children: [
+                                    _buildReceiptRow(
+                                      "Transaction date",
+                                      formattedDate,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildReceiptRow(
+                                      "Magaca diraha",
+                                      tx.user?.fullname ?? "N/A",
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildReceiptRow(
+                                      "Service",
+                                      tx.description ??
+                                          tx.hostingPackage?.name ??
+                                          "Service Purchase",
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildReceiptRow(
+                                      "Price",
+                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 16,
+                                      ),
+                                      child: Divider(
+                                        color: Colors.white,
+                                        thickness: 1,
+                                      ),
+                                    ),
+                                    _buildReceiptRow(
+                                      "Total",
+                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
+                                      isBold: true,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),

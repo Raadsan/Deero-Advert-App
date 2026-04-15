@@ -6,11 +6,16 @@ class BonusProgressCard extends StatefulWidget {
   final String bonusStatus;
   final String registerSource;
 
+  final int minBonus;
+  final int discount;
+
   const BonusProgressCard({
     super.key,
     required this.bonus,
     required this.bonusStatus,
     required this.registerSource,
+    this.minBonus = 100,
+    this.discount = 50,
   });
 
   @override
@@ -22,12 +27,12 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
 
   @override
   Widget build(BuildContext context) {
-    final normalizedBonus = widget.bonus.clamp(0, 100);
-    final progressValue = normalizedBonus / 100;
-    final pointsLeft = 100 - normalizedBonus;
+    final normalizedBonus = widget.bonus.clamp(0, widget.minBonus);
+    final progressValue = normalizedBonus / widget.minBonus;
+    final pointsLeft = widget.minBonus - normalizedBonus;
     final pointWord = pointsLeft == 1 ? "point" : "points";
     final isAvailable = widget.bonusStatus == "BonusAvailable";
-    const milestones = [0, 15, 30, 60, 100];
+    final milestones = [0, (widget.minBonus * 0.15).toInt(), (widget.minBonus * 0.3).toInt(), (widget.minBonus * 0.6).toInt(), widget.minBonus];
     const cardBg = Color(0xFFFCD7C3);
     const borderColor = Color(0xFFE24122);
     const primaryText = Color(0xFF2D2D2D);
@@ -82,7 +87,7 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
               ),
               const Spacer(),
               Text(
-                "$normalizedBonus/100",
+                "$normalizedBonus/${widget.minBonus}",
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -145,7 +150,7 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
                       ),
                       ...milestones.map((milestone) {
                         final left =
-                            (trackWidth * (milestone / 100)) - (knobSize / 2);
+                            (trackWidth * (milestone / widget.minBonus)) - (knobSize / 2);
                         final reached = normalizedBonus >= milestone;
                         return Positioned(
                           top: 0,
@@ -200,8 +205,8 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
                 children: [
                   Text(
                     isAvailable
-                        ? "Discount unlocked! 50% bonus is ready."
-                        : "Only $pointsLeft $pointWord left to unlock 50% discount.",
+                        ? "Discount unlocked! ${widget.discount}% bonus is ready."
+                        : "Only $pointsLeft $pointWord left to unlock ${widget.discount}% discount.",
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: primaryText,
@@ -232,24 +237,24 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
                         ),
                         const SizedBox(height: 4),
                         _rewardRow(
-                          points: "15",
+                          points: "${milestones[1]}",
                           text: "Signup step completed",
-                          enabled: normalizedBonus >= 15,
+                          enabled: normalizedBonus >= milestones[1],
                         ),
                         _rewardRow(
-                          points: "30",
-                          text: "Step 2 completed (after first purchase)",
-                          enabled: normalizedBonus >= 30,
+                          points: "${milestones[2]}",
+                          text: "Step 2 completed",
+                          enabled: normalizedBonus >= milestones[2],
                         ),
                         _rewardRow(
-                          points: "60",
-                          text: "Step 3 completed (after second purchase)",
-                          enabled: normalizedBonus >= 60,
+                          points: "${milestones[3]}",
+                          text: "Step 3 completed",
+                          enabled: normalizedBonus >= milestones[3],
                         ),
                         _rewardRow(
-                          points: "100",
-                          text: "Unlock 50% bonus discount",
-                          enabled: normalizedBonus >= 100,
+                          points: "${widget.minBonus}",
+                          text: "Unlock ${widget.discount}% bonus discount",
+                          enabled: normalizedBonus >= widget.minBonus,
                           isLast: true,
                         ),
                       ],

@@ -1,5 +1,6 @@
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/auth/pages/forgot_password_page.dart';
 import 'package:deero_enterprise_app/features/auth/pages/register_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
@@ -185,12 +186,22 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ],
                         ),
-                        Text(
-                          "Forget password ?",
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xffEF7044),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ForgotPasswordPage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Forget password ?",
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xffEF7044),
+                            ),
                           ),
                         ),
                       ],

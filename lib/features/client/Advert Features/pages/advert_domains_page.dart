@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
 
-
 class AdvertDomainsPage extends StatelessWidget {
   final String searchedDomain;
 
@@ -189,8 +188,9 @@ class _DomainCardState extends State<_DomainCard> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -232,8 +232,7 @@ class _DomainCardState extends State<_DomainCard> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,14 +244,50 @@ class _DomainCardState extends State<_DomainCard> {
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
-                                  Text(
-                                    widget.price,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFFEB4724),
+                                  if (userProvider
+                                          .userModel
+                                          ?.user
+                                          ?.bonusStatus ==
+                                      "BonusAvailable") ...[
+                                    Row(
+                                      children: [
+                                        Text(
+                                          widget.price,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "${userProvider.discountPercentage}% OFF",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                    Text(
+                                      "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
+                                  ] else
+                                    Text(
+                                      widget.price,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFEB4724),
+                                      ),
+                                    ),
                                 ],
                               ),
                               Column(
@@ -293,8 +328,10 @@ class _DomainCardState extends State<_DomainCard> {
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             hintText: "Enter phone number",
-                            prefixIcon:
-                                const Icon(Icons.phone_android, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.phone_android,
+                              size: 20,
+                            ),
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.grey.shade400,
@@ -305,18 +342,21 @@ class _DomainCardState extends State<_DomainCard> {
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFEB4724)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFEB4724),
+                              ),
                             ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
@@ -332,11 +372,13 @@ class _DomainCardState extends State<_DomainCard> {
                                 ? null
                                 : () async {
                                     if (_accountController.text.isEmpty) {
-                                      ScaffoldMessenger.of(dialogContext)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        dialogContext,
+                                      ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                              "Please enter account number"),
+                                            "Please enter account number",
+                                          ),
                                         ),
                                       );
                                       return;
@@ -344,8 +386,9 @@ class _DomainCardState extends State<_DomainCard> {
                                     final userId =
                                         userProvider.userModel?.user?.id;
                                     if (userId == null) {
-                                      ScaffoldMessenger.of(dialogContext)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        dialogContext,
+                                      ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                             "User session error. Please login again.",
@@ -359,22 +402,36 @@ class _DomainCardState extends State<_DomainCard> {
                                       _isLocalLoading = true;
                                     });
 
-                                    final success = await transactionProvider
-                                        .CreateTransaction(
-                                      userId: userId,
-                                      amount: parsedPrice,
-                                      domain: {
-                                        "name": widget.domain,
-                                        "_id": widget.id,
-                                      },
-                                      hostingPackageId: null,
-                                      serviceId: null,
-                                      description:
-                                          "Domain Purchase: ${widget.domain}",
-                                      paymentMethod: "Waafipay",
-                                      accountNo: _accountController.text,
-                                      context: dialogContext,
-                                    );
+                                    final isBonusAvailable =
+                                        userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable";
+                                    final finalAmount = isBonusAvailable
+                                        ? parsedPrice *
+                                              (1 -
+                                                  userProvider
+                                                          .discountPercentage /
+                                                      100)
+                                        : parsedPrice;
+
+                                    final success =
+                                        await transactionProvider.CreateTransaction(
+                                          userId: userId,
+                                          amount: finalAmount,
+                                          domain: {
+                                            "name": widget.domain,
+                                            "_id": widget.id,
+                                          },
+                                          hostingPackageId: null,
+                                          serviceId: null,
+                                          description:
+                                              "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
+                                          paymentMethod: "Waafipay",
+                                          accountNo: _accountController.text,
+                                          context: dialogContext,
+                                        );
 
                                     setDialogState(() {
                                       _isLocalLoading = false;
@@ -382,14 +439,24 @@ class _DomainCardState extends State<_DomainCard> {
 
                                     if (success) {
                                       Navigator.pop(
-                                          dialogContext); // Close Purchase Sheet
+                                        dialogContext,
+                                      ); // Close Purchase Sheet
 
                                       if (context.mounted) {
-                                        CustomBottomSheet
-                                            .showCongratulations(
+                                        // Update user points/bonus immediately
+                                        context
+                                            .read<UserProvider>()
+                                            .refreshUser();
+
+                                        CustomBottomSheet.showCongratulations(
                                           context: context,
                                           message:
                                               "Your purchase for ${widget.domain} was successful!",
+                                          onDone: () {
+                                            Navigator.pop(
+                                              context,
+                                            ); // Return to previous page
+                                          },
                                         );
                                       }
                                     }
@@ -480,22 +547,70 @@ class _DomainCardState extends State<_DomainCard> {
                       ),
                       const SizedBox(height: 12),
                       if (widget.isAvailable) ...[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              widget.price.split('/').first,
+                        if (userProvider.userModel?.user?.bonusStatus ==
+                            "BonusAvailable") ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              buildStruckPrice(widget.price),
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  "${userProvider.discountPercentage}% OFF",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Builder(builder: (context) {
+                            double parsedPrice = 0.0;
+                            try {
+                              parsedPrice = double.parse(
+                                widget.price.replaceAll(RegExp(r'[^0-9.]'), ''),
+                              );
+                            } catch (e) {
+                              print("Error parsing price: $e");
+                            }
+                            return Text(
+                              "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xff111827),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            buildStruckPrice(widget.price),
-                          ],
-                        ),
+                            );
+                          }),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                widget.price.split('/').first,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xff111827),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              buildStruckPrice(widget.price),
+                            ],
+                          ),
+                        ],
                         Text(
                           "for first year",
                           style: GoogleFonts.poppins(

@@ -16,7 +16,7 @@ class UserModel {
     data['message'] = this.message;
     data['token'] = this.token;
     if (this.user != null) {
-      data['user'] = this.user!.toJson();
+      data['user'] = this.user?.toJson();
     }
     return data;
   }
@@ -48,14 +48,16 @@ class User {
     fullname = json['fullname'];
     email = json['email'];
     phone = json['phone'];
-    bonus = json['bonus'];
+    bonus = json['bonus'] is int
+        ? json['bonus']
+        : int.tryParse(json['bonus']?.toString() ?? "0") ?? 0;
     bonusStatus = json['bonusStatus'];
     registerSource = json['registerSource'];
     role = json['role'] != null ? new Role.fromJson(json['role']) : null;
     if (json['bonusHistory'] != null) {
       bonusHistory = <BonusHistory>[];
       json['bonusHistory'].forEach((v) {
-        bonusHistory!.add(new BonusHistory.fromJson(v));
+        bonusHistory?.add(new BonusHistory.fromJson(v));
       });
     }
   }
@@ -70,10 +72,11 @@ class User {
     data['bonusStatus'] = this.bonusStatus;
     data['registerSource'] = this.registerSource;
     if (this.role != null) {
-      data['role'] = this.role!.toJson();
+      data['role'] = this.role?.toJson();
     }
     if (this.bonusHistory != null) {
-      data['bonusHistory'] = this.bonusHistory!.map((v) => v.toJson()).toList();
+      data['bonusHistory'] =
+          this.bonusHistory?.map((v) => v.toJson()).toList();
     }
     return data;
   }

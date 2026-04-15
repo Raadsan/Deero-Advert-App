@@ -1,15 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
-// import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:flutter/material.dart';
-// import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:iconly/iconly.dart';
@@ -131,16 +130,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                     icon: IconlyLight.logout,
                     title: "Log Out",
                     delay: 700,
-                    onTap: () {
-                      userProvider.logout();
-                      Navigator.pop(context); // Close drawer
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text("Logged out successfully"),
-                        ),
-                      );
-                    },
+                    onTap: () => _showLogoutDialog(context, userProvider),
                   ),
                 ],
               ),
@@ -252,6 +242,129 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, UserProvider userProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => FadeInScale(
+        child: Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffEF7044).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    IconlyBold.logout,
+                    color: Color(0xffEF7044),
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Log Out?",
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff651313),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "Are you sure you want to log out of your account?",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          userProvider.logout();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                            (route) => false,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Color(0xff660E0D),
+                              content: Text("Logged out successfully"),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffEF7044),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Log Out",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FadeInScale extends StatelessWidget {
+  final Widget child;
+  const FadeInScale({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeIn(
+      duration: const Duration(milliseconds: 400),
+      child: ZoomIn(duration: const Duration(milliseconds: 400), child: child),
     );
   }
 }

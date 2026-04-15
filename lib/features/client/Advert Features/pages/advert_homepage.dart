@@ -12,8 +12,8 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_project_details.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
@@ -21,6 +21,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:after_layout/after_layout.dart';
@@ -61,6 +62,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     Provider.of<PortfolioProvider>(context, listen: false).getPortfolio();
     Provider.of<AchievementProvider>(context, listen: false).getAchievements();
     Provider.of<MajorClientProvider>(context, listen: false).getMajorClients();
+    Provider.of<UserProvider>(context, listen: false).refreshUser();
   }
 
   void _searchDomain(BuildContext context) {
@@ -179,7 +181,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Total: $currentBonus/100",
+                    "Total: $currentBonus/${Provider.of<UserProvider>(context, listen: false).minBonusForDiscount}",
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -216,6 +218,27 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     _box.write(_bonusSeenKey, currentBonus);
   }
 
+  Future<void> _onRefresh() async {
+    await Future.wait([
+      Provider.of<ServiceProvider>(context, listen: false).getAllServices(),
+      Provider.of<HostingProvider>(context, listen: false).getAllHosting(),
+      Provider.of<NotificationProvider>(
+        context,
+        listen: false,
+      ).activeNotification(),
+      Provider.of<PortfolioProvider>(context, listen: false).getPortfolio(),
+      Provider.of<AchievementProvider>(
+        context,
+        listen: false,
+      ).getAchievements(),
+      Provider.of<MajorClientProvider>(
+        context,
+        listen: false,
+      ).getMajorClients(),
+      Provider.of<UserProvider>(context, listen: false).refreshUser(),
+    ]);
+  }
+
   Widget build(BuildContext context) {
     return Consumer2<ServiceProvider, PortfolioProvider>(
       builder: (context, serviceprovider, portfolioProvider, _) {
@@ -229,7 +252,6 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         return Scaffold(
           backgroundColor: bgColor,
           drawer: const AdvertDrawer(),
-
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
             backgroundColor: bgColor,
@@ -277,634 +299,649 @@ class _AdvertHomepageState extends State<AdvertHomepage>
             leading: Builder(
               builder: (context) => IconButton(
                 onPressed: () => Scaffold.of(context).openDrawer(),
-                icon: Image.asset(
-                  "images/advertimages/menu.png",
-                  // width: 30,
-                  // height: 30,
-                ),
+                icon: Image.asset("images/advertimages/menu.png"),
               ),
             ),
             automaticallyImplyLeading: false,
           ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 10),
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: const Color(0xffEF7044),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10),
 
-                  BonusProgressCard(
-                    bonus: bonus,
-                    bonusStatus: bonusStatus,
-                    registerSource: registerSource,
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    height: 160,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Color(0xFF7B1710),
-                          Color(0xFFB52E1D),
-                          Color(0xFFE24122),
-                        ],
-                        stops: [0.0, 0.6, 1.0],
-                      ),
-                      borderRadius: BorderRadius.circular(15),
+                    BonusProgressCard(
+                      bonus: bonus,
+                      bonusStatus: bonusStatus,
+                      registerSource: registerSource,
+                      minBonus: Provider.of<UserProvider>(
+                        context,
+                      ).minBonusForDiscount,
+                      discount: Provider.of<UserProvider>(
+                        context,
+                      ).discountPercentage,
                     ),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CarouselSlider(
-                            items: const [
-                              AdvertSliderCard(
-                                title: "Web Solution",
-                                description:
-                                    "Professional web solutions including design, hosting, and domain services.",
-                                imagePath: "images/advertimages/web.png",
+                    SizedBox(height: 16),
+                    Container(
+                      height: 160,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Color(0xFF7B1710),
+                            Color(0xFFB52E1D),
+                            Color(0xFFE24122),
+                          ],
+                          stops: [0.0, 0.6, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: CarouselSlider(
+                              items: const [
+                                AdvertSliderCard(
+                                  title: "Web Solution",
+                                  description:
+                                      "Professional web solutions including design, hosting, and domain services.",
+                                  imagePath: "images/advertimages/web.png",
+                                ),
+                                AdvertSliderCard(
+                                  title: "Graphic Design",
+                                  description:
+                                      "Stunning graphics that communicate your brand's core values effectively.",
+                                  imagePath: "images/advertimages/graphic.png",
+                                ),
+                                AdvertSliderCard(
+                                  title: "Digital Marketing",
+                                  description:
+                                      "Data-driven marketing strategies to increase brand visibility online.",
+                                  imagePath:
+                                      "images/advertimages/marketing.png",
+                                ),
+                              ],
+                              options: CarouselOptions(
+                                height: 160,
+                                viewportFraction: 1,
+                                aspectRatio: 16 / 9,
+                                autoPlay: true,
+                                autoPlayInterval: const Duration(seconds: 4),
+                                autoPlayAnimationDuration: const Duration(
+                                  milliseconds: 800,
+                                ),
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                enlargeCenterPage: true,
+                                scrollDirection: Axis.horizontal,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _currentIndex = index;
+                                  });
+                                },
                               ),
-                              AdvertSliderCard(
-                                title: "Graphic Design",
-                                description:
-                                    "Stunning graphics that communicate your brand's core values effectively.",
-                                imagePath: "images/advertimages/graphic.png",
-                              ),
-                              AdvertSliderCard(
-                                title: "Digital Marketing",
-                                description:
-                                    "Data-driven marketing strategies to increase brand visibility online.",
-                                imagePath: "images/advertimages/marketing.png",
-                              ),
-                            ],
-                            options: CarouselOptions(
-                              height: 160,
-                              viewportFraction: 1,
-                              aspectRatio: 16 / 9,
-                              autoPlay: true,
-                              autoPlayInterval: const Duration(seconds: 4),
-                              autoPlayAnimationDuration: const Duration(
-                                milliseconds: 800,
-                              ),
-                              autoPlayCurve: Curves.fastOutSlowIn,
-                              enlargeCenterPage: true,
-                              scrollDirection: Axis.horizontal,
-                              onPageChanged: (index, reason) {
-                                setState(() {
-                                  _currentIndex = index;
-                                });
-                              },
                             ),
                           ),
+                          // Indicator dots
+                          Positioned(
+                            bottom: 12,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(3, (index) {
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  width: _currentIndex == index ? 20 : 8,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: _currentIndex == index
+                                        ? const Color(
+                                            0xFFF3664C,
+                                          ) // Active button-like color
+                                        : Colors.white.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: SizedBox(
+                    //         height: 48,
+                    //         child: TextFormField(
+                    //           controller: _domainController,
+                    //           onFieldSubmitted: (_) => _searchDomain(context),
+                    //           decoration: InputDecoration(
+                    //             hintText: "Search your domain",
+                    //             fillColor: const Color(
+                    //               0xffEAE8DA,
+                    //             ).withOpacity(0.30),
+                    //             hintStyle: GoogleFonts.poppins(
+                    //               fontSize: 14,
+                    //               color: Colors.grey,
+                    //             ),
+                    //             contentPadding: const EdgeInsets.symmetric(
+                    //               horizontal: 20,
+                    //             ),
+                    //             filled: true,
+                    //             border: OutlineInputBorder(
+                    //               borderSide: BorderSide.none,
+                    //               borderRadius: BorderRadius.circular(46),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 10),
+                    //     GestureDetector(
+                    //       onTap: () => _searchDomain(context),
+                    //       child: Container(
+                    //         height: 40,
+                    //         width: 40,
+                    //         decoration: BoxDecoration(
+                    //           color: const Color(0xffEF7044).withOpacity(0.80),
+                    //           borderRadius: BorderRadius.circular(46),
+                    //         ),
+                    //         child: const Icon(
+                    //           IconlyLight.search,
+                    //           color: Colors.white,
+                    //           size: 24,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Our Services",
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
+                      child: serviceprovider.isLoading
+                          ? const Center(child: ServiceCardShimmer())
+                          : serviceprovider.error != null
+                          ? Center(
+                              child: Text(
+                                "Error: ${serviceprovider.error}",
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : service.isEmpty
+                          ? Center(
+                              child: Text(
+                                "No services available",
+                                style: GoogleFonts.poppins(color: Colors.grey),
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                alignment: WrapAlignment.start,
+                                children: service.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  var s = entry.value;
+                                  return ServiceCard(
+                                    ImageUrl: s.serviceIcon != null
+                                        ? (s.serviceIcon!.startsWith('http')
+                                              ? s.serviceIcon!
+                                              : BaseUrl +
+                                                    "uploads/" +
+                                                    s.serviceIcon!)
+                                        : "",
+                                    serviceTitle: s.serviceTitle,
+                                    onTap: () {
+                                      Provider.of<NavigationProvider>(
+                                        context,
+                                        listen: false,
+                                      ).navigateToService(index);
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                    ),
+
+                    SizedBox(height: 15),
+
+                    // Our Portfolio Section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Our Portfolio",
+                          style: GoogleFonts.poppins(
+                            fontSize: 17,
+                            color: Colors.grey,
+                          ),
                         ),
-                        // Indicator dots
-                        Positioned(
-                          bottom: 12,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (index) {
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                width: _currentIndex == index ? 20 : 8,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  color: _currentIndex == index
-                                      ? const Color(
-                                          0xFFF3664C,
-                                        ) // Active button-like color
-                                      : Colors.white.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              );
-                            }),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const AdvertPortfoliopage(),
+                              ),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            "See All",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: const Color(
+                                0xFFE24122,
+                              ), // Matching light orange text
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: SizedBox(
-                  //         height: 48,
-                  //         child: TextFormField(
-                  //           controller: _domainController,
-                  //           onFieldSubmitted: (_) => _searchDomain(context),
-                  //           decoration: InputDecoration(
-                  //             hintText: "Search your domain",
-                  //             fillColor: const Color(
-                  //               0xffEAE8DA,
-                  //             ).withOpacity(0.30),
-                  //             hintStyle: GoogleFonts.poppins(
-                  //               fontSize: 14,
-                  //               color: Colors.grey,
-                  //             ),
-                  //             contentPadding: const EdgeInsets.symmetric(
-                  //               horizontal: 20,
-                  //             ),
-                  //             filled: true,
-                  //             border: OutlineInputBorder(
-                  //               borderSide: BorderSide.none,
-                  //               borderRadius: BorderRadius.circular(46),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     GestureDetector(
-                  //       onTap: () => _searchDomain(context),
-                  //       child: Container(
-                  //         height: 40,
-                  //         width: 40,
-                  //         decoration: BoxDecoration(
-                  //           color: const Color(0xffEF7044).withOpacity(0.80),
-                  //           borderRadius: BorderRadius.circular(46),
-                  //         ),
-                  //         child: const Icon(
-                  //           IconlyLight.search,
-                  //           color: Colors.white,
-                  //           size: 24,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Our Services",
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
-                    child: serviceprovider.isLoading
-                        ? const Center(child: ServiceCardShimmer())
-                        : serviceprovider.error != null
-                        ? Center(
-                            child: Text(
-                              "Error: ${serviceprovider.error}",
-                              style: const TextStyle(color: Colors.red),
-                              textAlign: TextAlign.center,
+                    const SizedBox(height: 10),
+                    portfolioProvider.isLoading
+                        ? Container(
+                            height: 140,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                          )
-                        : service.isEmpty
-                        ? Center(
-                            child: Text(
-                              "No services available",
-                              style: GoogleFonts.poppins(color: Colors.grey),
+                            padding: const EdgeInsets.only(
+                              left: 18,
+                              top: 20,
+                              bottom: 20,
+                              right: 8,
                             ),
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              alignment: WrapAlignment.start,
-                              children: service.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                var s = entry.value;
-                                return ServiceCard(
-                                  ImageUrl: s.serviceIcon != null
-                                      ? (s.serviceIcon!.startsWith('http')
-                                            ? s.serviceIcon!
-                                            : BaseUrl +
-                                                  "uploads/" +
-                                                  s.serviceIcon!)
-                                      : "",
-                                  serviceTitle: s.serviceTitle,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AdvertServicepage(
-                                          initialIndex: index,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                  ),
-
-                  SizedBox(height: 15),
-
-                  // Our Portfolio Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Our Portfolio",
-                        style: GoogleFonts.poppins(
-                          fontSize: 17,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AdvertPortfoliopage(),
-                            ),
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(50, 30),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          "See All",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: const Color(
-                              0xFFE24122,
-                            ), // Matching light orange text
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  portfolioProvider.isLoading
-                      ? Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: const EdgeInsets.only(
-                            left: 18,
-                            top: 20,
-                            bottom: 20,
-                            right: 8,
-                          ),
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 6,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        height: 20,
-                                        width: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        height: 10,
-                                        width: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Container(
-                                        height: 10,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.4,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Container(
-                                        height: 10,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.2,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : portfolioProvider.error.isNotEmpty
-                      ? Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Error: ${portfolioProvider.error}",
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        )
-                      : (portfolioProvider
-                                .portfolioModel
-                                ?.portfolios
-                                ?.isEmpty ??
-                            true)
-                      ? Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "No portfolio projects yet",
-                              style: GoogleFonts.poppins(color: Colors.grey),
-                            ),
-                          ),
-                        )
-                      : CarouselSlider(
-                          items: (portfolioProvider.portfolioModel?.portfolios ?? []).map((
-                            project,
-                          ) {
-                            final imageUrl = project.mainImage != null
-                                ? (project.mainImage!.startsWith('http')
-                                      ? project.mainImage!
-                                      : BaseUrl + project.mainImage!)
-                                : "";
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AdvertProjectDetailsPage(
-                                          project: project,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                width: double.infinity,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  color: Colors
-                                      .grey
-                                      .shade900, // Keeps text readable while the image is loading
-                                  image: DecorationImage(
-                                    image: imageUrl.isNotEmpty
-                                        ? NetworkImage(imageUrl)
-                                              as ImageProvider
-                                        : const AssetImage(
-                                            "images/advertimages/1.png",
-                                          ),
-                                    fit: BoxFit.cover,
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.45),
-                                      BlendMode.darken,
-                                    ),
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 6,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 18,
-                                          top: 20,
-                                          bottom: 20,
-                                          right: 8,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              project.title ?? "Graphic Design",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Expanded(
-                                              child: Text(
-                                                project.description ??
-                                                    "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 10,
-                                                  color: Colors.white
-                                                      .withOpacity(0.9),
-                                                  height: 1.3,
-                                                ),
-                                                maxLines: 4,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    // Empty space on the right side to let the background image shine through
-                                    Expanded(
-                                      flex: 4,
-                                      child: const SizedBox(
-                                        child: Icon(
-                                          IconlyLight.arrow_right_2,
+                            child: Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 6,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height: 20,
+                                          width: double.infinity,
                                           color: Colors.white,
                                         ),
+                                        const SizedBox(height: 12),
+                                        Container(
+                                          height: 10,
+                                          width: double.infinity,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          height: 10,
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.4,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          height: 10,
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.2,
+                                          color: Colors.white,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Container(
+                                        height: 30,
+                                        width: 30,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          options: CarouselOptions(
-                            height: 140,
-                            viewportFraction: 1.0,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 4),
-                            enlargeCenterPage: false,
-                          ),
-                        ),
-
-                  SizedBox(height: 40),
-
-                  Text(
-                    "Our Major Clients",
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      letterSpacing: 1,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Consumer<MajorClientProvider>(
-                    builder: (context, clientProvider, child) {
-                      if (clientProvider.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final clients =
-                          clientProvider.majorClientModel?.clients ?? [];
-                      if (clients.isEmpty) return const SizedBox.shrink();
-
-                      return SizedBox(
-                        height: 80,
-                        width: double.infinity,
-                        child: CarouselSlider(
-                          items: clients.map((client) {
-                            String imagePath =
-                                (client.images != null &&
-                                    client.images!.isNotEmpty)
-                                ? client.images![0].replaceAll('\\', '/')
-                                : "";
-
-                            String fullUrl = imagePath.startsWith('http')
-                                ? imagePath
-                                : "${EndPoint.replaceAll('api/', '')}$imagePath";
-
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  width: 1.0,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  fullUrl,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                        Icons.business,
-                                        color: Colors.grey,
-                                      ),
-                                ),
+                            ),
+                          )
+                        : portfolioProvider.error.isNotEmpty
+                        ? Container(
+                            height: 140,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Error: ${portfolioProvider.error}",
+                                style: const TextStyle(color: Colors.red),
                               ),
-                            );
-                          }).toList(),
-                          options: CarouselOptions(
-                            height: 80,
-                            viewportFraction: 0.32,
-                            autoPlay: true,
-                            scrollDirection: Axis.horizontal,
-                            enableInfiniteScroll: true,
-                            enlargeCenterPage: false,
-                            scrollPhysics: const BouncingScrollPhysics(),
+                            ),
+                          )
+                        : (portfolioProvider
+                                  .portfolioModel
+                                  ?.portfolios
+                                  ?.isEmpty ??
+                              true)
+                        ? Container(
+                            height: 140,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "No portfolio projects yet",
+                                style: GoogleFonts.poppins(color: Colors.grey),
+                              ),
+                            ),
+                          )
+                        : CarouselSlider(
+                            items: (portfolioProvider.portfolioModel?.portfolios ?? []).map((
+                              project,
+                            ) {
+                              final imageUrl = project.mainImage != null
+                                  ? (project.mainImage!.startsWith('http')
+                                        ? project.mainImage!
+                                        : BaseUrl + project.mainImage!)
+                                  : "";
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AdvertProjectDetailsPage(
+                                            project: project,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    color: Colors
+                                        .grey
+                                        .shade900, // Keeps text readable while the image is loading
+                                    image: DecorationImage(
+                                      image: imageUrl.isNotEmpty
+                                          ? NetworkImage(imageUrl)
+                                                as ImageProvider
+                                          : const AssetImage(
+                                              "images/advertimages/1.png",
+                                            ),
+                                      fit: BoxFit.cover,
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.black.withOpacity(0.45),
+                                        BlendMode.darken,
+                                      ),
+                                    ),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  // child: Row(
+                                  //   children: [
+                                  //     Expanded(
+                                  //       flex: 6,
+                                  //       child: Padding(
+                                  //         padding: const EdgeInsets.only(
+                                  //           left: 18,
+                                  //           top: 20,
+                                  //           bottom: 20,
+                                  //           right: 8,
+                                  //         ),
+                                  //         child: Column(
+                                  //           crossAxisAlignment:
+                                  //               CrossAxisAlignment.start,
+                                  //           mainAxisAlignment:
+                                  //               MainAxisAlignment.center,
+                                  //           children: [
+                                  //             Text(
+                                  //               project.title ??
+                                  //                   "Graphic Design",
+                                  //               style: GoogleFonts.poppins(
+                                  //                 fontSize: 18,
+                                  //                 fontWeight: FontWeight.bold,
+                                  //                 color: Colors.white,
+                                  //               ),
+                                  //               maxLines: 1,
+                                  //               overflow: TextOverflow.ellipsis,
+                                  //             ),
+                                  //             const SizedBox(height: 8),
+                                  //             Expanded(
+                                  //               child: Text(
+                                  //                 project.description ??
+                                  //                     "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
+                                  //                 style: GoogleFonts.poppins(
+                                  //                   fontSize: 10,
+                                  //                   color: Colors.white
+                                  //                       .withOpacity(0.9),
+                                  //                   height: 1.3,
+                                  //                 ),
+                                  //                 maxLines: 4,
+                                  //                 overflow:
+                                  //                     TextOverflow.ellipsis,
+                                  //               ),
+                                  //             ),
+                                  //           ],
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //     // Empty space on the right side to let the background image shine through
+                                  //     Expanded(
+                                  //       flex: 4,
+                                  //       child: const SizedBox(
+                                  //         child: Icon(
+                                  //           IconlyLight.arrow_right_2,
+                                  //           color: Colors.white,
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //   ],
+                                  // ),
+                                ),
+                              );
+                            }).toList(),
+                            options: CarouselOptions(
+                              height: 140,
+                              viewportFraction: 1.0,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 4),
+                              enlargeCenterPage: false,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
 
-                  const SizedBox(height: 40),
-                  Text(
-                    "Our Achievements",
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      letterSpacing: 1,
-                      color: Colors.grey,
+                    SizedBox(height: 40),
+
+                    Text(
+                      "Our Major Clients",
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        letterSpacing: 1,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Consumer<AchievementProvider>(
-                    builder: (context, achProvider, child) {
-                      if (achProvider.isLoading) {
-                        return const AchievementShimmer();
-                      }
-
-                      final achievements =
-                          achProvider.achievementModel?.data ?? [];
-                      if (achievements.isEmpty) {
-                        return const SizedBox(height: 30);
-                      }
-
-                      List<Widget> leftChildren = [];
-                      List<Widget> rightChildren = [];
-
-                      for (int i = 0; i < achievements.length; i++) {
-                        int styleType =
-                            i %
-                            4; // 0: Left Top, 1: Left Bottom, 2: Right Top, 3: Right Bottom
-
-                        Widget card = AnimatedAchievementCard(
-                          achievement: achievements[i],
-                          styleType: styleType,
-                        );
-
-                        if (styleType == 0 || styleType == 1) {
-                          leftChildren.add(card);
-                          if (i != achievements.length - 1)
-                            leftChildren.add(const SizedBox(height: 10));
-                        } else {
-                          rightChildren.add(card);
-                          if (i != achievements.length - 1)
-                            rightChildren.add(const SizedBox(height: 10));
+                    const SizedBox(height: 10),
+                    Consumer<MajorClientProvider>(
+                      builder: (context, clientProvider, child) {
+                        if (clientProvider.isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
-                      }
 
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: Column(children: leftChildren)),
-                          const SizedBox(width: 10),
-                          Expanded(child: Column(children: rightChildren)),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                        final clients =
+                            clientProvider.majorClientModel?.clients ?? [];
+                        if (clients.isEmpty) return const SizedBox.shrink();
+
+                        return SizedBox(
+                          height: 80,
+                          width: double.infinity,
+                          child: CarouselSlider(
+                            items: clients.map((client) {
+                              String imagePath =
+                                  (client.images != null &&
+                                      client.images!.isNotEmpty)
+                                  ? client.images![0].replaceAll('\\', '/')
+                                  : "";
+
+                              String fullUrl = imagePath.startsWith('http')
+                                  ? imagePath
+                                  : "${EndPoint.replaceAll('api/', '')}$imagePath";
+
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    width: 1.0,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.02),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    fullUrl,
+                                    fit: BoxFit.contain,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.business,
+                                              color: Colors.grey,
+                                            ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            options: CarouselOptions(
+                              height: 80,
+                              viewportFraction: 0.32,
+                              autoPlay: true,
+                              scrollDirection: Axis.horizontal,
+                              enableInfiniteScroll: true,
+                              enlargeCenterPage: false,
+                              scrollPhysics: const BouncingScrollPhysics(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 40),
+                    Text(
+                      "Our Achievements",
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        letterSpacing: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Consumer<AchievementProvider>(
+                      builder: (context, achProvider, child) {
+                        if (achProvider.isLoading) {
+                          return const AchievementShimmer();
+                        }
+
+                        final achievements =
+                            achProvider.achievementModel?.data ?? [];
+                        if (achievements.isEmpty) {
+                          return const SizedBox(height: 30);
+                        }
+
+                        List<Widget> leftChildren = [];
+                        List<Widget> rightChildren = [];
+
+                        for (int i = 0; i < achievements.length; i++) {
+                          int styleType =
+                              i %
+                              4; // 0: Left Top, 1: Left Bottom, 2: Right Top, 3: Right Bottom
+
+                          Widget card = AnimatedAchievementCard(
+                            achievement: achievements[i],
+                            styleType: styleType,
+                          );
+
+                          if (styleType == 0 || styleType == 1) {
+                            leftChildren.add(card);
+                            if (i != achievements.length - 1)
+                              leftChildren.add(const SizedBox(height: 10));
+                          } else {
+                            rightChildren.add(card);
+                            if (i != achievements.length - 1)
+                              rightChildren.add(const SizedBox(height: 10));
+                          }
+                        }
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: Column(children: leftChildren)),
+                            const SizedBox(width: 10),
+                            Expanded(child: Column(children: rightChildren)),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),

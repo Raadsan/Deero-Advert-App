@@ -51,7 +51,8 @@ class TransactionProvider extends ChangeNotifier {
   /// User-facing copy (avoid raw "No token" from API).
   static String _friendlyTransactionError(String raw, int? status) {
     final s = raw.toLowerCase();
-    final auth = status == 401 ||
+    final auth =
+        status == 401 ||
         s.contains("no token") ||
         s.contains("unauthorized") ||
         s.contains("invalid signature") ||
