@@ -11,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:iconly/iconly.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/connectivity_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
@@ -94,71 +93,8 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<NavigationProvider, ConnectivityProvider>(
-      builder: (context, navProvider, connectivityProvider, _) {
-        if (!connectivityProvider.isOnline) {
-          return Scaffold(
-            backgroundColor: bgColor,
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "images/advertimages/no_internet.png",
-                      width: 200,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.wifi_off_rounded,
-                        size: 100,
-                        color: Color(0xffEF7044),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Text(
-                      "No Internet Connection",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xff651313),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Please check your internet settings and try again.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () {
-                        // ConnectivityProvider handles updates automatically,
-                        // but this can be used to re-trigger if needed.
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffEF7044),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: Text(
-                        "Try Again",
-                        style: GoogleFonts.poppins(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
+    return Consumer<NavigationProvider>(
+      builder: (context, navProvider, _) {
 
         final pages = _buildPages(navProvider.serviceInitialIndex);
         return PopScope(

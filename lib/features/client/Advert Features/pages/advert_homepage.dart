@@ -272,13 +272,14 @@ class _AdvertHomepageState extends State<AdvertHomepage>
               ),
             ],
             title: SizedBox(
-              height: 48,
+              height: 40,
               child: TextFormField(
                 controller: _domainController,
                 onFieldSubmitted: (_) => _searchDomain(context),
                 decoration: InputDecoration(
+                  prefixIcon: Icon(IconlyLight.search, color: Colors.grey),
                   hintText: "Search your domain",
-                  fillColor: const Color(0xffEAE8DA).withOpacity(0.30),
+                  fillColor: Colors.white,
                   hintStyle: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey,
