@@ -4,6 +4,8 @@ import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_enterprise_app/core/widgets/custom_bottom_sheet.dart';
+import 'package:deero_enterprise_app/core/widgets/transaction_receipt_bottomsheet.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -448,15 +450,12 @@ class _DomainCardState extends State<_DomainCard> {
                                             .read<UserProvider>()
                                             .refreshUser();
 
-                                        CustomBottomSheet.showCongratulations(
+                                        TransactionReceiptBottomSheet.show(
                                           context: context,
-                                          message:
-                                              "Your purchase for ${widget.domain} was successful!",
-                                          onDone: () {
-                                            Navigator.pop(
-                                              context,
-                                            ); // Return to previous page
-                                          },
+                                          userName: userProvider.userModel?.user?.fullname ?? "User",
+                                          description: "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
+                                          amount: finalAmount,
+                                          date: DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.now()),
                                         );
                                       }
                                     }

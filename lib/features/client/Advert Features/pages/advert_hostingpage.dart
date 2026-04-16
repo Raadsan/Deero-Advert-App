@@ -8,6 +8,8 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/models/hosting_model.dart'
     as hosting;
 import 'package:deero_enterprise_app/core/widgets/custom_bottom_sheet.dart';
+import 'package:deero_enterprise_app/core/widgets/transaction_receipt_bottomsheet.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -522,15 +524,12 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                             .read<UserProvider>()
                                             .refreshUser();
 
-                                        CustomBottomSheet.showCongratulations(
+                                        TransactionReceiptBottomSheet.show(
                                           context: context,
-                                          message:
-                                              "Your hosting plan ${widget.hostingPackage.name} is now active!${isBonusAvailable ? ' (${userProvider.discountPercentage}% discount applied)' : ''}",
-                                          onDone: () {
-                                            Navigator.pop(
-                                              context,
-                                            ); // Return to previous page
-                                          },
+                                          userName: userProvider.userModel?.user?.fullname ?? "User",
+                                          description: "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
+                                          amount: finalAmount,
+                                          date: DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.now()),
                                         );
                                       }
                                     }
