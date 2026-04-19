@@ -261,35 +261,37 @@ class NotificationProvider extends ChangeNotifier {
         final decodeData = jsonDecode(response.body);
         notificationModel = nm.NotificationModel.fromJson(decodeData);
         _filterNotificationsOlderThan(notificationModel, _kNotificationMaxAge);
+        error = null;
+      } else {
+        error = "Offline mode: Showing saved notifications only.";
+      }
 
-        // Merge local notifications (Bonus, etc.)
-        if (localNotifications.isNotEmpty) {
-          if (notificationModel?.data == null) {
-            notificationModel?.data = [];
-          }
+      // Merge local notifications (Bonus, etc.)
+      if (localNotifications.isNotEmpty) {
+        notificationModel ??= nm.NotificationModel(data: []);
+        if (notificationModel?.data == null) {
+          notificationModel?.data = [];
+        }
 
-          for (var local in localNotifications) {
+        for (var local in localNotifications) {
+          final sid = "local_${local['createdAt']}";
+          if (!notificationModel!.data!.any((e) => e.sId == sid)) {
             notificationModel!.data!.add(nm.Data(
-              sId: "local_${local['createdAt']}",
+              sId: sid,
               title: local['title'],
               message: local['message'],
               createdAt: local['createdAt'],
               linkUrl: "",
             ));
           }
-          
-          // Sort by date (newest first)
-          notificationModel!.data!.sort((a, b) {
-            final dateA = DateTime.tryParse(a.createdAt ?? "") ?? DateTime(2000);
-            final dateB = DateTime.tryParse(b.createdAt ?? "") ?? DateTime(2000);
-            return dateB.compareTo(dateA);
-          });
         }
 
-        error = null;
-      } else {
-        error =
-            "Failed to load notifications. Status code: ${response.statusCode}";
+        // Sort by date (newest first)
+        notificationModel!.data!.sort((a, b) {
+          final dateA = DateTime.tryParse(a.createdAt ?? "") ?? DateTime(2000);
+          final dateB = DateTime.tryParse(b.createdAt ?? "") ?? DateTime(2000);
+          return dateB.compareTo(dateA);
+        });
       }
       isLoading = false;
       notifyListeners();

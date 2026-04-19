@@ -13,6 +13,8 @@ class TransactionReceiptBottomSheet {
     required String description,
     required double amount,
     required String date,
+    double? originalAmount,
+    double? discountAmount,
     VoidCallback? onDone,
   }) {
     final ScreenshotController screenshotController = ScreenshotController();
@@ -52,7 +54,7 @@ class TransactionReceiptBottomSheet {
                       },
                       icon: const Icon(
                         Icons.arrow_back,
-                        color: const Color(0xff660E0D),
+                        color: Color(0xff660E0D),
                       ),
                     ),
                     Text(
@@ -152,7 +154,23 @@ class TransactionReceiptBottomSheet {
                                     const SizedBox(height: 16),
                                     _buildReceiptRow("Service", description),
                                     const SizedBox(height: 16),
-                                    _buildReceiptRow("Price", "\$ ${amount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}"),
+                                    if (discountAmount != null && discountAmount > 0) ...[
+                                      _buildReceiptRow(
+                                        "Original Price",
+                                        "\$ ${originalAmount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _buildReceiptRow(
+                                        "Discount Used",
+                                        "- \$ ${discountAmount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
+                                        color: Colors.green.shade700,
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ] else
+                                      _buildReceiptRow(
+                                        "Price",
+                                        "\$ ${amount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
+                                      ),
                                     const Padding(
                                       padding: EdgeInsets.symmetric(vertical: 16),
                                       child: Divider(
@@ -161,7 +179,7 @@ class TransactionReceiptBottomSheet {
                                       ),
                                     ),
                                     _buildReceiptRow(
-                                      "Total",
+                                      "Total Paid",
                                       "\$ ${amount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
                                       isBold: true,
                                     ),
@@ -250,7 +268,8 @@ class TransactionReceiptBottomSheet {
     );
   }
 
-  static Widget _buildReceiptRow(String label, String value, {bool isBold = false}) {
+  static Widget _buildReceiptRow(String label, String value,
+      {bool isBold = false, Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +286,7 @@ class TransactionReceiptBottomSheet {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: const Color(0xff111827),
+              color: color ?? const Color(0xff111827),
             ),
           ),
         ),

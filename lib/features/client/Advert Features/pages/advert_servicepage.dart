@@ -459,6 +459,15 @@ class _PackageCardState extends State<PackageCard> {
                                         color: const Color(0xFFEB4724),
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Note: Your bonus points will reset after using this discount.",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 10,
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.orange.shade800,
+                                      ),
+                                    ),
                                   ] else
                                     Text(
                                       "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
@@ -626,10 +635,26 @@ class _PackageCardState extends State<PackageCard> {
 
                                         TransactionReceiptBottomSheet.show(
                                           context: context,
-                                          userName: userProvider.userModel?.user?.fullname ?? "User",
-                                          description: "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
+                                          userName:
+                                              userProvider
+                                                  .userModel
+                                                  ?.user
+                                                  ?.fullname ??
+                                              "User",
+                                          description:
+                                              "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
                                           amount: finalAmount,
-                                          date: DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.now()),
+                                          originalAmount:
+                                              (widget.package.price ?? 0)
+                                                  .toDouble(),
+                                          discountAmount: isBonusAvailable
+                                              ? ((widget.package.price ?? 0) -
+                                                        finalAmount)
+                                                    .toDouble()
+                                              : 0,
+                                          date: DateFormat(
+                                            'MMM dd, yyyy • hh:mm a',
+                                          ).format(DateTime.now()),
                                         );
                                       }
                                     }
