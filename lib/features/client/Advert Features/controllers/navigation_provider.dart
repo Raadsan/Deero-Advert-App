@@ -14,7 +14,7 @@ class NavigationProvider extends ChangeNotifier {
 
   void navigateToService(int serviceIndex) {
     _serviceInitialIndex = serviceIndex;
-    _currentIndex = 2; // Service tab index in AdvertNavigationpage
+    _currentIndex = 1; // Service tab index in AdvertNavigationpage
     notifyListeners();
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/active_notification_model.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/notification_model.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
+import 'package:deero_enterprise_app/features/client/Advert%20Features/models/notification_model.dart' as nm;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -56,7 +56,8 @@ class NotificationService {
     );
   }
 
-  static Future show(String title, String body, {String? payload}) async {
+  static Future show(String title, String body,
+      {String? payload, bool saveLocal = false}) async {
     final android = AndroidNotificationDetails(
       'deero_notifications',
       'Deero App Notifications',
@@ -83,6 +84,19 @@ class NotificationService {
       NotificationDetails(android: android),
       payload: payload,
     );
+
+    if (saveLocal) {
+      final box = GetStorage();
+      List<dynamic> locals = box.read('localNotifications') ?? [];
+      locals.insert(0, {
+        "title": title,
+        "message": body,
+        "createdAt": DateTime.now().toIso8601String(),
+        "isLocal": true,
+      });
+      if (locals.length > 20) locals = locals.sublist(0, 20);
+      await box.write('localNotifications', locals);
+    }
   }
 
   static Future<void> _openLink(String? rawLink) async {
@@ -102,7 +116,7 @@ class NotificationService {
 /// App-ka: ogeysiis ka da'da weyn ma ahan in la muujiyo.
 const Duration _kNotificationMaxAge = Duration(days: 30);
 
-void _filterNotificationsOlderThan(NotificationModel? model, Duration maxAge) {
+void _filterNotificationsOlderThan(nm.NotificationModel? model, Duration maxAge) {
   if (model?.data == null) return;
   final cutoff = DateTime.now().toUtc().subtract(maxAge);
   model!.data = model.data!.where((item) {
@@ -118,16 +132,43 @@ void _filterNotificationsOlderThan(NotificationModel? model, Duration maxAge) {
 }
 
 class NotificationProvider extends ChangeNotifier {
-  ActiveNotificationModel? activeNotificationModel;
-  NotificationModel? notificationModel;
+  an.ActiveNotificationModel? activeNotificationModel;
+  nm.NotificationModel? notificationModel;
   bool isLoading = false;
   String? error;
+
+  List<dynamic> localNotifications = [];
 
   NotificationProvider() {
     // Automatically attempt to save token when the provider is loaded
     saveToken();
     // Check if it's the first launch to send a welcome sample
     _checkFirstLaunch();
+    // Load local notifications (bonus, etc.)
+    _loadLocalNotifications();
+  }
+
+  void _loadLocalNotifications() {
+    final box = GetStorage();
+    localNotifications = box.read('localNotifications') ?? [];
+  }
+
+  Future<void> addLocalNotification(String title, String message) async {
+    final box = GetStorage();
+    final newNotification = {
+      "title": title,
+      "message": message,
+      "createdAt": DateTime.now().toIso8601String(),
+      "isLocal": true,
+    };
+    
+    localNotifications.insert(0, newNotification);
+    if (localNotifications.length > 20) {
+      localNotifications = localNotifications.sublist(0, 20); // Keep last 20
+    }
+    
+    await box.write('localNotifications', localNotifications);
+    notifyListeners();
   }
 
   void _checkFirstLaunch() {
@@ -138,6 +179,7 @@ class NotificationProvider extends ChangeNotifier {
       NotificationService.show(
         "Welcome to Deero Advert!",
         "Thank you for installing our application. You will receive important updates here.",
+        saveLocal: true,
       );
       box.write('isFirstLaunchNotificationSent', true);
     }
@@ -201,6 +243,9 @@ class NotificationProvider extends ChangeNotifier {
       error = null;
       notifyListeners();
 
+      // Reload local notifications from storage to catch new ones
+      _loadLocalNotifications();
+
       final box = GetStorage();
       final userInfo = box.read("userInfo");
       final token = userInfo != null ? userInfo['token'] : null;
@@ -214,8 +259,33 @@ class NotificationProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final decodeData = jsonDecode(response.body);
-        notificationModel = NotificationModel.fromJson(decodeData);
+        notificationModel = nm.NotificationModel.fromJson(decodeData);
         _filterNotificationsOlderThan(notificationModel, _kNotificationMaxAge);
+
+        // Merge local notifications (Bonus, etc.)
+        if (localNotifications.isNotEmpty) {
+          if (notificationModel?.data == null) {
+            notificationModel?.data = [];
+          }
+
+          for (var local in localNotifications) {
+            notificationModel!.data!.add(nm.Data(
+              sId: "local_${local['createdAt']}",
+              title: local['title'],
+              message: local['message'],
+              createdAt: local['createdAt'],
+              linkUrl: "",
+            ));
+          }
+          
+          // Sort by date (newest first)
+          notificationModel!.data!.sort((a, b) {
+            final dateA = DateTime.tryParse(a.createdAt ?? "") ?? DateTime(2000);
+            final dateB = DateTime.tryParse(b.createdAt ?? "") ?? DateTime(2000);
+            return dateB.compareTo(dateA);
+          });
+        }
+
         error = null;
       } else {
         error =
@@ -244,7 +314,7 @@ class NotificationProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final decodeData = jsonDecode(response.body);
-        activeNotificationModel = ActiveNotificationModel.fromJson(decodeData);
+        activeNotificationModel = an.ActiveNotificationModel.fromJson(decodeData);
 
         // Show firebase local notification for active announcement only if it's new
         if (activeNotificationModel?.data != null &&
@@ -259,6 +329,7 @@ class NotificationProvider extends ChangeNotifier {
               activeItem.title ?? "Active Update",
               activeItem.message ?? "New announcement is active.",
               payload: activeItem.linkUrl,
+              saveLocal: true, // Save active announcements to list too
             );
             // Save this ID so we don't show it again until a new one comes
             box.write('lastActiveNotificationId', activeItem.sId);

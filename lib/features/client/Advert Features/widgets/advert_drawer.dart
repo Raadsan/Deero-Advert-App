@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_careerpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_historypage.dart';
@@ -121,6 +122,20 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const AdvertSocialMediapage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: IconlyLight.info_circle,
+                    title: "About Page",
+                    delay: 550,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertAboutpage(),
                         ),
                       );
                     },

@@ -1,15 +1,98 @@
 import 'dart:convert';
-
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart' as gsi;
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel? userModel;
   bool isLoading = false;
+
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
+  final gsi.GoogleSignIn _googleSignIn = gsi.GoogleSignIn(
+    scopes: [
+      'email',
+    ],
+  );
+
+
+
+  Future<bool> signInWithGoogle(BuildContext context) async {
+    try {
+      isLoading = true;
+      loginError = null;
+      notifyListeners();
+
+      final gsi.GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      final auth = await googleUser.authentication;
+      final firebase_auth.AuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: auth.accessToken,
+        idToken: auth.idToken,
+      );
+
+      final firebase_auth.UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final firebase_auth.User? firebaseUser = userCredential.user;
+
+      if (firebaseUser != null) {
+        // Prepare data for backend sync
+        var data = {
+          "email": firebaseUser.email,
+          "name": firebaseUser.displayName,
+          "image": firebaseUser.photoURL,
+          "googleId": firebaseUser.uid,
+          "isGoogleLogin": true
+        };
+
+        print("Backend Sync Data: $data");
+
+        var response = await http.post(
+          Uri.parse("${EndPoint}users/google-login"), // Endpoint for Google sync
+          body: jsonEncode(data),
+          headers: {"Content-Type": "application/json"},
+        );
+
+        print("Backend Response Status: ${response.statusCode}");
+        print("Backend Response Body: ${response.body}");
+
+        if (response.statusCode == 200) {
+          var datadecoded = jsonDecode(response.body);
+          userModel = UserModel.fromJson(datadecoded);
+          final model = userModel;
+          if (model != null) {
+            saveUser(model);
+          }
+          print("Google Sign-In Sync Successful!");
+          isLoading = false;
+          notifyListeners();
+          return true;
+        } else {
+          print("Backend Sync Failed with status: ${response.statusCode}");
+          loginError = "Failed to sync with server.";
+          isLoading = false;
+          notifyListeners();
+          return false;
+        }
+      }
+      return false;
+    } catch (e) {
+      print("CRITICAL ERROR during Google Sign-In: $e");
+      loginError = "Google login failed: $e";
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 
   String? _email;
   String? _password;
@@ -180,6 +263,16 @@ class UserProvider extends ChangeNotifier {
           saveUser(updatedModel);
           print("User data refreshed. Bonus: $oldBonus -> $newBonus");
 
+          // Notify if bonus increased (Accumulated)
+          if (newBonus > (oldBonus ?? 0)) {
+            final earned = newBonus - (oldBonus ?? 0);
+            NotificationService.show(
+              "💰 Bonus Accumulated!",
+              "Congratulations! You've earned $earned points. Total balance: $newBonus points.",
+              saveLocal: true,
+            );
+          }
+
           // Check for bonus notification (Discount reminder) using dynamic threshold
           if (newBonus >= minBonusForDiscount) {
             checkBonusNotification(newBonus);
@@ -208,6 +301,7 @@ class UserProvider extends ChangeNotifier {
         NotificationService.show(
           "🎁 $discountPercentage% DISCOUNT READY!",
           "You have reached $bonus points! You can now get $discountPercentage% OFF on any Service, Domain, or Hosting. Don't miss out!",
+          saveLocal: true,
         );
         box.write('last_notified_bonus_peak', minBonusForDiscount);
       }
