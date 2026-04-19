@@ -8,6 +8,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/adv
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_social_mediapage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -109,6 +110,20 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                         builder: (context) => const AdvertCareerPage(),
                       ),
                     ),
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: IconlyLight.info_circle,
+                    title: "Social Media",
+                    delay: 600,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertSocialMediapage(),
+                        ),
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     context: context,

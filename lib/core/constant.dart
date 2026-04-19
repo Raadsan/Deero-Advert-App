@@ -11,6 +11,8 @@ const String kAdvertWhatsAppNumber = "252618553839";
 const String kAdvertSocialTikTokUrl = "https://www.tiktok.com/@deeroadverts?_r=1&_t=ZS-95TiDt6Svki";
 const String kAdvertSocialBehanceUrl = "https://www.behance.net/deeroadvert/";
 const String kAdvertSocialInstagramUrl = "https://www.instagram.com/deeroadvert?igsh=Z24za2xsMmg4Mmxo";
+const String kAdvertSocialFacebookUrl = "https://www.facebook.com/share/18fKLYZvqV/";
+const String kAdvertSocialLinkedInUrl = "https://www.linkedin.com/company/deero-advert/";
 
 String get kAdvertSocialWhatsAppUrl =>
     "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert")}";
