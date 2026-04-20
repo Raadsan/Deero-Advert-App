@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Form Container
                   _buildInputField(
                     label: "Email",
@@ -89,144 +89,216 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: _obscureText,
                     primaryColor: primaryColor,
                     onChanged: (value) => userProvider.setPassword(value),
-                    onToggleVisibility: () => setState(() => _obscureText = !_obscureText),
+                    onToggleVisibility: () =>
+                        setState(() => _obscureText = !_obscureText),
                   ),
-                  
+
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordPage(),
+                          ),
                         );
                       },
                       child: Text(
                         "Forgot password?",
-                        style: GoogleFonts.poppins(color: secondaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                        style: GoogleFonts.poppins(
+                          color: secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Sign In Button
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: userProvider.isLoading ? null : () async {
-                        final success = await userProvider.login(context);
-                        if (!context.mounted) return;
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Login Successful!"), backgroundColor: Colors.green),
-                          );
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) =>  AdvertNavigationpage()),
-                            (route) => false,
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(userProvider.loginError ?? "Login Failed"), backgroundColor: Colors.red),
-                          );
-                        }
-                      },
+                      onPressed: userProvider.isLoading
+                          ? null
+                          : () async {
+                              final success = await userProvider.login(context);
+                              if (!context.mounted) return;
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Login Successful!"),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AdvertNavigationpage(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      userProvider.loginError ?? "Login Failed",
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         elevation: 0,
                       ),
                       child: userProvider.isLoading
                           ? const SizedBox(
                               height: 22,
                               width: 22,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
                             )
                           : Text(
                               "Sign In",
-                              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 25),
                   Row(
                     children: [
-                       Expanded(child: Divider(color: Colors.grey.shade300)),
-                       Padding(
-                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                         child: Text("OR", style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 12)),
-                       ),
-                       Expanded(child: Divider(color: Colors.grey.shade300)),
+                      Expanded(child: Divider(color: Colors.grey.shade300)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "OR",
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey.shade300)),
                     ],
                   ),
                   const SizedBox(height: 25),
-                  
+
                   // Google Sign In Button
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: OutlinedButton(
-                      onPressed: userProvider.isLoading ? null : () async {
-                        final success = await userProvider.signInWithGoogle(context);
-                        if (!context.mounted) return;
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Signed in with Google!"), backgroundColor: Colors.green),
-                          );
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => AdvertNavigationpage()),
-                            (route) => false,
-                          );
-                        } else if (userProvider.loginError != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(userProvider.loginError!), backgroundColor: Colors.red),
-                          );
-                        }
-                      },
+                      onPressed: userProvider.isLoading
+                          ? null
+                          : () async {
+                              final success = await userProvider
+                                  .signInWithGoogle(context);
+                              if (!context.mounted) return;
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Signed in with Google!"),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AdvertNavigationpage(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } else if (userProvider.loginError != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(userProvider.loginError!),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.grey.shade300),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         backgroundColor: Colors.white,
                       ),
-                      child: userProvider.isLoading 
-                        ? SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(color: secondaryColor, strokeWidth: 2),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.g_mobiledata_rounded, color: secondaryColor, size: 30),
-                              const SizedBox(width: 8),
-                              Text(
-                                "Sign in with Google",
-                                style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 15),
+                      child: userProvider.isLoading
+                          ? SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: secondaryColor,
+                                strokeWidth: 2,
                               ),
-                            ],
-                          ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  "images/advertimages/google.png",
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Sign in with Google",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don't have an account?", style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 13)),
+                      Text(
+                        "Don't have an account?",
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterPage(),
+                            ),
                           );
                         },
                         child: Text(
                           "Now Sign Up",
-                          style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                          style: GoogleFonts.poppins(
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
@@ -256,7 +328,11 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black87),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(

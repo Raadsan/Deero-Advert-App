@@ -14,13 +14,7 @@ class UserProvider extends ChangeNotifier {
   bool isLoading = false;
 
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
-  final gsi.GoogleSignIn _googleSignIn = gsi.GoogleSignIn(
-    scopes: [
-      'email',
-    ],
-  );
-
-
+  final gsi.GoogleSignIn _googleSignIn = gsi.GoogleSignIn(scopes: ['email']);
 
   Future<bool> signInWithGoogle(BuildContext context) async {
     try {
@@ -36,12 +30,14 @@ class UserProvider extends ChangeNotifier {
       }
 
       final auth = await googleUser.authentication;
-      final firebase_auth.AuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: auth.accessToken,
-        idToken: auth.idToken,
-      );
+      final firebase_auth.AuthCredential credential =
+          firebase_auth.GoogleAuthProvider.credential(
+            accessToken: auth.accessToken,
+            idToken: auth.idToken,
+          );
 
-      final firebase_auth.UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final firebase_auth.UserCredential userCredential = await _auth
+          .signInWithCredential(credential);
       final firebase_auth.User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
@@ -51,13 +47,15 @@ class UserProvider extends ChangeNotifier {
           "name": firebaseUser.displayName,
           "image": firebaseUser.photoURL,
           "googleId": firebaseUser.uid,
-          "isGoogleLogin": true
+          "isGoogleLogin": true,
         };
 
         print("Backend Sync Data: $data");
 
         var response = await http.post(
-          Uri.parse("${EndPoint}users/google-login"), // Endpoint for Google sync
+          Uri.parse(
+            "${EndPoint}users/google-login",
+          ), // Endpoint for Google sync
           body: jsonEncode(data),
           headers: {"Content-Type": "application/json"},
         );

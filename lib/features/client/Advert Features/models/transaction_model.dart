@@ -15,10 +15,10 @@ class TransactionModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.transactions != null) {
-      data['transactions'] = this.transactions!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    if (transactions != null) {
+      data['transactions'] = transactions!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -38,6 +38,8 @@ class Transactions {
   String? updatedAt;
   int? iV;
   String? paymentReferenceId;
+  double? originalAmount;
+  double? discountApplied;
 
   Transactions({
     this.sId,
@@ -53,14 +55,16 @@ class Transactions {
     this.updatedAt,
     this.iV,
     this.paymentReferenceId,
+    this.originalAmount,
+    this.discountApplied,
   });
 
   Transactions.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     hostingPackage = json['hostingPackage'] != null
-        ? new HostingPackage.fromJson(json['hostingPackage'])
+        ? HostingPackage.fromJson(json['hostingPackage'])
         : null;
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     type = json['type'];
     amount = json['amount']?.toDouble();
     status = json['status'];
@@ -71,27 +75,31 @@ class Transactions {
     updatedAt = json['updatedAt'];
     iV = json['__v'];
     paymentReferenceId = json['paymentReferenceId'];
+    originalAmount = json['originalAmount']?.toDouble();
+    discountApplied = json['discountApplied']?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    if (this.hostingPackage != null) {
-      data['hostingPackage'] = this.hostingPackage!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    if (hostingPackage != null) {
+      data['hostingPackage'] = hostingPackage!.toJson();
     }
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    data['type'] = this.type;
-    data['amount'] = this.amount;
-    data['status'] = this.status;
-    data['currency'] = this.currency;
-    data['description'] = this.description;
-    data['paymentMethod'] = this.paymentMethod;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
-    data['paymentReferenceId'] = this.paymentReferenceId;
+    data['type'] = type;
+    data['amount'] = amount;
+    data['status'] = status;
+    data['currency'] = currency;
+    data['description'] = description;
+    data['paymentMethod'] = paymentMethod;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['paymentReferenceId'] = paymentReferenceId;
+    data['originalAmount'] = originalAmount;
+    data['discountApplied'] = discountApplied;
     return data;
   }
 }
@@ -110,10 +118,10 @@ class HostingPackage {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['name'] = this.name;
-    data['price'] = this.price;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['name'] = name;
+    data['price'] = price;
     return data;
   }
 }
@@ -132,10 +140,10 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['fullname'] = this.fullname;
-    data['email'] = this.email;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['fullname'] = fullname;
+    data['email'] = email;
     return data;
   }
 }

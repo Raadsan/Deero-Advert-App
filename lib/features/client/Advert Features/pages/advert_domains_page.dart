@@ -212,12 +212,16 @@ class _DomainCardState extends State<_DomainCard> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    "Purchase ${widget.domain}",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xff651313),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      "Purchase ${widget.domain}",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xff651313),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -235,61 +239,63 @@ class _DomainCardState extends State<_DomainCard> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total Price",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                  if (userProvider
-                                          .userModel
-                                          ?.user
-                                          ?.bonusStatus ==
-                                      "BonusAvailable") ...[
-                                    Row(
-                                      children: [
-                                        Text(
-                                          widget.price,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "${userProvider.discountPercentage}% OFF",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                      "Total Price",
                                       style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
                                       ),
                                     ),
-                                  ] else
-                                    Text(
-                                      widget.price,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
+                                    if (userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable") ...[
+                                      Row(
+                                        children: [
+                                          Text(
+                                            widget.price,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "${userProvider.discountPercentage}% OFF",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                ],
+                                      Text(
+                                        "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
+                                        ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        widget.price,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -431,6 +437,8 @@ class _DomainCardState extends State<_DomainCard> {
                                               "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
+                                          useBonus:
+                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
                                           context: dialogContext,
                                         );
 
@@ -451,10 +459,22 @@ class _DomainCardState extends State<_DomainCard> {
 
                                         TransactionReceiptBottomSheet.show(
                                           context: context,
-                                          userName: userProvider.userModel?.user?.fullname ?? "User",
-                                          description: "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
+                                          userName:
+                                              userProvider
+                                                  .userModel
+                                                  ?.user
+                                                  ?.fullname ??
+                                              "User",
+                                          description:
+                                              "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
                                           amount: finalAmount,
-                                          date: DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.now()),
+                                          originalAmount: parsedPrice,
+                                          discountAmount: isBonusAvailable
+                                              ? (parsedPrice - finalAmount)
+                                              : 0,
+                                          date: DateFormat(
+                                            'MMM dd, yyyy • hh:mm a',
+                                          ).format(DateTime.now()),
                                         );
                                       }
                                     }
@@ -573,24 +593,29 @@ class _DomainCardState extends State<_DomainCard> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Builder(builder: (context) {
-                            double parsedPrice = 0.0;
-                            try {
-                              parsedPrice = double.parse(
-                                widget.price.replaceAll(RegExp(r'[^0-9.]'), ''),
+                          Builder(
+                            builder: (context) {
+                              double parsedPrice = 0.0;
+                              try {
+                                parsedPrice = double.parse(
+                                  widget.price.replaceAll(
+                                    RegExp(r'[^0-9.]'),
+                                    '',
+                                  ),
+                                );
+                              } catch (e) {
+                                print("Error parsing price: $e");
+                              }
+                              return Text(
+                                "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xff111827),
+                                ),
                               );
-                            } catch (e) {
-                              print("Error parsing price: $e");
-                            }
-                            return Text(
-                              "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xff111827),
-                              ),
-                            );
-                          }),
+                            },
+                          ),
                         ] else ...[
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.baseline,

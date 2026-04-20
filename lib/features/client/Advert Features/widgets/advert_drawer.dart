@@ -54,6 +54,20 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                 children: [
                   _buildMenuItem(
                     context: context,
+                    icon: IconlyLight.info_circle,
+                    title: "About Page",
+                    delay: 550,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertAboutpage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuItem(
+                    context: context,
                     icon: IconlyLight.paper,
                     title: "Portfolio",
                     delay: 150,
@@ -126,20 +140,7 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    context: context,
-                    icon: IconlyLight.info_circle,
-                    title: "About Page",
-                    delay: 550,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AdvertAboutpage(),
-                        ),
-                      );
-                    },
-                  ),
+
                   _buildMenuItem(
                     context: context,
                     icon: IconlyLight.info_circle,
@@ -280,8 +281,9 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
       context: context,
       builder: (context) => FadeInScale(
         child: Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(

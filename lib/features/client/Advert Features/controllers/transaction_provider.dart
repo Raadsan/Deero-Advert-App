@@ -76,6 +76,7 @@ class TransactionProvider extends ChangeNotifier {
     String? description,
     String? accountNo,
     String? paymentMethod,
+    bool useBonus = false, // ✅ NEW: tells backend to reset bonus
     required BuildContext context,
   }) async {
     bool isSuccess = false;
@@ -94,6 +95,7 @@ class TransactionProvider extends ChangeNotifier {
         "description": description ?? "Deero Services Payment",
         "accountNo": accountNo,
         "paymentMethod": paymentMethod,
+        "useBonus": useBonus, // ✅ Send to backend for bonus reset
       };
 
       print("Sending Transaction Data: ${jsonEncode(data)}");

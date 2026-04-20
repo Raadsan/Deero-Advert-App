@@ -22,7 +22,7 @@ class AdvertProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
-      
+
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle(
           systemNavigationBarColor: bgColor,
@@ -461,8 +461,9 @@ class AdvertProfilePage extends StatelessWidget {
       context: context,
       builder: (context) => FadeInScale(
         child: Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(

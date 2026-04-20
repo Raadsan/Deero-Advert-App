@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:deero_enterprise_app/core/widgets/transaction_receipt_bottomsheet.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:share_plus/share_plus.dart';
@@ -26,7 +27,6 @@ class AdvertHistorypage extends StatefulWidget {
 }
 
 class _AdvertHistorypageState extends State<AdvertHistorypage> {
-  final ScreenshotController _screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -359,281 +359,16 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
   }
 
   void _showTransactionDetail(BuildContext context, Transactions tx) {
-    final date = DateTime.tryParse(tx.createdAt ?? "") ?? DateTime.now();
-    final formattedDate = DateFormat('dd.MM.yy HH:mm').format(date);
-
-    showModalBottomSheet(
+    TransactionReceiptBottomSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: const Color(0xff660E0D),
-                      ),
-                    ),
-                    Text(
-                      "Transfer",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 48), // Spacer
-                  ],
-                ),
-              ),
-              const Divider(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      // Wrap entire receipt content with Screenshot to include Logo
-                      Screenshot(
-                        controller: _screenshotController,
-                        child: Container(
-                          color: Colors.white, // Background for screenshot
-                          child: Column(
-                            children: [
-                              // Logo and Status
-                              Center(
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height: 100,
-                                      width: 100,
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xff660E0D),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.grey.shade100,
-                                          width: 2,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.05,
-                                            ),
-                                            blurRadius: 15,
-                                            offset: const Offset(0, 5),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Image.asset(
-                                        "images/advertimages/advertlogoico.png",
-                                        width: 300,
-                                        height: 300,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      "Transfer Successful",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 36,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xff111827),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      tx.user?.fullname?.toUpperCase() ??
-                                          "UNKNOWN USER",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xff111827),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 40),
-                              // Receipt Card
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF3F4F6),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    _buildReceiptRow(
-                                      "Transaction date",
-                                      formattedDate,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildReceiptRow(
-                                      "Magaca diraha",
-                                      tx.user?.fullname ?? "N/A",
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildReceiptRow(
-                                      "Service",
-                                      tx.description ??
-                                          tx.hostingPackage?.name ??
-                                          "Service Purchase",
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildReceiptRow(
-                                      "Price",
-                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 16,
-                                      ),
-                                      child: Divider(
-                                        color: Colors.white,
-                                        thickness: 1,
-                                      ),
-                                    ),
-                                    _buildReceiptRow(
-                                      "Total",
-                                      "\$ ${tx.amount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '') ?? "0"}",
-                                      isBold: true,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Buttons
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff660E0D),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          "Done",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xff660E0D).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        onPressed: () async {
-                          try {
-                            final Uint8List? imageBytes =
-                                await _screenshotController.capture(
-                                  delay: const Duration(milliseconds: 10),
-                                );
-
-                            if (imageBytes != null) {
-                              final tempDir = await getTemporaryDirectory();
-                              final file = await File(
-                                '${tempDir.path}/transaction_receipt.png',
-                              ).create();
-                              await file.writeAsBytes(imageBytes);
-
-                              await Share.shareXFiles([
-                                XFile(file.path),
-                              ], text: "Deero Advert Transaction Receipt");
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Error sharing image: $e"),
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.share, color: Color(0xff660E0D)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildReceiptRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: const Color(0xff111827),
-            ),
-          ),
-        ),
-      ],
+      userName: tx.user?.fullname ?? "User",
+      description: tx.description ?? "Service Purchase",
+      amount: tx.amount ?? 0,
+      originalAmount: tx.originalAmount,
+      discountAmount: tx.discountApplied,
+      date: DateFormat('MMM dd, yyyy • hh:mm a').format(
+        DateTime.tryParse(tx.createdAt ?? "") ?? DateTime.now(),
+      ),
     );
   }
 }
@@ -649,7 +384,7 @@ class HistoryShimmer extends StatelessWidget {
             transactionProvider.transactionModel?.transactions ?? [];
         return ListView.builder(
           padding: const EdgeInsets.all(20),
-          itemCount: transactionList.length,
+          itemCount: 5,
           itemBuilder: (context, index) {
             return Container(
               margin: const EdgeInsets.only(bottom: 16),

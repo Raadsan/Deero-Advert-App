@@ -134,8 +134,30 @@ class TransactionReceiptBottomSheet {
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         color: const Color(0xff111827),
-                                      ),
                                     ),
+                                    ),
+                                    if (discountAmount != null && discountAmount > 0) ...[
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          "BONUS APPLIED",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green.shade700,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -154,23 +176,18 @@ class TransactionReceiptBottomSheet {
                                     const SizedBox(height: 16),
                                     _buildReceiptRow("Service", description),
                                     const SizedBox(height: 16),
-                                    if (discountAmount != null && discountAmount > 0) ...[
-                                      _buildReceiptRow(
-                                        "Original Price",
-                                        "\$ ${originalAmount?.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
-                                      ),
-                                      const SizedBox(height: 16),
-                                      _buildReceiptRow(
-                                        "Discount Used",
-                                        "- \$ ${discountAmount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
-                                        color: Colors.green.shade700,
-                                      ),
-                                      const SizedBox(height: 16),
-                                    ] else
-                                      _buildReceiptRow(
-                                        "Price",
-                                        "\$ ${amount.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
-                                      ),
+                                    _buildReceiptRow(
+                                      "Price",
+                                      "\$ ${(originalAmount != null && originalAmount > 0 ? originalAmount : amount).toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildReceiptRow(
+                                      "Discount",
+                                      "- \$ ${(discountAmount ?? 0).toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}",
+                                      color: (discountAmount ?? 0) > 0
+                                          ? Colors.green.shade700
+                                          : null,
+                                    ),
                                     const Padding(
                                       padding: EdgeInsets.symmetric(vertical: 16),
                                       child: Divider(

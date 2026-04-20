@@ -48,8 +48,8 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
           backgroundColor: const Color(0xFFF9FAFB),
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle(
-          systemNavigationBarColor: bgColor,
-        ),
+              systemNavigationBarColor: bgColor,
+            ),
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: Colors.transparent,
             elevation: 0,
@@ -290,12 +290,16 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    "Purchase ${widget.hostingPackage.name}",
-                    style: GoogleFonts.poppins(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      "Purchase ${widget.hostingPackage.name}",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xff651313),
+                        color: const Color(0xff651313),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -313,61 +317,63 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total Price",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                  if (userProvider
-                                          .userModel
-                                          ?.user
-                                          ?.bonusStatus ==
-                                      "BonusAvailable") ...[
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "${userProvider.discountPercentage}% OFF",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      "\$${(price * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                      "Total Price",
                                       style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
                                       ),
                                     ),
-                                  ] else
-                                    Text(
-                                      "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
+                                    if (userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable") ...[
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "${userProvider.discountPercentage}% OFF",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                ],
+                                      Text(
+                                        "\$${(price * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
+                                        ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -505,6 +511,8 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                               "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
+                                          useBonus:
+                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
                                           context: dialogContext,
                                         );
 
@@ -525,10 +533,22 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
 
                                         TransactionReceiptBottomSheet.show(
                                           context: context,
-                                          userName: userProvider.userModel?.user?.fullname ?? "User",
-                                          description: "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
+                                          userName:
+                                              userProvider
+                                                  .userModel
+                                                  ?.user
+                                                  ?.fullname ??
+                                              "User",
+                                          description:
+                                              "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
                                           amount: finalAmount,
-                                          date: DateFormat('MMM dd, yyyy • hh:mm a').format(DateTime.now()),
+                                          originalAmount: price,
+                                          discountAmount: isBonusAvailable
+                                              ? (price - finalAmount)
+                                              : 0,
+                                          date: DateFormat(
+                                            'MMM dd, yyyy • hh:mm a',
+                                          ).format(DateTime.now()),
                                         );
                                       }
                                     }

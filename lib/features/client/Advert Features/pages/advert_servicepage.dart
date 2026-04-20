@@ -391,12 +391,16 @@ class _PackageCardState extends State<PackageCard> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    "Purchase ${widget.package.packageTitle}",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xff651313),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      "Purchase ${widget.package.packageTitle}",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xff651313),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -414,70 +418,77 @@ class _PackageCardState extends State<PackageCard> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total Price",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Total Price",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
                                     ),
-                                  ),
-                                  if (userProvider
-                                          .userModel
-                                          ?.user
-                                          ?.bonusStatus ==
-                                      "BonusAvailable") ...[
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                                    if (userProvider
+                                            .userModel
+                                            ?.user
+                                            ?.bonusStatus ==
+                                        "BonusAvailable") ...[
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "${userProvider.discountPercentage}% OFF",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        child: Text(
+                                          "Note: Your bonus points will reset after using this discount.",
                                           style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            color: Colors.grey,
+                                            fontSize: 10,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.orange.shade800,
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "${userProvider.discountPercentage}% OFF",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green,
-                                          ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFFEB4724),
                                         ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "Note: Your bonus points will reset after using this discount.",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 10,
-                                        fontStyle: FontStyle.italic,
-                                        color: Colors.orange.shade800,
-                                      ),
-                                    ),
-                                  ] else
-                                    Text(
-                                      "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFFEB4724),
-                                      ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -615,6 +626,8 @@ class _PackageCardState extends State<PackageCard> {
                                               "${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}",
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
+                                          useBonus:
+                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
                                           context: dialogContext,
                                         );
 
