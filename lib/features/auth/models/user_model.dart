@@ -75,8 +75,7 @@ class User {
       data['role'] = this.role?.toJson();
     }
     if (this.bonusHistory != null) {
-      data['bonusHistory'] =
-          this.bonusHistory?.map((v) => v.toJson()).toList();
+      data['bonusHistory'] = this.bonusHistory?.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -102,9 +101,9 @@ class BonusHistory {
   });
 
   BonusHistory.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['userId'];
-    amount = json['amount'];
+    id = json['id'] != null ? int.tryParse(json['id'].toString()) : null;
+    userId = json['userId'] != null ? int.tryParse(json['userId'].toString()) : null;
+    amount = json['amount'] != null ? int.tryParse(json['amount'].toString()) : null;
     reason = json['reason'];
     type = json['type'];
     createdAt = json['createdAt'];

@@ -185,7 +185,7 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
 
       var response = await http.get(
-        Uri.parse("${EndPoint}users/bonus-history/$userId"),
+        Uri.parse("${EndPoint}users/$userId/bonus-history"),
         headers: {
           "Content-Type": "application/json",
           if (userModel?.token != null)
