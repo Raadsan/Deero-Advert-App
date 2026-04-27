@@ -27,6 +27,7 @@ class User {
   String? fullname;
   String? email;
   String? phone;
+  String? image;
   int? bonus;
   String? bonusStatus;
   String? registerSource;
@@ -37,10 +38,12 @@ class User {
     this.fullname,
     this.email,
     this.phone,
+    this.image,
     this.bonus,
     this.bonusStatus,
     this.registerSource,
     this.role,
+    this.discounts,
   });
 
   User.fromJson(Map<String, dynamic> json) {
@@ -48,6 +51,7 @@ class User {
     fullname = json['fullname'];
     email = json['email'];
     phone = json['phone'];
+    image = json['image'];
     bonus = json['bonus'] is int
         ? json['bonus']
         : int.tryParse(json['bonus']?.toString() ?? "0") ?? 0;
@@ -60,6 +64,12 @@ class User {
         bonusHistory?.add(new BonusHistory.fromJson(v));
       });
     }
+    if (json['discounts'] != null) {
+      discounts = <Discount>[];
+      json['discounts'].forEach((v) {
+        discounts?.add(new Discount.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -68,6 +78,7 @@ class User {
     data['fullname'] = this.fullname;
     data['email'] = this.email;
     data['phone'] = this.phone;
+    data['image'] = this.image;
     data['bonus'] = this.bonus;
     data['bonusStatus'] = this.bonusStatus;
     data['registerSource'] = this.registerSource;
@@ -77,10 +88,14 @@ class User {
     if (this.bonusHistory != null) {
       data['bonusHistory'] = this.bonusHistory?.map((v) => v.toJson()).toList();
     }
+    if (this.discounts != null) {
+      data['discounts'] = this.discounts?.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 
   List<BonusHistory>? bonusHistory;
+  List<Discount>? discounts;
 }
 
 class BonusHistory {
@@ -158,3 +173,42 @@ class Role {
     return data;
   }
 }
+
+class Discount {
+  int? id;
+  String? targetType;
+  String? targetId;
+  double? discountValue;
+  String? discountType;
+  String? status;
+
+  Discount({
+    this.id,
+    this.targetType,
+    this.targetId,
+    this.discountValue,
+    this.discountType,
+    this.status,
+  });
+
+  Discount.fromJson(Map<String, dynamic> json) {
+    id = json['id'] != null ? int.tryParse(json['id'].toString()) : null;
+    targetType = json['targetType'];
+    targetId = json['targetId'];
+    discountValue = (json['discountValue'] as num?)?.toDouble();
+    discountType = json['discountType'];
+    status = json['status'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['targetType'] = this.targetType;
+    data['targetId'] = this.targetId;
+    data['discountValue'] = this.discountValue;
+    data['discountType'] = this.discountType;
+    data['status'] = this.status;
+    return data;
+  }
+}
+

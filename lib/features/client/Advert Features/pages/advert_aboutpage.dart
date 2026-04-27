@@ -1,8 +1,15 @@
+import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/core/themes/color_page.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
+import 'package:provider/provider.dart';
+import 'package:after_layout/after_layout.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class AdvertAboutpage extends StatefulWidget {
   const AdvertAboutpage({super.key});
@@ -11,8 +18,14 @@ class AdvertAboutpage extends StatefulWidget {
   State<AdvertAboutpage> createState() => _AdvertAboutpageState();
 }
 
-class _AdvertAboutpageState extends State<AdvertAboutpage> {
+class _AdvertAboutpageState extends State<AdvertAboutpage>
+    with AfterLayoutMixin<AdvertAboutpage> {
   int _expandedIndex = 0; // 0 for Vision, 1 for Mission, 2 for Core Values
+
+  @override
+  FutureOr<void> afterFirstLayout(BuildContext context) {
+    Provider.of<TestimonialProvider>(context, listen: false).getTestimonials();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +250,12 @@ class _AdvertAboutpageState extends State<AdvertAboutpage> {
 
                     const SizedBox(height: 50),
 
+                    _buildSectionHeader("TESTIMONIALS", "What our clients say"),
+                    const SizedBox(height: 20),
+                    _buildTestimonialsSection(),
+
+                    const SizedBox(height: 50),
+
                     // --- FOOTER / CTA ---
                     FadeIn(
                       delay: const Duration(milliseconds: 500),
@@ -279,7 +298,15 @@ class _AdvertAboutpageState extends State<AdvertAboutpage> {
                             ),
                             const SizedBox(height: 25),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final uri = Uri.parse(kAdvertSocialWhatsAppUrl);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xffEF7044),
                                 foregroundColor: Colors.white,
@@ -423,94 +450,368 @@ class _AdvertAboutpageState extends State<AdvertAboutpage> {
     );
   }
 
-  // Helper: Stats Grid
   Widget _buildStatsGrid() {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            _buildStatItem(
-              "7K+",
-              "Projects",
-              IconlyBold.work,
-              const Color(0xff651210),
-            ),
-            const SizedBox(width: 15),
-            _buildStatItem(
-              "3K+",
-              "Clients",
-              IconlyBold.user_3,
-              const Color(0xffEF7044),
-            ),
-          ],
+        // Left Column
+        Expanded(
+          child: Column(
+            children: [
+              _buildAchieveCard(
+                value: "3,059+",
+                label: "Happy Clients",
+                imagePath: "images/advertimages/happyclients.png",
+                bgColor: const Color(0xFFFFF5EE),
+                textColor: const Color(0xFF651210),
+                height: 180,
+                isTopLeft: true,
+              ),
+              const SizedBox(height: 12),
+              _buildAchieveCard(
+                value: "11+",
+                label: "Pro Team",
+                imagePath: "images/advertimages/team.png",
+                bgColor: const Color(0xFFFFE0CC),
+                textColor: const Color(0xFF651210),
+                height: 130,
+                isBottomLeft: true,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 15),
-        Row(
-          children: [
-            _buildStatItem(
-              "15+",
-              "Experts",
-              IconlyBold.profile,
-              const Color(0xff4B5563),
-            ),
-            const SizedBox(width: 15),
-            _buildStatItem(
-              "12+",
-              "Awards",
-              IconlyBold.discovery,
-              const Color(0xffB45309),
-            ),
-          ],
+        const SizedBox(width: 12),
+        // Right Column
+        Expanded(
+          child: Column(
+            children: [
+              _buildAchieveCard(
+                value: "7,089+",
+                label: "Completed Project",
+                imagePath: "images/advertimages/completeprojects.png",
+                bgColor: const Color(0xFFEF7044),
+                textColor: Colors.white,
+                height: 130,
+                isTopRight: true,
+              ),
+              const SizedBox(height: 12),
+              _buildAchieveCard(
+                value: "9+",
+                label: "Awards won",
+                imagePath: "images/advertimages/award.png",
+                bgColor: const Color(0xFFFFF5EE),
+                textColor: const Color(0xFF651210),
+                height: 180,
+                isBottomRight: true,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildStatItem(String val, String label, IconData icon, Color color) {
-    return Expanded(
-      child: FadeIn(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: color.withOpacity(0.1), width: 1.5),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
+  Widget _buildAchieveCard({
+    required String value,
+    required String label,
+    required String imagePath,
+    required Color bgColor,
+    required Color textColor,
+    required double height,
+    bool isTopLeft = false,
+    bool isBottomLeft = false,
+    bool isTopRight = false,
+    bool isBottomRight = false,
+  }) {
+    bool isSolid = bgColor == const Color(0xFFEF7044);
+    Color imageColor = isSolid ? Colors.white : const Color(0xFFEF7044);
+
+    return FadeInUp(
+      child: Container(
+        height: height,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: isSolid
+              ? null
+              : Border.all(
+                  color: const Color(0xFFEF7044).withOpacity(0.3),
+                  width: 1,
                 ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 15),
-              Column(
+        ),
+        child: isTopLeft
+            ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    val,
-                    style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xff111827),
+                  Image.asset(imagePath, height: 40, color: imageColor),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        value,
+                        style: GoogleFonts.outfit(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                        maxLines: 1,
+                      ),
+                      Text(
+                        label,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: textColor.withOpacity(0.9),
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            : isBottomLeft
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: GoogleFonts.outfit(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                          maxLines: 1,
+                        ),
+                        Text(
+                          label,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: textColor.withOpacity(0.9),
+                          ),
+                          maxLines: 1,
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
+                  Image.asset(imagePath, height: 35, color: imageColor),
+                ],
+              )
+            : isTopRight
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(imagePath, height: 35, color: imageColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          value,
+                          style: GoogleFonts.outfit(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                          maxLines: 1,
+                        ),
+                        Text(
+                          label,
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: textColor.withOpacity(0.9),
+                          ),
+                          maxLines: 2,
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
                     ),
                   ),
                 ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(), // Space at top
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              value,
+                              style: GoogleFonts.outfit(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                              maxLines: 1,
+                            ),
+                            Text(
+                              label,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: textColor.withOpacity(0.9),
+                              ),
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Image.asset(imagePath, height: 35, color: imageColor),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
       ),
+    );
+  }
+
+  Widget _buildTestimonialsSection() {
+    return Consumer<TestimonialProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xffEF7044)),
+          );
+        }
+
+        if (provider.error.isNotEmpty) {
+          return Center(
+            child: Text(
+              provider.error,
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final testimonials = provider.testimonialModel?.testimonials ?? [];
+        if (testimonials.isEmpty) {
+          return Center(
+            child: Text(
+              "No testimonials found.",
+              style: GoogleFonts.poppins(color: Colors.grey),
+            ),
+          );
+        }
+
+        return CarouselSlider(
+          items: testimonials.map((testimonial) {
+            final imageUrl = testimonial.clientImage != null
+                ? (testimonial.clientImage!.startsWith('http')
+                      ? testimonial.clientImage!
+                      : BaseUrl + "uploads/" + testimonial.clientImage!)
+                : "";
+
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.format_quote_rounded,
+                    color: Color(0xffEF7044),
+                    size: 40,
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: Text(
+                      testimonial.message ?? "",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        height: 1.5,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 4,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors.grey.shade200,
+                        backgroundImage: imageUrl.isNotEmpty
+                            ? NetworkImage(imageUrl)
+                            : null,
+                        child: imageUrl.isEmpty
+                            ? const Icon(Icons.person, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              testimonial.clientName ?? "Unknown Client",
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xff111827),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              testimonial.clientTitle ?? "Client",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: const Color(0xffEF7044),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          options: CarouselOptions(
+            height: 250,
+            viewportFraction: 0.9,
+            enableInfiniteScroll: testimonials.length > 1,
+            autoPlay: testimonials.length > 1,
+            autoPlayInterval: const Duration(seconds: 4),
+            enlargeCenterPage: true,
+          ),
+        );
+      },
     );
   }
 }

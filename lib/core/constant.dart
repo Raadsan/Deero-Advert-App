@@ -1,6 +1,6 @@
-const String BaseUrl = "https://deero-advert-production-c83e.up.railway.app";
-// const String BaseUrl = "http://192.168.8.37:5000";
-const String EndPoint = "${BaseUrl}/api/";
+const String BaseUrl = "http://178.18.241.5:8000/";
+// const String BaseUrl = "http://192.168.8.231:8000/";
+const String EndPoint = "${BaseUrl}api/";
 const String WHOISXML_API_KEY = "at_YxhHaYdXUyaU9qLH7w0vnZarnjRHi";
 
 const String isLogged = "isLogged";
@@ -8,15 +8,18 @@ const String userinfo = "userinfo";
 
 // ── Advert: social & email (FAB / links) — beddel profile-yada dhabta ah ──
 const String kAdvertWhatsAppNumber = "252618553839";
-const String kAdvertSocialTikTokUrl = "https://www.tiktok.com/@deeroadverts?_r=1&_t=ZS-95TiDt6Svki";
+const String kAdvertSocialTikTokUrl =
+    "https://www.tiktok.com/@deeroadverts?_r=1&_t=ZS-95TiDt6Svki";
 const String kAdvertSocialBehanceUrl = "https://www.behance.net/deeroadvert/";
-const String kAdvertSocialInstagramUrl = "https://www.instagram.com/deeroadvert?igsh=Z24za2xsMmg4Mmxo";
-const String kAdvertSocialFacebookUrl = "https://www.facebook.com/share/18fKLYZvqV/";
-const String kAdvertSocialLinkedInUrl = "https://www.linkedin.com/company/deero-advert/";
+const String kAdvertSocialInstagramUrl =
+    "https://www.instagram.com/deeroadvert/reels/";
+const String kAdvertSocialFacebookUrl =
+    "https://www.facebook.com/share/18fKLYZvqV/";
+const String kAdvertSocialLinkedInUrl =
+    "https://www.linkedin.com/company/deero-advert/";
 
 String get kAdvertSocialWhatsAppUrl =>
     "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert")}";
-
 
 final String enterpriseLogo = 'images/enterpriseLogo.png';
 final String raadsanLogo = 'images/raadsanlogo.png';

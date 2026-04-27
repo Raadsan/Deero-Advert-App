@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:deero_enterprise_app/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart' as gsi;
@@ -48,6 +50,7 @@ class UserProvider extends ChangeNotifier {
           "image": firebaseUser.photoURL,
           "googleId": firebaseUser.uid,
           "isGoogleLogin": true,
+          "phone": firebaseUser.phoneNumber,
         };
 
         print("Backend Sync Data: $data");
@@ -313,5 +316,91 @@ class UserProvider extends ChangeNotifier {
     box.remove("userInfo");
     box.remove(isLogged);
     notifyListeners();
+  }
+
+  Discount? getBestDiscount(String targetType, String targetId) {
+    if (userModel?.user?.discounts == null) return null;
+
+    final applicable = userModel!.user!.discounts!.where((d) {
+      if (d.status != "active") return false;
+
+      bool targetMatch = (d.targetType == targetType || d.targetType == "all");
+      bool idMatch =
+          (d.targetId == targetId || d.targetId == "all" || d.targetId == null);
+
+      return targetMatch && idMatch;
+    }).toList();
+
+    if (applicable.isEmpty) return null;
+
+    // Sort by value (this is simplified as it doesn't account for percentage vs fixed correctly in sorting,
+    // but usually users prefer the highest percentage or highest amount)
+    applicable.sort(
+      (a, b) => (b.discountValue ?? 0).compareTo(a.discountValue ?? 0),
+    );
+
+    return applicable.first;
+  }
+
+  Future<bool> updateProfile({
+    required String fullname,
+    required String email,
+    required String phone,
+    File? imageFile,
+  }) async {
+    final userId = userModel?.user?.id;
+    if (userId == null) return false;
+
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      var request = http.MultipartRequest(
+        'PATCH',
+        Uri.parse("${EndPoint}users/$userId"),
+      );
+
+      request.headers.addAll({
+        if (userModel?.token != null)
+          "Authorization": "Bearer ${userModel!.token}",
+      });
+
+      request.fields['fullname'] = fullname;
+      request.fields['email'] = email;
+      request.fields['phone'] = phone;
+
+      if (imageFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            imageFile.path,
+            contentType: MediaType('image', 'jpeg'),
+          ),
+        );
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("Update Profile Status: ${response.statusCode}");
+      print("Update Profile Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        // Refresh local data
+        await refreshUser();
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      print("Error updating profile: $e");
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }

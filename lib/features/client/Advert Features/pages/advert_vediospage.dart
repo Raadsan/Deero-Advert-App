@@ -1,5 +1,9 @@
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/video_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/models/video_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -13,23 +17,13 @@ class AdvertVediospage extends StatefulWidget {
 class _AdvertVediospageState extends State<AdvertVediospage> {
   final PageController _pageController = PageController();
 
-  final List<Map<String, String>> _videos = [
-    {
-      'videoPath': 'videos/1.mp4',
-      'description':
-          'Join me on a journey of tranquility and self-discovery through the ancient practice of yoga #SelfCare #Yoga...',
-    },
-    // {
-    //   'videoPath': 'videos/2.mp4',
-    //   'description':
-    //       'Dancing through the fields of gold. Feeling free and alive! ✨ #Nature #Dance #Freedom',
-    // },
-    // {
-    //   'videoPath': 'videos/3.mp4',
-    //   'description':
-    //       'Pushing my limits every single day. No pain, no gain. 🏋️‍♂️ #Fitness #GymLife #Motivation',
-    // },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<VideoProvider>(context, listen: false).getVideos();
+    });
+  }
 
   @override
   void dispose() {
@@ -42,12 +36,130 @@ class _AdvertVediospageState extends State<AdvertVediospage> {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
-      body: PageView.builder(
-        controller: _pageController,
+      body: Consumer<VideoProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return _buildGlobalShimmer();
+          }
+
+          if (provider.error.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.white54,
+                    size: 40,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    provider.error,
+                    style: GoogleFonts.poppins(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => provider.getVideos(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffEF7044),
+                    ),
+                    child: const Text(
+                      "Retry",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final videos = provider.videoModel?.data ?? [];
+
+          if (videos.isEmpty) {
+            return Center(
+              child: Text(
+                "No videos available",
+                style: GoogleFonts.poppins(color: Colors.white70),
+              ),
+            );
+          }
+
+          return PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: videos.length,
+            itemBuilder: (context, index) {
+              return VideoCard(videoData: videos[index]);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGlobalShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: PageView.builder(
         scrollDirection: Axis.vertical,
-        itemCount: _videos.length,
+        itemCount: 3,
         itemBuilder: (context, index) {
-          return VideoCard(videoData: _videos[index]);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(color: Colors.black),
+              Positioned(
+                left: 16,
+                bottom: 30,
+                right: 100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 120,
+                          height: 15,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      width: double.infinity,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 200,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
@@ -55,7 +167,7 @@ class _AdvertVediospageState extends State<AdvertVediospage> {
 }
 
 class VideoCard extends StatefulWidget {
-  final Map<String, String> videoData;
+  final VideoData videoData;
   const VideoCard({super.key, required this.videoData});
 
   @override
@@ -71,19 +183,31 @@ class _VideoCardState extends State<VideoCard>
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(widget.videoData['videoPath']!)
-      ..initialize().then((_) {
-        setState(() {
-          _isInitialized = true;
-        });
-        _controller.setLooping(true);
-        _controller.play();
-      });
+    _initVideo();
 
     _musicDiscController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
     )..repeat();
+  }
+
+  void _initVideo() {
+    if (widget.videoData.url == null) return;
+
+    _controller =
+        VideoPlayerController.networkUrl(Uri.parse(widget.videoData.url!))
+          ..initialize()
+              .then((_) {
+                if (!mounted) return;
+                setState(() {
+                  _isInitialized = true;
+                });
+                _controller.setLooping(true);
+                _controller.play();
+              })
+              .catchError((e) {
+                print("Video initialize error: $e");
+              });
   }
 
   @override
@@ -96,7 +220,7 @@ class _VideoCardState extends State<VideoCard>
   @override
   Widget build(BuildContext context) {
     return VisibilityDetector(
-      key: Key(widget.videoData['videoPath']!),
+      key: Key(widget.videoData.url ?? widget.videoData.id ?? ""),
       onVisibilityChanged: (info) {
         if (!mounted) return;
         if (info.visibleFraction > 0.5) {
@@ -121,6 +245,18 @@ class _VideoCardState extends State<VideoCard>
                 }
                 setState(() {});
               },
+              onDoubleTapDown: (details) {
+                // Double tap to seek
+                final width = MediaQuery.of(context).size.width;
+                final dx = details.localPosition.dx;
+                if (dx < width / 2) {
+                  // Left side - Backward 10s
+                  _seekRelative(const Duration(seconds: -10));
+                } else {
+                  // Right side - Forward 10s
+                  _seekRelative(const Duration(seconds: 10));
+                }
+              },
               child: SizedBox.expand(
                 child: FittedBox(
                   fit: BoxFit.cover,
@@ -133,9 +269,28 @@ class _VideoCardState extends State<VideoCard>
               ),
             )
           else
-            const Center(
-              child: CircularProgressIndicator(color: Color(0xffEF7044)),
+            _buildCardShimmer(),
+
+          // Video Progress Bar (Seekbar)
+          if (_isInitialized)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: VideoProgressIndicator(
+                _controller,
+                allowScrubbing: true,
+                colors: const VideoProgressColors(
+                  playedColor: Color(0xffEF7044),
+                  bufferedColor: Colors.white24,
+                  backgroundColor: Colors.white10,
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 0),
+              ),
             ),
+
+          // Forward/Backward Indicators (Overlay)
+          // These show up when seeking
 
           // Top Header Overlay
           Positioned(
@@ -190,9 +345,9 @@ class _VideoCardState extends State<VideoCard>
                   ],
                 ),
                 const SizedBox(height: 15),
-                // Description
+                // Description (Title from backend)
                 Text(
-                  widget.videoData['description']!,
+                  widget.videoData.title ?? "",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14,
@@ -214,6 +369,42 @@ class _VideoCardState extends State<VideoCard>
                 color: Colors.white.withOpacity(0.5),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _seekRelative(Duration relative) {
+    final currentPosition = _controller.value.position;
+    final newPosition = currentPosition + relative;
+    _controller.seekTo(newPosition);
+
+    // Show a quick snackbar or overlay feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(relative.inSeconds > 0 ? "+10s" : "-10s"),
+        duration: const Duration(milliseconds: 500),
+        behavior: SnackBarBehavior.floating,
+        width: 60,
+      ),
+    );
+  }
+
+  Widget _buildCardShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: Colors.black),
+          Center(
+            child: Icon(
+              Icons.play_arrow_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.2),
+            ),
+          ),
         ],
       ),
     );

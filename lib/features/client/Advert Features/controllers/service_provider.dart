@@ -15,19 +15,23 @@ class ServiceProvider extends ChangeNotifier {
   Future<void> getAllServices() async {
     try {
       isLoading = true;
+      error = null; // Clear previous error
       notifyListeners();
+      
       final response = await http.get(Uri.parse(EndPoint + "service"));
+      
       if (response.statusCode == 200) {
-        print("${response.statusCode}");
-        print(response.body);
         final data = jsonDecode(response.body);
         serviceModel = ServiceModel.fromJson(data);
+        error = null; // Clear error on success
+      } else {
+        error = "Failed to load services: ${response.statusCode}";
       }
-      print(serviceModel?.data?.length);
+      
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      error = e.toString();
+      error = "Connection error: ${e.toString()}";
       isLoading = false;
       notifyListeners();
     }

@@ -1,9 +1,9 @@
-import 'package:deero_enterprise_app/core/constant.dart';
 import 'package:flutter/material.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 class AdvertSocialMediapage extends StatefulWidget {
   const AdvertSocialMediapage({super.key});
@@ -13,280 +13,165 @@ class AdvertSocialMediapage extends StatefulWidget {
 }
 
 class _AdvertSocialMediapageState extends State<AdvertSocialMediapage> {
-  int _selectedIndex = 0;
   late final WebViewController _controller;
   bool _isLoading = true;
+  double _loadingProgress = 0;
+  String _activePlatform = "Facebook";
 
-  final List<Map<String, dynamic>> _platforms = [
-    {
-      'name': 'Facebook',
-      'handle': '@DeeroInstitute',
-      'url': kAdvertSocialFacebookUrl,
-      'icon': LineIcons.facebook,
-      'color': const Color(0xFF1877F2),
-    },
-    {
-      'name': 'TikTok',
-      'handle': '@deeroinstitute',
-      'url': kAdvertSocialTikTokUrl,
-      'icon': LineIcons.music,
-      'color': Colors.black,
-    },
-    {
-      'name': 'Instagram',
-      'handle': '@deero_advert',
-      'url': kAdvertSocialInstagramUrl,
-      'icon': LineIcons.instagram,
-      'color': const Color(0xFFE1306C),
-    },
-    {
-      'name': 'WhatsApp',
-      'handle': '+252 61 8553566',
-      'url': 'https://wa.me/252618553566',
-      'icon': LineIcons.whatSApp,
-      'color': const Color(0xFF25D366),
-    },
-  ];
+  static const Color _cardBg = Color(0xFF111827);
+  static const Color _accentBlue = Color(0xFF1877F2);
+  static const Color _instaPink = Color(0xFFE1306C);
 
   @override
   void initState() {
     super.initState();
+    _initController();
+  }
+
+  void _initController() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.transparent)
+      ..setBackgroundColor(Colors.white)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (String url) {
-            setState(() => _isLoading = true);
-          },
-          onPageFinished: (String url) {
+          onPageStarted: (_) => setState(() {
+            _isLoading = true;
+            _loadingProgress = 0;
+          }),
+          onProgress: (p) => setState(() => _loadingProgress = p / 100.0),
+          onPageFinished: (_) {
             setState(() => _isLoading = false);
-            // Hide headers/footers to keep it clean
-            _controller.runJavaScript('''
-              (function() {
-                var selectors = [
-                  'header', 'nav', '.header', '.top-bar', 
-                  '._aa_c', '._as_f', 
-                  '.tiktok-p9p6ia-DivHeaderContainer',
-                  '.global-nav'
-                ];
-                selectors.forEach(function(selector) {
-                  var elements = document.querySelectorAll(selector);
-                  elements.forEach(function(el) { el.style.display = 'none'; });
-                });
-              })();
-            ''');
+            if (_activePlatform == "Facebook") {
+              _controller.runJavaScript('''
+                var style = document.createElement('style');
+                style.innerHTML = `
+                  * { max-height: none !important; }
+                  html, body { 
+                    overflow: visible !important; 
+                    height: auto !important; 
+                    min-height: 100% !important;
+                    -webkit-overflow-scrolling: touch !important; 
+                  }
+                  /* Force internal Facebook containers to expand */
+                  ._2p3a, ._2p3a * { height: auto !important; max-height: none !important; }
+                `;
+                document.head.appendChild(style);
+
+                // Periodic resize and scroll trigger to prompt Facebook's lazy loading
+                setInterval(function() {
+                  window.dispatchEvent(new Event('resize'));
+                  // Subtle scroll trigger
+                  window.scrollBy(0, 1);
+                  window.scrollBy(0, -1);
+                }, 2000);
+              ''');
+            }
           },
         ),
       );
-    _loadPage(0);
+
+    _loadContent();
   }
 
-  void _loadPage(int index) {
-    String url = _platforms[index]['url'];
-    if (url.contains('facebook.com')) {
-      final String facebookEmbedHtml =
-          '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style> body { margin: 0; padding: 0; background-color: #fff; } </style>
-        </head>
-        <body>
-          <div id="fb-root"></div>
-          <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0"></script>
-          <div class="fb-page" data-href="$url" data-tabs="timeline" data-width="500" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false"></div>
-        </body>
-        </html>
-      ''';
-      _controller.loadHtmlString(facebookEmbedHtml);
+  // Habka Facebook looga dhigo "No Login Required" waa in loo beddelo Page Plugin HTML ah
+  void _loadContent() {
+    if (_activePlatform == "Facebook") {
+      int fbWidth = 330;
+      // Using a height of 8000 instead of 30000 to ensure it's accepted by Facebook's server
+      // while still being long enough for many posts.
+      final String fbUrl =
+          "https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fprofile.php%3Fid%3D100068912268460&tabs=timeline&width=$fbWidth&height=8000&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false";
+      _controller.loadRequest(Uri.parse(fbUrl));
+    } else if (_activePlatform == "Instagram") {
+      _controller.loadRequest(
+        Uri.parse("https://www.instagram.com/deeroadvert/reels/embed/"),
+      );
     } else {
-      _controller.loadRequest(Uri.parse(url));
-    }
-  }
-
-  Future<void> _launchUrl(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $url');
+      _controller.loadRequest(
+        Uri.parse("https://www.tiktok.com/embed/@deeroadverts"),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color currentPlatformColor = _platforms[_selectedIndex]['color'];
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6F9),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
             size: 20,
           ),
         ),
         title: Text(
-          "Social Media",
+          "Social Media Feed",
           style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
             color: Colors.black,
-            fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Top Tabs
-            _buildTopTabs(),
-            const SizedBox(height: 24),
-            // Main Feed Card
-            _buildFeedCard(currentPlatformColor),
-            const SizedBox(height: 30),
-            // Footer
-            _buildFooter(),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopTabs() {
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _platforms.length,
-        itemBuilder: (context, index) {
-          bool isSelected = _selectedIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() => _selectedIndex = index);
-              _loadPage(index);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                color: isSelected ? _platforms[index]['color'] : Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(
-                  color: isSelected ? Colors.transparent : Colors.grey.shade300,
-                ),
-              ),
-              child: Center(
-                child: Row(
-                  children: [
-                    Icon(
-                      _platforms[index]['icon'],
-                      size: 18,
-                      color: isSelected ? Colors.white : Colors.black54,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _platforms[index]['name'],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black54,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFeedCard(Color platformColor) {
-    var platform = _platforms[_selectedIndex];
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
+      body: Column(
         children: [
-          // Card Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: platformColor.withOpacity(0.1),
-                  child: Icon(platform['icon'], color: platformColor, size: 20),
+          const SizedBox(height: 10),
+          _buildPillTabBar(screenWidth),
+          const SizedBox(height: 25),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: _cardBg,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(25),
                 ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      platform['name'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+              ),
+              child: Column(
+                children: [
+                  _buildCardHeader(),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(0),
+                      ),
+                      child: Stack(
+                        children: [
+                          WebViewWidget(
+                            controller: _controller,
+                            gestureRecognizers: {
+                              Factory<VerticalDragGestureRecognizer>(
+                                () => VerticalDragGestureRecognizer(),
+                              ),
+                              Factory<HorizontalDragGestureRecognizer>(
+                                () => HorizontalDragGestureRecognizer(),
+                              ),
+                            },
+                          ),
+                          if (_isLoading)
+                            LinearProgressIndicator(
+                              value: _loadingProgress > 0
+                                  ? _loadingProgress
+                                  : null,
+                              backgroundColor: Colors.transparent,
+                              color: _activePlatform == "Instagram"
+                                  ? _instaPink
+                                  : _accentBlue,
+                              minHeight: 2,
+                            ),
+                        ],
                       ),
                     ),
-                    Text(
-                      platform['handle'],
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () => _launchUrl(platform['url']),
-                  icon: const Icon(Icons.open_in_new, size: 14),
-                  label: const Text(
-                    "View",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1877F2),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // WebView Content
-          SizedBox(
-            height: 450,
-            child: Stack(
-              children: [
-                WebViewWidget(controller: _controller),
-                if (_isLoading)
-                  const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1877F2)),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -294,72 +179,99 @@ class _AdvertSocialMediapageState extends State<AdvertSocialMediapage> {
     );
   }
 
-  Widget _buildFooter() {
-    return Column(
-      children: [
-        const Text(
-          "Connect with us on social media",
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _FooterButton(
-              icon: LineIcons.facebook,
-              label: "Facebook",
-              onTap: () => _launchUrl(kAdvertSocialFacebookUrl),
-            ),
-            const SizedBox(width: 15),
-            _FooterButton(
-              icon: LineIcons.twitter,
-              label: "X",
-              onTap: () => _launchUrl('https://twitter.com/deeroinstitute'),
-            ),
-          ],
-        ),
-      ],
+  Widget _buildPillTabBar(double width) {
+    return Container(
+      width: width * 0.9,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(35),
+      ),
+      child: Row(
+        children: [
+          _tabItem("Facebook", Icons.facebook, _accentBlue),
+          _tabItem("Instagram", Icons.camera_alt_rounded, _instaPink),
+          _tabItem("TikTok", Icons.music_note_rounded, Colors.black),
+        ],
+      ),
     );
   }
-}
 
-class _FooterButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _FooterButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ],
+  Widget _tabItem(String name, IconData icon, Color color) {
+    bool isActive = _activePlatform == name;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _activePlatform = name;
+            _isLoading = true;
+          });
+          _loadContent();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? color : Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                name,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildCardHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withOpacity(0.05)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.public, color: Colors.white70, size: 20),
+          const SizedBox(width: 10),
+          Text(
+            "Viewing $_activePlatform",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: () => _openExternal(),
+            icon: const Icon(Icons.open_in_new, size: 14),
+            label: const Text("Open App"),
+            style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openExternal() {
+    String url = _activePlatform == "Facebook"
+        ? "https://www.facebook.com/profile.php?id=100068912268460"
+        : _activePlatform == "Instagram"
+        ? "https://www.instagram.com/deeroadvert/"
+        : "https://www.tiktok.com/@deeroadverts";
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 }

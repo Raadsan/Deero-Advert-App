@@ -34,8 +34,8 @@ class _AdvertCareerPageState extends State<AdvertCareerPage> {
           backgroundColor: const Color(0xffF9FAFB),
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle(
-          systemNavigationBarColor: bgColor,
-        ),
+              systemNavigationBarColor: bgColor,
+            ),
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
             elevation: 0,

@@ -16,6 +16,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:line_icons/line_icons.dart';
 
 class AdvertHostingpage extends StatefulWidget {
   const AdvertHostingpage({super.key});
@@ -43,6 +45,9 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
     return Consumer<HostingProvider>(
       builder: (context, hostingProvider, child) {
         final hostingData = hostingProvider.hostingModel?.data ?? [];
+        final maxPrice = hostingData.isEmpty 
+            ? 0.0 
+            : hostingData.map((h) => h.price ?? 0.0).reduce((a, b) => a > b ? a : b);
 
         return Scaffold(
           backgroundColor: const Color(0xFFF9FAFB),
@@ -95,10 +100,6 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                         itemCount: hostingData.length,
                         itemBuilder: (context, index) {
                           final hostingPackage = hostingData[index];
-                          final maxPrice = hostingData
-                              .map((h) => h.price ?? 0.0)
-                              .reduce((a, b) => a > b ? a : b);
-
                           return HostingPackageCard(
                             hostingPackage: hostingPackage,
                             isYearly: isYearly,
@@ -277,6 +278,24 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
           ),
           child: StatefulBuilder(
             builder: (dialogContext, setDialogState) {
+                    final bestFlex = userProvider.getBestDiscount("hosting", widget.hostingPackage.sId ?? "all");
+                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                    
+                    double bonusDiscount = isBonusAvailable ? price / 2 : 0;
+                    double flexDiscount = 0;
+                    
+                    if (bestFlex != null) {
+                      if (bestFlex.discountType == "percentage") {
+                        flexDiscount = price * (bestFlex.discountValue ?? 0) / 100;
+                      } else {
+                        flexDiscount = (bestFlex.discountValue ?? 0);
+                      }
+                    }
+
+                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                    final double finalPrice = price - appliedDiscount;
+                    final bool hasDiscount = appliedDiscount > 0;
+
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -296,8 +315,8 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       "Purchase ${widget.hostingPackage.name}",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                         color: const Color(0xff651313),
                       ),
                     ),
@@ -328,25 +347,24 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
-                                    if (userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable") ...[
+                                    if (hasDiscount) ...[
                                       Row(
                                         children: [
                                           Text(
                                             "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}",
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
-                                              decoration:
-                                                  TextDecoration.lineThrough,
+                                              decoration: TextDecoration.lineThrough,
                                               color: Colors.grey,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            "${userProvider.discountPercentage}% OFF",
+                                            bonusDiscount >= flexDiscount 
+                                              ? "${userProvider.discountPercentage}% OFF (Bonus)" 
+                                              : bestFlex!.discountType == "percentage" 
+                                                ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                                                : "\$${bestFlex.discountValue} OFF",
                                             style: GoogleFonts.poppins(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -356,13 +374,27 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                         ],
                                       ),
                                       Text(
-                                        "\$${(price * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
+                                        "\$${finalPrice.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: const Color(0xFFEB4724),
                                         ),
                                       ),
+                                      if (bonusDiscount >= flexDiscount)
+                                        const SizedBox(height: 4),
+                                      if (bonusDiscount >= flexDiscount)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: Text(
+                                            "Note: Your bonus points will reset after using this discount.",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.orange.shade800,
+                                            ),
+                                          ),
+                                        ),
                                     ] else
                                       Text(
                                         "\$${price % 1 == 0 ? price.toInt() : price.toStringAsFixed(2)}${widget.isYearly ? " /year" : " /month"}",
@@ -487,19 +519,23 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                       _isLocalLoading = true;
                                     });
 
-                                    final isBonusAvailable =
-                                        userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable";
-                                    final finalAmount = isBonusAvailable
-                                        ? price *
-                                              (1 -
-                                                  userProvider
-                                                          .discountPercentage /
-                                                      100)
-                                        : price;
+                                    final bestFlex = userProvider.getBestDiscount("hosting", widget.hostingPackage.sId ?? "all");
+                                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                                    
+                                    double bonusDiscount = isBonusAvailable ? price / 2 : 0;
+                                    double flexDiscount = 0;
+                                    
+                                    if (bestFlex != null) {
+                                      if (bestFlex.discountType == "percentage") {
+                                        flexDiscount = price * (bestFlex.discountValue ?? 0) / 100;
+                                      } else {
+                                        flexDiscount = (bestFlex.discountValue ?? 0);
+                                      }
+                                    }
+
+                                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                                    final double finalAmount = price - appliedDiscount;
+                                    final bool useBonusFlag = isBonusAvailable && bonusDiscount >= flexDiscount;
 
                                     final success =
                                         await transactionProvider.CreateTransaction(
@@ -512,7 +548,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           useBonus:
-                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
+                                              useBonusFlag, // ✅ Only reset if bonus was the better/used discount
                                           context: dialogContext,
                                         );
 
@@ -543,9 +579,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                                               "Hosting: ${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})",
                                           amount: finalAmount,
                                           originalAmount: price,
-                                          discountAmount: isBonusAvailable
-                                              ? (price - finalAmount)
-                                              : 0,
+                                          discountAmount: appliedDiscount,
                                           date: DateFormat(
                                             'MMM dd, yyyy • hh:mm a',
                                           ).format(DateTime.now()),
@@ -587,6 +621,113 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showPaymentSelection(
+    BuildContext context,
+    UserProvider userProvider,
+    TransactionProvider transactionProvider,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Choose Payment Method",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xff651313),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                _showPurchaseDialog(context, userProvider, transactionProvider);
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEB4724).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(IconlyLight.wallet, color: Color(0xFFEB4724)),
+              ),
+              title: Text(
+                "Online Payment",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Pay securely via Waafipay",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              onTap: () async {
+                Navigator.pop(context);
+                final String whatsappUrl =
+                    "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert, I want to purchase ${widget.hostingPackage.name} hosting plan.")}";
+                if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+                  await launchUrl(Uri.parse(whatsappUrl));
+                }
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LineIcons.whatSApp, color: Colors.green),
+              ),
+              title: Text(
+                "WhatsApp Order",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Chat with us to complete purchase",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -655,7 +796,27 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                 ),
               Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Column(
+                child: Builder(
+                  builder: (context) {
+                    final bestFlex = userProvider.getBestDiscount("hosting", widget.hostingPackage.sId ?? "all");
+                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                    
+                    double bonusDiscount = isBonusAvailable ? totalPrice / 2 : 0;
+                    double flexDiscount = 0;
+                    
+                    if (bestFlex != null) {
+                      if (bestFlex.discountType == "percentage") {
+                        flexDiscount = totalPrice * (bestFlex.discountValue ?? 0) / 100;
+                      } else {
+                        flexDiscount = (bestFlex.discountValue ?? 0);
+                      }
+                    }
+
+                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                    final double finalPrice = totalPrice - appliedDiscount;
+                    final bool hasDiscount = appliedDiscount > 0;
+
+                    return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -667,8 +828,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (userProvider.userModel?.user?.bonusStatus ==
-                        "BonusAvailable") ...[
+                    if (hasDiscount) ...[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -693,7 +853,11 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              "${userProvider.discountPercentage}% OFF",
+                              bonusDiscount >= flexDiscount 
+                                ? "${userProvider.discountPercentage}% OFF" 
+                                : bestFlex!.discountType == "percentage" 
+                                  ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                                  : "\$${bestFlex.discountValue} OFF",
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -709,7 +873,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            "\$${(totalPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                            "\$${finalPrice.toStringAsFixed(2)}",
                             style: GoogleFonts.outfit(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
@@ -832,7 +996,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (isLoggedIn) {
-                            _showPurchaseDialog(
+                            _showPaymentSelection(
                               context,
                               userProvider,
                               transactionProvider,
@@ -845,7 +1009,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                               ),
                             ).then((_) {
                               if (GetStorage().hasData(isLogged)) {
-                                _showPurchaseDialog(
+                                _showPaymentSelection(
                                   context,
                                   userProvider,
                                   transactionProvider,
@@ -879,11 +1043,13 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                       ),
                     ),
                   ],
-                ),
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        );
+        ],
+      ),
+    );
       },
     );
   }

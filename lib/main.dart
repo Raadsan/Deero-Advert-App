@@ -1,4 +1,5 @@
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/register_user_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
@@ -9,6 +10,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/controlle
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/video_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,6 +19,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -63,7 +66,10 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => AchievementProvider()),
         ChangeNotifierProvider(create: (_) => MajorClientProvider()),
+        ChangeNotifierProvider(create: (_) => VideoProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => SocialMediaProvider()),
+        ChangeNotifierProvider(create: (_) => TestimonialProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

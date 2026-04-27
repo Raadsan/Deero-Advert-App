@@ -147,13 +147,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: _agreeTerms && !registerProvider.isLoading
                           ? () async {
                               // Validation Check
-                              if (registerProvider.fullname == null || registerProvider.fullname!.isEmpty ||
-                                  registerProvider.email == null || registerProvider.email!.isEmpty ||
-                                  registerProvider.password == null || registerProvider.password!.isEmpty ||
-                                  registerProvider.phone == null || registerProvider.phone!.isEmpty) {
+                              if (registerProvider.fullname == null ||
+                                  registerProvider.fullname!.isEmpty ||
+                                  registerProvider.email == null ||
+                                  registerProvider.email!.isEmpty ||
+                                  registerProvider.password == null ||
+                                  registerProvider.password!.isEmpty ||
+                                  registerProvider.phone == null ||
+                                  registerProvider.phone!.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Please fill in all fields (Name, Email, Phone, Password)"),
+                                    content: Text(
+                                      "Please fill in all fields (Name, Email, Phone, Password)",
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -292,10 +298,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.g_mobiledata_rounded,
-                                  color: secondaryColor,
-                                  size: 30,
+                                Image.asset(
+                                  "images/advertimages/google.png",
+                                  height: 24,
+                                  width: 24,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
@@ -403,10 +409,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(
-                color: primaryColor,
-                width: 1.5,
-              ),
+              borderSide: BorderSide(color: primaryColor, width: 1.5),
             ),
           ),
         ),

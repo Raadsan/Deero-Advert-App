@@ -18,6 +18,7 @@ import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/a
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,15 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     Provider.of<AchievementProvider>(context, listen: false).getAchievements();
     Provider.of<MajorClientProvider>(context, listen: false).getMajorClients();
     Provider.of<UserProvider>(context, listen: false).refreshUser();
+    
+    // Pre-fetch Social Media Feeds
+    final socialProvider = Provider.of<SocialMediaProvider>(context, listen: false);
+    double screenWidth = MediaQuery.of(context).size.width;
+    socialProvider.initPlatform("Facebook", screenWidth);
+    socialProvider.initPlatform("TikTok", screenWidth);
+    socialProvider.initPlatform("Instagram", screenWidth);
+    socialProvider.initPlatform("LinkedIn", screenWidth);
+    socialProvider.initPlatform("Behance", screenWidth);
   }
 
   void _searchDomain(BuildContext context) {

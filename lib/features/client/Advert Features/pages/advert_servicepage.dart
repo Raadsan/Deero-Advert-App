@@ -13,6 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:line_icons/line_icons.dart';
 
 class AdvertServicepage extends StatefulWidget {
   final int initialIndex;
@@ -73,148 +75,231 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
               ),
             ),
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 25),
-              // Modern Category Row
-              SizedBox(
-                height: 55,
-                child: serviceProvider.isLoading
-                    ? ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 4,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) => Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(
-                            width: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
+          body: serviceProvider.error != null && services.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(IconlyLight.danger, size: 60, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Something went wrong",
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Text(
+                          serviceProvider.error!,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(color: Colors.grey),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => serviceProvider.getAllServices(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff651313),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: services.length,
-                        itemBuilder: (context, index) {
-                          final service = services[index];
-                          final isSelected = _selectedIndex == index;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: InkWell(
-                              onTap: () =>
-                                  setState(() => _selectedIndex = index),
-                              borderRadius: BorderRadius.circular(16),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? const Color(0xff651313)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: isSelected
-                                      ? [
-                                          BoxShadow(
-                                            color: const Color(
-                                              0xff651313,
-                                            ).withOpacity(0.3),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 6),
-                                          ),
-                                        ]
-                                      : [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.03,
-                                            ),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? const Color(0xff651313)
-                                        : Colors.grey.withOpacity(0.1),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    service.serviceTitle ?? "Service",
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 15,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w600,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : const Color(0xff4B5563),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        child: Text(
+                          "Retry",
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
+                    ],
                   ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: serviceProvider.isLoading
-                        ? PackageCardShimmer()
-                        : Column(
-                            key: ValueKey<int>(_selectedIndex),
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 16),
-                              if (services[_selectedIndex].packages != null &&
-                                  services[_selectedIndex].packages!.isNotEmpty)
-                                ...services[_selectedIndex].packages!.map(
-                                  (package) => PackageCard(
-                                    package: package,
-                                    serviceId: services[_selectedIndex].sId,
-                                    serviceTitle:
-                                        services[_selectedIndex].serviceTitle,
-                                  ),
-                                )
-                              else
-                                Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Center(
-                                    child: Text(
-                                      "No packages available yet.",
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.grey,
+                )
+              : services.isEmpty && !serviceProvider.isLoading
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(IconlyLight.info_square,
+                              size: 60, color: Colors.grey),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No services available",
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 25),
+                        // Modern Category Row
+                        SizedBox(
+                          height: 55,
+                          child: serviceProvider.isLoading
+                              ? ListView.separated(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 20),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 4,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 12),
+                                  itemBuilder: (context, index) =>
+                                      Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade100,
+                                    child: Container(
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                   ),
+                                )
+                              : ListView.builder(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 20),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: services.length,
+                                  itemBuilder: (context, index) {
+                                    final service = services[index];
+                                    final isSelected = _selectedIndex == index;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: InkWell(
+                                        onTap: () => setState(
+                                            () => _selectedIndex = index),
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: AnimatedContainer(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? const Color(0xff651313)
+                                                : Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            boxShadow: isSelected
+                                                ? [
+                                                    BoxShadow(
+                                                      color: const Color(
+                                                        0xff651313,
+                                                      ).withOpacity(0.3),
+                                                      blurRadius: 12,
+                                                      offset: const Offset(0, 6),
+                                                    ),
+                                                  ]
+                                                : [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(
+                                                        0.03,
+                                                      ),
+                                                      blurRadius: 4,
+                                                      offset: const Offset(0, 2),
+                                                    ),
+                                                  ],
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? const Color(0xff651313)
+                                                  : Colors.grey.withOpacity(0.1),
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              service.serviceTitle ?? "Service",
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 15,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w600,
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : const Color(0xff4B5563),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              const SizedBox(height: 30),
-                            ],
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: serviceProvider.isLoading
+                                  ? PackageCardShimmer()
+                                  : Column(
+                                      key: ValueKey<int>(_selectedIndex),
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 16),
+                                        if (services.isNotEmpty &&
+                                            _selectedIndex < services.length &&
+                                            services[_selectedIndex].packages !=
+                                                null &&
+                                            services[_selectedIndex]
+                                                .packages!
+                                                .isNotEmpty)
+                                          ...services[_selectedIndex]
+                                              .packages!
+                                              .map(
+                                                (package) => PackageCard(
+                                                  package: package,
+                                                  serviceId:
+                                                      services[_selectedIndex].sId,
+                                                  serviceTitle:
+                                                      services[_selectedIndex]
+                                                          .serviceTitle,
+                                                ),
+                                              )
+                                        else
+                                          Padding(
+                                            padding: const EdgeInsets.all(20.0),
+                                            child: Center(
+                                              child: Text(
+                                                "No packages available yet.",
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        const SizedBox(height: 30),
+                                      ],
+                                    ),
+                            ),
                           ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+                        ),
+                      ],
+                    ),
         );
       },
     );
@@ -419,35 +504,54 @@ class _PackageCardState extends State<PackageCard> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Total Price",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    if (userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable") ...[
+                                child: Builder(
+                                  builder: (context) {
+                                    final bestFlex = userProvider.getBestDiscount("service", widget.package.sId ?? "all");
+                                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                                    
+                                    double bonusDiscount = isBonusAvailable ? (widget.package.price ?? 0).toDouble() / 2 : 0;
+                                    double flexDiscount = 0;
+                                    
+                                    if (bestFlex != null) {
+                                      if (bestFlex.discountType == "percentage") {
+                                        flexDiscount = (widget.package.price ?? 0) * (bestFlex.discountValue ?? 0) / 100;
+                                      } else {
+                                        flexDiscount = (bestFlex.discountValue ?? 0);
+                                      }
+                                    }
+
+                                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                                    final double finalPrice = (widget.package.price ?? 0) - appliedDiscount;
+                                    final bool hasDiscount = appliedDiscount > 0;
+
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Total Price",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        if (hasDiscount) ...[
                                       Row(
                                         children: [
                                           Text(
                                             "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
-                                              decoration:
-                                                  TextDecoration.lineThrough,
+                                              decoration: TextDecoration.lineThrough,
                                               color: Colors.grey,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            "${userProvider.discountPercentage}% OFF",
+                                            bonusDiscount >= flexDiscount 
+                                              ? "${userProvider.discountPercentage}% OFF (Bonus)" 
+                                              : bestFlex!.discountType == "percentage" 
+                                                ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                                                : "\$${bestFlex.discountValue} OFF",
                                             style: GoogleFonts.poppins(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -457,37 +561,39 @@ class _PackageCardState extends State<PackageCard> {
                                         ],
                                       ),
                                       Text(
-                                        "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                        "\$${finalPrice.toStringAsFixed(2)}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: const Color(0xFFEB4724),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 4,
-                                        ),
-                                        child: Text(
-                                          "Note: Your bonus points will reset after using this discount.",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.orange.shade800,
+                                      if (bonusDiscount >= flexDiscount)
+                                        const SizedBox(height: 4),
+                                      if (bonusDiscount >= flexDiscount)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: Text(
+                                            "Note: Your bonus points will reset after using this discount.",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.orange.shade800,
+                                            ),
                                           ),
                                         ),
-                                      ),
                                     ] else
                                       Text(
                                         "\$${(widget.package.price ?? 0) % 1 == 0 ? (widget.package.price ?? 0).toInt() : (widget.package.price ?? 0).toStringAsFixed(2)}",
                                         style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFFEB4724),
-                                        ),
-                                      ),
-                                  ],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFFEB4724),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                               Column(
@@ -602,19 +708,23 @@ class _PackageCardState extends State<PackageCard> {
                                       _isLocalLoading = true;
                                     });
 
-                                    final isBonusAvailable =
-                                        userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable";
-                                    final finalAmount = isBonusAvailable
-                                        ? (widget.package.price ?? 0) *
-                                              (1 -
-                                                  userProvider
-                                                          .discountPercentage /
-                                                      100)
-                                        : (widget.package.price ?? 0);
+                                    final bestFlex = userProvider.getBestDiscount("service", widget.package.sId ?? "all");
+                                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                                    
+                                    double bonusDiscount = isBonusAvailable ? (widget.package.price ?? 0).toDouble() / 2 : 0;
+                                    double flexDiscount = 0;
+                                    
+                                    if (bestFlex != null) {
+                                      if (bestFlex.discountType == "percentage") {
+                                        flexDiscount = (widget.package.price ?? 0) * (bestFlex.discountValue ?? 0) / 100;
+                                      } else {
+                                        flexDiscount = (bestFlex.discountValue ?? 0);
+                                      }
+                                    }
+
+                                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                                    final double finalAmount = (widget.package.price ?? 0) - appliedDiscount;
+                                    final bool useBonusFlag = isBonusAvailable && bonusDiscount >= flexDiscount;
 
                                     final success =
                                         await transactionProvider.CreateTransaction(
@@ -627,7 +737,7 @@ class _PackageCardState extends State<PackageCard> {
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           useBonus:
-                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
+                                              useBonusFlag, // ✅ Only reset if bonus was the better/used discount
                                           context: dialogContext,
                                         );
 
@@ -660,11 +770,7 @@ class _PackageCardState extends State<PackageCard> {
                                           originalAmount:
                                               (widget.package.price ?? 0)
                                                   .toDouble(),
-                                          discountAmount: isBonusAvailable
-                                              ? ((widget.package.price ?? 0) -
-                                                        finalAmount)
-                                                    .toDouble()
-                                              : 0,
+                                          discountAmount: appliedDiscount,
                                           date: DateFormat(
                                             'MMM dd, yyyy • hh:mm a',
                                           ).format(DateTime.now()),
@@ -711,6 +817,113 @@ class _PackageCardState extends State<PackageCard> {
     );
   }
 
+  void _showPaymentSelection(
+    BuildContext context,
+    UserProvider userProvider,
+    TransactionProvider transactionProvider,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Choose Payment Method",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xff651313),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                _showPurchaseDialog(context, userProvider, transactionProvider);
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEB4724).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(IconlyLight.wallet, color: Color(0xFFEB4724)),
+              ),
+              title: Text(
+                "Online Payment",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Pay securely via Waafipay",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              onTap: () async {
+                Navigator.pop(context);
+                final String whatsappUrl =
+                    "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert, I want to purchase the ${widget.package.packageTitle} package for ${widget.serviceTitle}.")}";
+                if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+                  await launchUrl(Uri.parse(whatsappUrl));
+                }
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LineIcons.whatSApp, color: Colors.green),
+              ),
+              title: Text(
+                "WhatsApp Order",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Chat with us to complete purchase",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final features = widget.package.features ?? [];
@@ -738,20 +951,39 @@ class _PackageCardState extends State<PackageCard> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.package.packageTitle ?? "Plan",
-                  style: GoogleFonts.outfit(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff111827),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (userProvider.userModel?.user?.bonusStatus ==
-                    "BonusAvailable") ...[
+            child: Builder(
+              builder: (context) {
+                    final bestFlex = userProvider.getBestDiscount("service", widget.package.sId ?? "all");
+                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                    
+                    double bonusDiscount = isBonusAvailable ? (widget.package.price ?? 0).toDouble() / 2 : 0;
+                    double flexDiscount = 0;
+                    
+                    if (bestFlex != null) {
+                      if (bestFlex.discountType == "percentage") {
+                        flexDiscount = (widget.package.price ?? 0) * (bestFlex.discountValue ?? 0) / 100;
+                      } else {
+                        flexDiscount = (bestFlex.discountValue ?? 0);
+                      }
+                    }
+
+                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                    final double finalPrice = (widget.package.price ?? 0) - appliedDiscount;
+                    final bool hasDiscount = appliedDiscount > 0;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.package.packageTitle ?? "Plan",
+                          style: GoogleFonts.outfit(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xff111827),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (hasDiscount) ...[
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -776,7 +1008,11 @@ class _PackageCardState extends State<PackageCard> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          "${userProvider.discountPercentage}% OFF",
+                          bonusDiscount >= flexDiscount 
+                            ? "${userProvider.discountPercentage}% OFF" 
+                            : bestFlex!.discountType == "percentage" 
+                              ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                              : "\$${bestFlex.discountValue} OFF",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -788,7 +1024,7 @@ class _PackageCardState extends State<PackageCard> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "\$${((widget.package.price ?? 0) * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                    "\$${finalPrice.toStringAsFixed(2)}",
                     style: GoogleFonts.outfit(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
@@ -881,7 +1117,7 @@ class _PackageCardState extends State<PackageCard> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (isLoggedIn) {
-                        _showPurchaseDialog(
+                        _showPaymentSelection(
                           context,
                           userProvider,
                           transactionProvider,
@@ -894,7 +1130,7 @@ class _PackageCardState extends State<PackageCard> {
                           ),
                         ).then((_) {
                           if (GetStorage().hasData(isLogged)) {
-                            _showPurchaseDialog(
+                            _showPaymentSelection(
                               context,
                               userProvider,
                               transactionProvider,
@@ -920,10 +1156,12 @@ class _PackageCardState extends State<PackageCard> {
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                  ),
+                ],
+              );
+            },
           ),
+          )
         );
       },
     );

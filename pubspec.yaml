@@ -70,6 +70,8 @@ dependencies:
   any_link_preview: ^3.0.1
   webview_flutter: ^4.10.1
   flutter_facebook_auth: ^7.1.6
+  image_picker: ^1.2.1
+  http_parser: ^4.1.2
 
 
   

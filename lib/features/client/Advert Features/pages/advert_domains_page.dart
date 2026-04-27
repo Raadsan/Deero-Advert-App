@@ -11,6 +11,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconly/iconly.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:line_icons/line_icons.dart';
 
 class AdvertDomainsPage extends StatelessWidget {
   final String searchedDomain;
@@ -239,36 +241,56 @@ class _DomainCardState extends State<_DomainCard> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Total Price",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    if (userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable") ...[
+                               Expanded(
+                                  child: Builder(
+                                    builder: (context) {
+                                      final String tld = widget.domain.contains('.') ? ".${widget.domain.split('.').last}" : "all";
+                                      final bestFlex = userProvider.getBestDiscount("domain", tld);
+                                      final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                                      
+                                      double bonusDiscount = isBonusAvailable ? parsedPrice / 2 : 0;
+                                      double flexDiscount = 0;
+                                      
+                                      if (bestFlex != null) {
+                                        if (bestFlex.discountType == "percentage") {
+                                          flexDiscount = parsedPrice * (bestFlex.discountValue ?? 0) / 100;
+                                        } else {
+                                          flexDiscount = (bestFlex.discountValue ?? 0);
+                                        }
+                                      }
+
+                                      final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                                      final double finalPrice = parsedPrice - appliedDiscount;
+                                      final bool hasDiscount = appliedDiscount > 0;
+
+                                      return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Total Price",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        if (hasDiscount) ...[
                                       Row(
                                         children: [
                                           Text(
                                             widget.price,
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
-                                              decoration:
-                                                  TextDecoration.lineThrough,
+                                              decoration: TextDecoration.lineThrough,
                                               color: Colors.grey,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            "${userProvider.discountPercentage}% OFF",
+                                            bonusDiscount >= flexDiscount 
+                                              ? "${userProvider.discountPercentage}% OFF (Bonus)" 
+                                              : bestFlex!.discountType == "percentage" 
+                                                ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                                                : "\$${bestFlex.discountValue} OFF",
                                             style: GoogleFonts.poppins(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -278,13 +300,27 @@ class _DomainCardState extends State<_DomainCard> {
                                         ],
                                       ),
                                       Text(
-                                        "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
+                                        "\$${finalPrice.toStringAsFixed(2)}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: const Color(0xFFEB4724),
                                         ),
                                       ),
+                                      if (bonusDiscount >= flexDiscount)
+                                        const SizedBox(height: 4),
+                                      if (bonusDiscount >= flexDiscount)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: Text(
+                                            "Note: Your bonus points will reset after using this discount.",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.orange.shade800,
+                                            ),
+                                          ),
+                                        ),
                                     ] else
                                       Text(
                                         widget.price,
@@ -295,8 +331,10 @@ class _DomainCardState extends State<_DomainCard> {
                                         ),
                                       ),
                                   ],
-                                ),
-                              ),
+                                );
+                              },
+                            ),
+                          ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
@@ -409,19 +447,24 @@ class _DomainCardState extends State<_DomainCard> {
                                       _isLocalLoading = true;
                                     });
 
-                                    final isBonusAvailable =
-                                        userProvider
-                                            .userModel
-                                            ?.user
-                                            ?.bonusStatus ==
-                                        "BonusAvailable";
-                                    final finalAmount = isBonusAvailable
-                                        ? parsedPrice *
-                                              (1 -
-                                                  userProvider
-                                                          .discountPercentage /
-                                                      100)
-                                        : parsedPrice;
+                                    final String tld = widget.domain.contains('.') ? ".${widget.domain.split('.').last}" : "all";
+                                    final bestFlex = userProvider.getBestDiscount("domain", tld);
+                                    final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                                    
+                                    double bonusDiscount = isBonusAvailable ? parsedPrice / 2 : 0;
+                                    double flexDiscount = 0;
+                                    
+                                    if (bestFlex != null) {
+                                      if (bestFlex.discountType == "percentage") {
+                                        flexDiscount = parsedPrice * (bestFlex.discountValue ?? 0) / 100;
+                                      } else {
+                                        flexDiscount = (bestFlex.discountValue ?? 0);
+                                      }
+                                    }
+
+                                    final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                                    final double finalAmount = parsedPrice - appliedDiscount;
+                                    final bool useBonusFlag = isBonusAvailable && bonusDiscount >= flexDiscount;
 
                                     final success =
                                         await transactionProvider.CreateTransaction(
@@ -438,7 +481,7 @@ class _DomainCardState extends State<_DomainCard> {
                                           paymentMethod: "Waafipay",
                                           accountNo: _accountController.text,
                                           useBonus:
-                                              isBonusAvailable, // ✅ FIX: resets bonus in backend
+                                              useBonusFlag, // ✅ Only reset if bonus was the better/used discount
                                           context: dialogContext,
                                         );
 
@@ -469,9 +512,7 @@ class _DomainCardState extends State<_DomainCard> {
                                               "Domain Purchase: ${widget.domain}${isBonusAvailable ? ' (${userProvider.discountPercentage}% Discount Applied)' : ''}",
                                           amount: finalAmount,
                                           originalAmount: parsedPrice,
-                                          discountAmount: isBonusAvailable
-                                              ? (parsedPrice - finalAmount)
-                                              : 0,
+                                          discountAmount: appliedDiscount,
                                           date: DateFormat(
                                             'MMM dd, yyyy • hh:mm a',
                                           ).format(DateTime.now()),
@@ -518,6 +559,113 @@ class _DomainCardState extends State<_DomainCard> {
     );
   }
 
+  void _showPaymentSelection(
+    BuildContext context,
+    UserProvider userProvider,
+    TransactionProvider transactionProvider,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Choose Payment Method",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xff651313),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                _showPurchaseDialog(context, userProvider, transactionProvider);
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEB4724).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(IconlyLight.wallet, color: Color(0xFFEB4724)),
+              ),
+              title: Text(
+                "Online Payment",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Pay securely via Waafipay",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              onTap: () async {
+                Navigator.pop(context);
+                final String whatsappUrl =
+                    "https://wa.me/$kAdvertWhatsAppNumber?text=${Uri.encodeComponent("Hello Deero Advert, I want to purchase the domain ${widget.domain}.")}";
+                if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+                  await launchUrl(Uri.parse(whatsappUrl));
+                }
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LineIcons.whatSApp, color: Colors.green),
+              ),
+              title: Text(
+                "WhatsApp Order",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                "Chat with us to complete purchase",
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+              ),
+              trailing: const Icon(IconlyLight.arrow_right_2, size: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade100),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<UserProvider, TransactionProvider>(
@@ -551,22 +699,47 @@ class _DomainCardState extends State<_DomainCard> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.domain,
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xff111827),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (widget.isAvailable) ...[
-                        if (userProvider.userModel?.user?.bonusStatus ==
-                            "BonusAvailable") ...[
+                  child: Builder(
+                    builder: (context) {
+                      final String tld = widget.domain.contains('.') ? ".${widget.domain.split('.').last}" : "all";
+                      final bestFlex = userProvider.getBestDiscount("domain", tld);
+                      final bool isBonusAvailable = userProvider.userModel?.user?.bonusStatus == "BonusAvailable";
+                      
+                      double parsedPrice = 0.0;
+                      try {
+                        parsedPrice = double.parse(widget.price.replaceAll(RegExp(r'[^0-9.]'), ''));
+                      } catch (e) {}
+
+                      double bonusDiscount = isBonusAvailable ? parsedPrice / 2 : 0;
+                      double flexDiscount = 0;
+                      
+                      if (bestFlex != null) {
+                        if (bestFlex.discountType == "percentage") {
+                          flexDiscount = parsedPrice * (bestFlex.discountValue ?? 0) / 100;
+                        } else {
+                          flexDiscount = (bestFlex.discountValue ?? 0);
+                        }
+                      }
+
+                      final double appliedDiscount = bonusDiscount > flexDiscount ? bonusDiscount : flexDiscount;
+                      final double finalPrice = parsedPrice - appliedDiscount;
+                      final bool hasDiscount = appliedDiscount > 0;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.domain,
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xff111827),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          if (widget.isAvailable) ...[
+                            if (hasDiscount) ...[
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -582,7 +755,11 @@ class _DomainCardState extends State<_DomainCard> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  "${userProvider.discountPercentage}% OFF",
+                                  bonusDiscount >= flexDiscount 
+                                    ? "${userProvider.discountPercentage}% OFF" 
+                                    : bestFlex!.discountType == "percentage" 
+                                      ? "${bestFlex.discountValue?.toInt()}% OFF" 
+                                      : "\$${bestFlex.discountValue} OFF",
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -593,28 +770,13 @@ class _DomainCardState extends State<_DomainCard> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Builder(
-                            builder: (context) {
-                              double parsedPrice = 0.0;
-                              try {
-                                parsedPrice = double.parse(
-                                  widget.price.replaceAll(
-                                    RegExp(r'[^0-9.]'),
-                                    '',
-                                  ),
-                                );
-                              } catch (e) {
-                                print("Error parsing price: $e");
-                              }
-                              return Text(
-                                "\$${(parsedPrice * (1 - userProvider.discountPercentage / 100)).toStringAsFixed(2)}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xff111827),
-                                ),
-                              );
-                            },
+                          Text(
+                            "\$${finalPrice.toStringAsFixed(2)}",
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xff111827),
+                            ),
                           ),
                         ] else ...[
                           Row(
@@ -672,6 +834,8 @@ class _DomainCardState extends State<_DomainCard> {
                         ),
                       ],
                     ],
+                  );
+                    },
                   ),
                 ),
                 if (widget.isAvailable)
@@ -691,7 +855,7 @@ class _DomainCardState extends State<_DomainCard> {
                         borderRadius: BorderRadius.circular(10),
                         onTap: () {
                           if (isLoggedIn) {
-                            _showPurchaseDialog(
+                            _showPaymentSelection(
                               context,
                               userProvider,
                               transactionProvider,

@@ -49,6 +49,18 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
       }
     }
   }
+  Future<void> _openlinkedin() async {
+    if (!await launchUrl(
+      Uri.parse(kAdvertSocialLinkedInUrl),
+      mode: LaunchMode.externalApplication,
+    )) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open Linkedin")),
+        );
+      }
+    }
+  }
 
   Widget _miniSocialButton({
     IconData? icon,
@@ -157,6 +169,13 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                                 0xFFE1306C,
                               ), // Official Instagram Magenta
                               onTap: _openInstagram,
+                            ),
+                            _miniSocialButton(
+                              icon: LineIcons.linkedin,
+                              color: const Color(
+                                0xFF0072B1,
+                              ), // Official Instagram Magenta
+                              onTap: _openlinkedin,
                             ),
                           ],
                           FloatingActionButton(
