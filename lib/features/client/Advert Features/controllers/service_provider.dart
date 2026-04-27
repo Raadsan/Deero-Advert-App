@@ -17,9 +17,9 @@ class ServiceProvider extends ChangeNotifier {
       isLoading = true;
       error = null; // Clear previous error
       notifyListeners();
-      
+
       final response = await http.get(Uri.parse(EndPoint + "service"));
-      
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         serviceModel = ServiceModel.fromJson(data);
@@ -27,7 +27,7 @@ class ServiceProvider extends ChangeNotifier {
       } else {
         error = "Failed to load services: ${response.statusCode}";
       }
-      
+
       isLoading = false;
       notifyListeners();
     } catch (e) {
