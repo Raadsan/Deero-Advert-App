@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/notification_model.dart' as nm;
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
+import 'package:deero_advert_app/features/client/Advert%20Features/models/notification_model.dart' as nm;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

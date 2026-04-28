@@ -1,6 +1,6 @@
 {
-    "name": "deero_enterprise_app",
-    "short_name": "deero_enterprise_app",
+    "name": "Deero Advert",
+    "short_name": "Deero Advert",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

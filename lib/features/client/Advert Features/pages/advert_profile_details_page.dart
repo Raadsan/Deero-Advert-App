@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';

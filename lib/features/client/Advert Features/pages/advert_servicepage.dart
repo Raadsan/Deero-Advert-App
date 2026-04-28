@@ -1,10 +1,10 @@
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
-import 'package:deero_enterprise_app/features/auth/pages/login_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/service_model.dart';
-import 'package:deero_enterprise_app/core/widgets/transaction_receipt_bottomsheet.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/auth/pages/login_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/service_model.dart';
+import 'package:deero_advert_app/core/widgets/transaction_receipt_bottomsheet.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

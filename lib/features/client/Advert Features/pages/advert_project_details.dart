@@ -1,7 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/portfolio_model.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/portfolio_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';

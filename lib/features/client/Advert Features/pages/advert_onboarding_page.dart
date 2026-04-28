@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:iconly/iconly.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 
 class AdvertOnboardingPage extends StatefulWidget {
   const AdvertOnboardingPage({super.key});

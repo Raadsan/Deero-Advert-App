@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/core/themes/color_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/themes/color_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';

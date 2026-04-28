@@ -1,5 +1,5 @@
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/video_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/models/video_model.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/video_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/video_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

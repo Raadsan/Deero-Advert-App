@@ -1,8 +1,8 @@
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
-import 'package:deero_enterprise_app/features/auth/pages/forgot_password_page.dart';
-import 'package:deero_enterprise_app/features/auth/pages/register_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/auth/pages/forgot_password_page.dart';
+import 'package:deero_advert_app/features/auth/pages/register_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';

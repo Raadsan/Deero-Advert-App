@@ -1,4 +1,4 @@
-# deero_enterprise_app
+# deero_advert_app
 
 A new Flutter project.
 

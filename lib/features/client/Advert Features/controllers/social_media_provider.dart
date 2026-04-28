@@ -1,4 +1,4 @@
-import 'package:deero_enterprise_app/core/constant.dart';
+import 'package:deero_advert_app/core/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';

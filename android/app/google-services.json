@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "599859938752",
-    "project_id": "deeroenterpriceapp",
-    "storage_bucket": "deeroenterpriceapp.firebasestorage.app"
+    "project_number": "405966003467",
+    "project_id": "deero-advert",
+    "storage_bucket": "deero-advert.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:599859938752:android:e5829a3712b2ea66faf425",
+        "mobilesdk_app_id": "1:405966003467:android:37c2e2b7aa3c2c6b71160e",
         "android_client_info": {
-          "package_name": "com.example.deero_enterprise_app"
+          "package_name": "com.raadsan.deeroadvert"
         }
       },
       "oauth_client": [
         {
-          "client_id": "599859938752-b8gegeikgb0mr0lp8svu6vou9k7m4rf2.apps.googleusercontent.com",
+          "client_id": "405966003467-q8kn3a4ig10lbi48kg51pkj3344pjom3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.deero_enterprise_app",
+            "package_name": "com.raadsan.deeroadvert",
             "certificate_hash": "f10db0daa28fb8fc243020a55f210f58c78de444"
           }
         },
         {
-          "client_id": "599859938752-7o2dgcsdpc08go9lvhqao598uk6t17io.apps.googleusercontent.com",
+          "client_id": "405966003467-jo3i1ft21herlh7vv0dkfbqag5c3vn8u.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBJO9fy4lDbh7dkCj-MzCnkVItYJ3Q9ez8"
+          "current_key": "AIzaSyA7F0h7msKB1U4cLvqHXLIKhlsfiR-PfGk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "599859938752-7o2dgcsdpc08go9lvhqao598uk6t17io.apps.googleusercontent.com",
+              "client_id": "405966003467-jo3i1ft21herlh7vv0dkfbqag5c3vn8u.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

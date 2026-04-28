@@ -1,25 +1,25 @@
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
-import 'package:deero_enterprise_app/features/auth/controllers/register_user_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/news_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/achievement_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/service_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/video_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
+import 'package:deero_advert_app/features/auth/controllers/register_user_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/news_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/achievement_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/careers_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/video_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -30,16 +30,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: "AIzaSyBJO9fy4lDbh7dkCj-MzCnkVItYJ3Q9ez8",
-        appId: "1:599859938752:android:e5829a3712b2ea66faf425",
-        messagingSenderId: "599859938752",
-        projectId: "deeroenterpriceapp",
-      ),
-    );
+  
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+    }
+  } catch (e) {
+    debugPrint("Firebase already initialized or error: $e");
   }
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await NotificationService.init();
   await GetStorage.init();

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/auth/models/user_model.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/auth/models/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:get_storage/get_storage.dart';

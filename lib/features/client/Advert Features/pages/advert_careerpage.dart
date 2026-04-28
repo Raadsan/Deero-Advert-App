@@ -1,6 +1,6 @@
-import 'package:deero_enterprise_app/core/themes/color_page.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/controllers/careers_provider.dart';
-import 'package:deero_enterprise_app/features/client/Advert%20Features/widgets/advert_career_card.dart';
+import 'package:deero_advert_app/core/themes/color_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/careers_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_career_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:deero_enterprise_app/core/constant.dart';
-import 'package:deero_enterprise_app/features/auth/models/user_model.dart';
+import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/features/auth/models/user_model.dart';
 import 'package:provider/provider.dart';
-import 'package:deero_enterprise_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 
 class RegisterUserProvider extends ChangeNotifier {
   UserModel? userModel;

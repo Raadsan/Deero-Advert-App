@@ -1,4 +1,4 @@
-package com.example.deero_enterprise_app
+package com.raadsan.deeroadvert
 
 import io.flutter.embedding.android.FlutterActivity
 
