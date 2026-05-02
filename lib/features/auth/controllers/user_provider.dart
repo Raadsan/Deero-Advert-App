@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/auth/models/user_model.dart';
+import 'package:deero_advert_app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:deero_advert_app/main.dart'; // Add this for navigatorKey
+import 'package:provider/provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -160,6 +163,17 @@ class UserProvider extends ChangeNotifier {
     this.userModel = user;
     box.write("userInfo", user.toJson());
     box.write(isLogged, true);
+    
+    // Also save device token with the new userId
+    try {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        Provider.of<NotificationProvider>(context, listen: false).saveToken();
+      }
+    } catch (e) {
+      print("Error calling saveToken from saveUser: $e");
+    }
+    
     notifyListeners();
   }
 
@@ -339,7 +353,7 @@ class UserProvider extends ChangeNotifier {
       (a, b) => (b.discountValue ?? 0).compareTo(a.discountValue ?? 0),
     );
 
-    return applicable.first;
+    return applicable[0];
   }
 
   Future<bool> updateProfile({

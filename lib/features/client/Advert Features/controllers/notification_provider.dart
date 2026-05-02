@@ -2,12 +2,17 @@ import 'dart:convert';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
 import 'package:deero_advert_app/features/client/Advert%20Features/models/notification_model.dart' as nm;
+import 'package:deero_advert_app/features/client/Advert%20Features/models/chat_model.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
+import 'package:deero_advert_app/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 
 class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
@@ -17,7 +22,14 @@ class NotificationService {
     await _local.initialize(
       const InitializationSettings(android: android),
       onDidReceiveNotificationResponse: (response) async {
-        await _openLink(response.payload);
+        if (response.payload != null) {
+          try {
+            final data = jsonDecode(response.payload!);
+            await _handleNotificationTap(data);
+          } catch (_) {
+            await _openLink(response.payload);
+          }
+        }
       },
     );
 
@@ -27,20 +39,20 @@ class NotificationService {
         show(
           message.notification?.title ?? '',
           message.notification?.body ?? '',
-          payload: message.data['linkUrl'],
+          data: message.data,
         );
       }
     });
 
     // When app is opened by tapping a push notification
     FirebaseMessaging.onMessageOpenedApp.listen((message) async {
-      await _openLink(message.data['linkUrl']);
+      await _handleNotificationTap(message.data);
     });
 
     // Cold start via notification tap
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
-      await _openLink(initialMessage.data['linkUrl']);
+      await _handleNotificationTap(initialMessage.data);
     }
 
     // Request permissions
@@ -57,7 +69,7 @@ class NotificationService {
   }
 
   static Future show(String title, String body,
-      {String? payload, bool saveLocal = false}) async {
+      {Map<String, dynamic>? data, bool saveLocal = false}) async {
     final android = AndroidNotificationDetails(
       'deero_notifications',
       'Deero App Notifications',
@@ -76,6 +88,12 @@ class NotificationService {
       ticker: 'ticker',
       category: AndroidNotificationCategory.message,
     );
+
+    // Encode data to JSON for payload
+    String? payload;
+    if (data != null) {
+      payload = jsonEncode(data);
+    }
 
     await _local.show(
       DateTime.now().millisecond,
@@ -96,6 +114,41 @@ class NotificationService {
       });
       if (locals.length > 20) locals = locals.sublist(0, 20);
       await box.write('localNotifications', locals);
+    }
+  }
+
+  static Future<void> _handleNotificationTap(Map<String, dynamic>? data) async {
+    if (data == null) return;
+    
+    if (data['type'] == 'chat' && data['conversationId'] != null) {
+      final int convId = int.parse(data['conversationId'].toString());
+      
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        Conversation? fullConv;
+        
+        // Find the conversation safely without throwing "Bad state: No element"
+        for (var c in chatProvider.conversations) {
+          if (c.id == convId) {
+            fullConv = c;
+            break;
+          }
+        }
+
+        if (fullConv != null) {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => AdvertChatConversationPage(conversation: fullConv!),
+            ),
+          );
+        } else {
+          // If not in current list, we could fetch or show a message
+          print("Notification tap: Conversation $convId not found in local list.");
+        }
+      }
+    } else if (data['linkUrl'] != null) {
+      await _openLink(data['linkUrl']);
     }
   }
 
@@ -287,11 +340,13 @@ class NotificationProvider extends ChangeNotifier {
         }
 
         // Sort by date (newest first)
-        notificationModel!.data!.sort((a, b) {
-          final dateA = DateTime.tryParse(a.createdAt ?? "") ?? DateTime(2000);
-          final dateB = DateTime.tryParse(b.createdAt ?? "") ?? DateTime(2000);
-          return dateB.compareTo(dateA);
-        });
+        if (notificationModel?.data != null && notificationModel!.data!.isNotEmpty) {
+          notificationModel!.data!.sort((a, b) {
+            final dateA = DateTime.tryParse(a.createdAt ?? "") ?? DateTime(2000);
+            final dateB = DateTime.tryParse(b.createdAt ?? "") ?? DateTime(2000);
+            return dateB.compareTo(dateA);
+          });
+        }
       }
       isLoading = false;
       notifyListeners();
@@ -321,7 +376,7 @@ class NotificationProvider extends ChangeNotifier {
         // Show firebase local notification for active announcement only if it's new
         if (activeNotificationModel?.data != null &&
             activeNotificationModel!.data!.isNotEmpty) {
-          final activeItem = activeNotificationModel!.data!.first;
+          final activeItem = activeNotificationModel!.data![0];
 
           final box = GetStorage();
           final lastId = box.read('lastActiveNotificationId');
@@ -330,7 +385,7 @@ class NotificationProvider extends ChangeNotifier {
             NotificationService.show(
               activeItem.title ?? "Active Update",
               activeItem.message ?? "New announcement is active.",
-              payload: activeItem.linkUrl,
+              data: {'linkUrl': activeItem.linkUrl},
               saveLocal: true, // Save active announcements to list too
             );
             // Save this ID so we don't show it again until a new one comes

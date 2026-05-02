@@ -1,5 +1,6 @@
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/auth/controllers/register_user_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
@@ -27,6 +28,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
   }
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,8 +72,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => SocialMediaProvider()),
         ChangeNotifierProvider(create: (_) => TestimonialProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Deero Advert',
         home: AdvertNavigationpage(),

@@ -1,9 +1,13 @@
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/core/themes/color_page.dart';
+import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chat_main_navigation.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_homepage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_hostingpage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chat_list_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_vediospage.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +29,21 @@ class AdvertNavigationpage extends StatefulWidget {
 
 class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
   bool _socialFabOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      
+      if (userProvider.userModel?.user != null) {
+        int currentUserId = int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
+        chatProvider.connectSocket(currentUserId);
+        chatProvider.fetchConversations();
+      }
+    });
+  }
 
   Future<void> _openUrl(String url) async {
     final uri = Uri.parse(url);
@@ -100,6 +119,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     AdvertServicepage(initialIndex: serviceIndex),
     AdvertVediospage(),
     AdvertHostingpage(),
+    const AdvertChatListPage(),
     const AdvertProfilePage(),
   ];
 
@@ -107,6 +127,15 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
   Widget build(BuildContext context) {
     return Consumer<NavigationProvider>(
       builder: (context, navProvider, _) {
+        final userProvider = Provider.of<UserProvider>(context);
+        final userRole = userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+        
+        // If not a regular 'user' (Admin/Staff), show the simplified chat navigation
+        if (userRole != 'user') {
+          return const AdvertChatMainNavigation();
+        }
+
+        // Regular users get the full navigation
         final pages = _buildPages(navProvider.serviceInitialIndex);
         final isVideoPage = navProvider.currentIndex == 2;
 
@@ -138,7 +167,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               body: pages[navProvider.currentIndex],
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
-              floatingActionButton: navProvider.currentIndex == 2
+              floatingActionButton: (navProvider.currentIndex == 2 || navProvider.currentIndex == 4)
                   ? null
                   : Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -186,12 +215,50 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(60),
                             ),
-                            child: Icon(
-                              _socialFabOpen
-                                  ? IconlyLight.close_square
-                                  : IconlyLight.chat,
-                              color: Colors.white,
-                              size: 30,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.none,
+                              children: [
+                                Icon(
+                                  _socialFabOpen
+                                      ? IconlyLight.close_square
+                                      : IconlyLight.chat,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                                if (!_socialFabOpen)
+                                  Consumer<ChatProvider>(
+                                    builder: (context, chatProvider, _) {
+                                      final unreadCount = chatProvider.totalUnreadCount;
+                                      if (unreadCount == 0) return const SizedBox.shrink();
+                                      return Positioned(
+                                        right: -4,
+                                        top: -4,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 2),
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 18,
+                                            minHeight: 18,
+                                          ),
+                                          child: Text(
+                                            unreadCount > 9 ? '9+' : unreadCount.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 8,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                         ],
@@ -242,6 +309,13 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                         ),
                         _buildNavItem(
                           index: 4,
+                          icon: IconlyLight.chat,
+                          activeIcon: IconlyBold.chat,
+                          label: 'Chat',
+                          navProvider: navProvider,
+                        ),
+                        _buildNavItem(
+                          index: 5,
                           icon: IconlyLight.profile,
                           activeIcon: IconlyBold.profile,
                           label: 'Profile',
@@ -277,7 +351,44 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(isSelected ? activeIcon : icon, color: color, size: 24),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(isSelected ? activeIcon : icon, color: color, size: 24),
+              if (index == 4) // Chat index for regular users
+                Consumer<ChatProvider>(
+                  builder: (context, chatProvider, _) {
+                    final unreadCount = chatProvider.totalUnreadCount;
+                    if (unreadCount == 0) return const SizedBox.shrink();
+                    return Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          unreadCount > 9 ? '9+' : unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 7,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             label,
