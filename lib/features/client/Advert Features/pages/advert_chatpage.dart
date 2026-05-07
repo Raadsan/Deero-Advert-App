@@ -37,9 +37,52 @@ class _AdvertChatConversationPageState
   int currentUserId = -1;
   int otherUserId = -1;
   Map<String, dynamic>? otherUser;
+  static const int maxFileSize = 50 * 1024 * 1024; // 50 MB
+  bool _isValidUrl(String text) {
+    final urlRegex = RegExp(r'(https?:\/\/[^\s]+)', caseSensitive: false);
+
+    return urlRegex.hasMatch(text);
+  }
+
+  Future<void> _openLink(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint("Error opening link: $e");
+    }
+  }
+
+  Future<bool> _checkFileSize(String path) async {
+    final file = File(path);
+
+    if (!await file.exists()) return false;
+
+    final fileSize = await file.length();
+
+    if (fileSize > maxFileSize) {
+      if (!mounted) return false;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            "You cannot send files larger than 50 MB",
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+        ),
+      );
+
+      return false;
+    }
+
+    return true;
+  }
 
   bool _isRecording = false;
-  String? _recordingPath;
   Duration _recordDuration = Duration.zero;
   Timer? _recordTimer;
 
@@ -81,8 +124,13 @@ class _AdvertChatConversationPageState
     final XFile? image = await _imagePicker.pickImage(
       source: ImageSource.gallery,
     );
+
     if (image != null) {
-      _sendFile(image.path, 'image');
+      final isValid = await _checkFileSize(image.path);
+
+      if (isValid) {
+        _sendFile(image.path, 'image');
+      }
     }
   }
 
@@ -90,17 +138,28 @@ class _AdvertChatConversationPageState
     final XFile? video = await _imagePicker.pickVideo(
       source: ImageSource.gallery,
     );
+
     if (video != null) {
-      _sendFile(video.path, 'video');
+      final isValid = await _checkFileSize(video.path);
+
+      if (isValid) {
+        _sendFile(video.path, 'video');
+      }
     }
   }
 
   Future<void> _pickDocument() async {
     FilePickerResult? result = await FilePicker.pickFiles();
+
     if (result != null && result.files.isNotEmpty) {
       final path = result.files.first.path;
+
       if (path != null) {
-        _sendFile(path, 'document');
+        final isValid = await _checkFileSize(path);
+
+        if (isValid) {
+          _sendFile(path, 'document');
+        }
       }
     }
   }
@@ -448,11 +507,17 @@ class _AdvertChatConversationPageState
         );
         break;
       default:
-        content = Text(
-          message.text,
-          style: GoogleFonts.poppins(
-            color: isSender ? Colors.white : Colors.black87,
-            fontSize: 14,
+        final isLink = _isValidUrl(message.text);
+
+        content = GestureDetector(
+          onTap: isLink ? () => _openLink(message.text) : null,
+          child: Text(
+            message.text,
+            style: GoogleFonts.poppins(
+              color: isSender ? Colors.white : Colors.black87,
+              fontSize: 14,
+              decoration: isLink ? TextDecoration.underline : null,
+            ),
           ),
         );
     }
@@ -515,7 +580,10 @@ class _AdvertChatConversationPageState
                     ? Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                            ),
                             onPressed: () => _stopRecording(send: false),
                           ),
                           const Spacer(),

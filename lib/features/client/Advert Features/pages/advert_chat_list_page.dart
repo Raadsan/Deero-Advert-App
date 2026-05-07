@@ -1,3 +1,4 @@
+import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_users_list_page.dart';
@@ -167,22 +168,32 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
 
                 const SizedBox(height: 30),
 
-                Container(
-                  width: double.infinity,
-                  height: 55,
-
-                  decoration: BoxDecoration(
-                    color: const Color(0xff651210),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-
-                  child: Center(
-                    child: Text(
-                      "Login / Register",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                  
+                    decoration: BoxDecoration(
+                      color: const Color(0xff651210),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  
+                    child: Center(
+                      child: Text(
+                        "Login / Register",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
