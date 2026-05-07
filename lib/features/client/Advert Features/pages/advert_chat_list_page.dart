@@ -23,16 +23,20 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      
+
+      // Haddii user login yahay
       if (userProvider.userModel?.user != null) {
-        int currentUserId = int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
+        int currentUserId =
+            int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
+
         chatProvider.connectSocket(currentUserId);
+        chatProvider.fetchConversations();
       }
-      
-      chatProvider.fetchConversations();
     });
   }
 
@@ -43,7 +47,7 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
     if (difference.inDays == 0) {
       return DateFormat('HH:mm').format(dateTime);
     } else if (difference.inDays < 7) {
-      return DateFormat('E').format(dateTime); // Weekday
+      return DateFormat('E').format(dateTime);
     } else {
       return DateFormat('MMM d').format(dateTime);
     }
@@ -62,14 +66,22 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
             child: Row(
               children: [
                 const CircleAvatar(radius: 26, backgroundColor: Colors.white),
+
                 const SizedBox(width: 16),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(width: 150, height: 16, color: Colors.white),
+
                       const SizedBox(height: 8),
-                      Container(width: double.infinity, height: 12, color: Colors.white),
+
+                      Container(
+                        width: double.infinity,
+                        height: 12,
+                        color: Colors.white,
+                      ),
                     ],
                   ),
                 ),
@@ -83,11 +95,112 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    final isLoggedIn = userProvider.userModel?.user != null;
+
+    // USER AAN LOGIN AHEYN
+    if (!isLoggedIn) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+
+          title: Text(
+            "Messages",
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+
+                  decoration: BoxDecoration(
+                    color: const Color(0xff651210).withOpacity(0.1),
+
+                    shape: BoxShape.circle,
+                  ),
+
+                  child: const Icon(
+                    IconlyLight.chat,
+                    size: 65,
+                    color: Color(0xff651210),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Text(
+                  "Login or Register",
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  "Please login or create a new account to start conversations, send messages, and connect with other users.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.6,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                Container(
+                  width: double.infinity,
+                  height: 55,
+
+                  decoration: BoxDecoration(
+                    color: const Color(0xff651210),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+
+                  child: Center(
+                    child: Text(
+                      "Login / Register",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+
         title: Text(
           "Messages",
           style: GoogleFonts.poppins(
@@ -96,6 +209,7 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+
         actions: [
           IconButton(
             icon: const Icon(IconlyLight.search, color: Colors.black87),
@@ -103,6 +217,7 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
           ),
         ],
       ),
+
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           if (chatProvider.isLoading && chatProvider.conversations.isEmpty) {
@@ -113,20 +228,26 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+
                 children: [
                   Container(
                     padding: const EdgeInsets.all(24),
+
                     decoration: BoxDecoration(
                       color: const Color(0xffEF7044).withOpacity(0.1),
+
                       shape: BoxShape.circle,
                     ),
+
                     child: const Icon(
                       IconlyLight.chat,
                       size: 60,
                       color: Color(0xffEF7044),
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Text(
                     "No conversations yet",
                     style: GoogleFonts.poppins(
@@ -135,7 +256,9 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
                       color: Colors.black87,
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   Text(
                     "Tap the button below to start chatting",
                     style: GoogleFonts.poppins(
@@ -148,34 +271,36 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
             );
           }
 
-          // Sort conversations by updatedAt descending (latest first)
           final sortedConversations = List.from(chatProvider.conversations)
             ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+
             itemCount: sortedConversations.length,
+
             itemBuilder: (context, index) {
               final conv = sortedConversations[index];
-              final userProvider = Provider.of<UserProvider>(context, listen: false);
-              
-              int currentUserId = -1;
-              if (userProvider.userModel?.user != null) {
-                 currentUserId = int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
-              }
-              
-              // Find the other participant
+
+              int currentUserId =
+                  int.tryParse(userProvider.userModel!.user!.id.toString()) ??
+                  -1;
+
               final isUser1 = conv.participant1Id == currentUserId;
+
               final otherUser = isUser1 ? conv.participant2 : conv.participant1;
+
               final otherName = otherUser?['fullname'] ?? "Unknown User";
+
               final otherImage = otherUser?['image'];
 
-                              return InkWell(
+              return InkWell(
                 onTap: () {
-                  // Mark as read immediately on click
-                  Provider.of<ChatProvider>(context, listen: false).markAsRead(conv.id, currentUserId);
-                  
-                  // Save last interaction to GetStorage
+                  Provider.of<ChatProvider>(
+                    context,
+                    listen: false,
+                  ).markAsRead(conv.id, currentUserId);
+
                   box.write('last_chat_user', {
                     'name': otherName,
                     'image': otherImage,
@@ -185,115 +310,146 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
 
                   Navigator.push(
                     context,
+
                     MaterialPageRoute(
-                      builder: (context) => AdvertChatConversationPage(conversation: conv),
+                      builder: (context) =>
+                          AdvertChatConversationPage(conversation: conv),
                     ),
                   );
                 },
+
                 borderRadius: BorderRadius.circular(12),
+
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
+
                   child: Row(
                     children: [
-                      Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 26,
-                            backgroundColor: const Color(0xffEF7044).withOpacity(0.2),
-                            backgroundImage: otherImage != null && otherImage.toString().isNotEmpty 
-                                ? NetworkImage(otherImage) 
-                                : null,
-                            child: otherImage == null || otherImage.toString().isEmpty
-                                ? Text(
-                                    otherName.isNotEmpty ? otherName[0].toUpperCase() : '?',
-                                    style: GoogleFonts.poppins(color: const Color(0xffEF7044), fontSize: 20, fontWeight: FontWeight.bold),
-                                  )
-                                : null,
-                          ),
-                          // Online Status Indicator could go here if available
-                        ],
+                      CircleAvatar(
+                        radius: 26,
+
+                        backgroundColor: const Color(
+                          0xffEF7044,
+                        ).withOpacity(0.2),
+
+                        backgroundImage:
+                            otherImage != null &&
+                                otherImage.toString().isNotEmpty
+                            ? NetworkImage(otherImage)
+                            : null,
+
+                        child:
+                            otherImage == null || otherImage.toString().isEmpty
+                            ? Text(
+                                otherName.isNotEmpty
+                                    ? otherName[0].toUpperCase()
+                                    : '?',
+
+                                style: GoogleFonts.poppins(
+                                  color: const Color(0xffEF7044),
+
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
                       ),
+
                       const SizedBox(width: 16),
+
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          otherName,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: conv.unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
-                                            color: Colors.black87,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (otherUser?['role'] != null) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xffEF7044).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            otherUser?['role']['name'] ?? '',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: const Color(0xffEF7044),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  _formatDateTime(conv.updatedAt),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    color: conv.unreadCount > 0 ? const Color(0xffEF7044) : Colors.grey,
-                                    fontWeight: conv.unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
+
                               children: [
                                 Expanded(
                                   child: Text(
-                                    conv.lastMessage ?? "Started a conversation",
+                                    otherName,
+
                                     style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      color: conv.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
-                                      fontWeight: conv.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                                      fontSize: 16,
+
+                                      fontWeight: conv.unreadCount > 0
+                                          ? FontWeight.bold
+                                          : FontWeight.w600,
+
+                                      color: Colors.black87,
                                     ),
+
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+
+                                Text(
+                                  _formatDateTime(conv.updatedAt),
+
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+
+                                    color: conv.unreadCount > 0
+                                        ? const Color(0xffEF7044)
+                                        : Colors.grey,
+
+                                    fontWeight: conv.unreadCount > 0
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    conv.lastMessage ??
+                                        "Started a conversation",
+
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+
+                                      color: conv.unreadCount > 0
+                                          ? Colors.black87
+                                          : Colors.grey.shade600,
+
+                                      fontWeight: conv.unreadCount > 0
+                                          ? FontWeight.w500
+                                          : FontWeight.normal,
+                                    ),
+
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+
                                 if (conv.unreadCount > 0)
                                   Container(
                                     padding: const EdgeInsets.all(6),
+
                                     decoration: const BoxDecoration(
                                       color: Color(0xffEF7044),
+
                                       shape: BoxShape.circle,
                                     ),
+
                                     child: Text(
                                       conv.unreadCount.toString(),
+
                                       style: const TextStyle(
                                         color: Colors.white,
+
                                         fontSize: 10,
+
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -311,16 +467,20 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xffEF7044),
+
         onPressed: () {
           Navigator.push(
             context,
+
             MaterialPageRoute(
               builder: (context) => const AdvertUsersListPage(),
             ),
           );
         },
+
         child: const Icon(IconlyLight.edit_square, color: Colors.white),
       ),
     );

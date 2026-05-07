@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_achievment_card_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_advert_app/core/constant.dart';
@@ -29,6 +30,7 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
 
   @override
   Widget build(BuildContext context) {
+    bool isExpanded = false;
     return Scaffold(
       backgroundColor: bgColor,
       body: CustomScrollView(
@@ -149,28 +151,97 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                       "Pioneering Digital Excellence",
                     ),
                     const SizedBox(height: 16),
+
                     FadeInUp(
-                      child: Container(
-                        padding: const EdgeInsets.all(22),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
+                      child: StatefulBuilder(
+                        builder: (context, setState) {
+                          final fullText =
+                              "Deero Advertising Agency is one of the innovative digital service providers in Somalia, founded in 2019 to offer a wide range of digital creative services. deero Advert is the first advertising company that provides a wide variety of one-stop digital creative services (1-stop agency: marketing, creative, web, and video) in Somalia.\n\nDeero always aims to exceed expectations and deliver results that are based on our clients marketing objectives while overall enhancing their brands. Deero helps businesses keep up with the digital transformation and capitalize on new markets and opportunities. We are pleased with our capacity to combine creativity and efficiency to provide our clients with top-notch services.";
+
+                          return Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          "Deero Advertising Agency is one of the most innovative digital service providers in Somalia. Founded in 2019, we've revolutionized how businesses connect with their audience through top-tier design, marketing, and technology solutions.",
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            height: 1.8,
-                            color: const Color(0xff4B5563),
-                          ),
-                        ),
+
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AnimatedCrossFade(
+                                  duration: const Duration(milliseconds: 300),
+
+                                  firstChild: Text(
+                                    fullText,
+                                    maxLines: 5,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      height: 1.8,
+                                      color: const Color(0xff4B5563),
+                                    ),
+                                  ),
+
+                                  secondChild: Text(
+                                    fullText,
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      height: 1.8,
+                                      color: const Color(0xff4B5563),
+                                    ),
+                                  ),
+
+                                  crossFadeState: isExpanded
+                                      ? CrossFadeState.showSecond
+                                      : CrossFadeState.showFirst,
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isExpanded = !isExpanded;
+                                    });
+                                  },
+
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        isExpanded ? "See Less" : "See More",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xffEF7044),
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 4),
+
+                                      Icon(
+                                        isExpanded
+                                            ? Icons.keyboard_arrow_up
+                                            : Icons.keyboard_arrow_down,
+                                        color: const Color(0xffEF7044),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
 
@@ -182,12 +253,12 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xffE8F5E9),
+                            color: const Color(0xff651210).withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.star,
-                            color: Color(0xff4CAF50),
+                            color: Color(0xff651210),
                             size: 20,
                           ),
                         ),
@@ -230,7 +301,7 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                             title: "Mission",
                             icon: Icons.terrain_outlined, // Mountain-like icon
                             content:
-                                "To provide quality services that exceed the expectations of our esteemed customers.",
+                                "To provide quality services that exceeds the expectations of our esteemed customers",
                           ),
                           _buildAccordionItem(
                             index: 2,
@@ -246,7 +317,7 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                     const SizedBox(height: 45),
                     _buildSectionHeader("OUR ACHIEVEMENTS", "By the numbers"),
                     const SizedBox(height: 20),
-                    _buildStatsGrid(),
+                    AdvertAchievmentCardWidget(),
 
                     const SizedBox(height: 50),
 
@@ -364,7 +435,7 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                 children: [
                   Icon(
                     icon,
-                    color: isExpanded ? Colors.white : const Color(0xff3F51B5),
+                    color: isExpanded ? Colors.white : const Color(0xff651210),
                     size: 28,
                   ),
                   const SizedBox(width: 15),
@@ -446,241 +517,6 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatsGrid() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left Column
-        Expanded(
-          child: Column(
-            children: [
-              _buildAchieveCard(
-                value: "3,059+",
-                label: "Happy Clients",
-                imagePath: "images/advertimages/happyclients.png",
-                bgColor: const Color(0xFFFFF5EE),
-                textColor: const Color(0xFF651210),
-                height: 180,
-                isTopLeft: true,
-              ),
-              const SizedBox(height: 12),
-              _buildAchieveCard(
-                value: "11+",
-                label: "Pro Team",
-                imagePath: "images/advertimages/team.png",
-                bgColor: const Color(0xFFFFE0CC),
-                textColor: const Color(0xFF651210),
-                height: 130,
-                isBottomLeft: true,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Right Column
-        Expanded(
-          child: Column(
-            children: [
-              _buildAchieveCard(
-                value: "7,089+",
-                label: "Completed Project",
-                imagePath: "images/advertimages/completeprojects.png",
-                bgColor: const Color(0xFFEF7044),
-                textColor: Colors.white,
-                height: 130,
-                isTopRight: true,
-              ),
-              const SizedBox(height: 12),
-              _buildAchieveCard(
-                value: "9+",
-                label: "Awards won",
-                imagePath: "images/advertimages/award.png",
-                bgColor: const Color(0xFFFFF5EE),
-                textColor: const Color(0xFF651210),
-                height: 180,
-                isBottomRight: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAchieveCard({
-    required String value,
-    required String label,
-    required String imagePath,
-    required Color bgColor,
-    required Color textColor,
-    required double height,
-    bool isTopLeft = false,
-    bool isBottomLeft = false,
-    bool isTopRight = false,
-    bool isBottomRight = false,
-  }) {
-    bool isSolid = bgColor == const Color(0xFFEF7044);
-    Color imageColor = isSolid ? Colors.white : const Color(0xFFEF7044);
-
-    return FadeInUp(
-      child: Container(
-        height: height,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          border: isSolid
-              ? null
-              : Border.all(
-                  color: const Color(0xFFEF7044).withOpacity(0.3),
-                  width: 1,
-                ),
-        ),
-        child: isTopLeft
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(imagePath, height: 40, color: imageColor),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value,
-                        style: GoogleFonts.outfit(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                        maxLines: 1,
-                      ),
-                      Text(
-                        label,
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: textColor.withOpacity(0.9),
-                        ),
-                        maxLines: 1,
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            : isBottomLeft
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          value,
-                          style: GoogleFonts.outfit(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                          maxLines: 1,
-                        ),
-                        Text(
-                          label,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: textColor.withOpacity(0.9),
-                          ),
-                          maxLines: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Image.asset(imagePath, height: 35, color: imageColor),
-                ],
-              )
-            : isTopRight
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(imagePath, height: 35, color: imageColor),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          value,
-                          style: GoogleFonts.outfit(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                          maxLines: 1,
-                        ),
-                        Text(
-                          label,
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: textColor.withOpacity(0.9),
-                          ),
-                          maxLines: 2,
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(), // Space at top
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              value,
-                              style: GoogleFonts.outfit(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                              maxLines: 1,
-                            ),
-                            Text(
-                              label,
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: textColor.withOpacity(0.9),
-                              ),
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Image.asset(imagePath, height: 35, color: imageColor),
-                    ],
-                  ),
-                ],
-              ),
       ),
     );
   }

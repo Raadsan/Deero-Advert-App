@@ -14,6 +14,7 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_achievment_card_widget.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
@@ -63,9 +64,12 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     Provider.of<AchievementProvider>(context, listen: false).getAchievements();
     Provider.of<MajorClientProvider>(context, listen: false).getMajorClients();
     Provider.of<UserProvider>(context, listen: false).refreshUser();
-    
+
     // Pre-fetch Social Media Feeds
-    final socialProvider = Provider.of<SocialMediaProvider>(context, listen: false);
+    final socialProvider = Provider.of<SocialMediaProvider>(
+      context,
+      listen: false,
+    );
     double screenWidth = MediaQuery.of(context).size.width;
     socialProvider.initPlatform("Facebook", screenWidth);
     socialProvider.initPlatform("TikTok", screenWidth);
@@ -425,55 +429,6 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                         ],
                       ),
                     ),
-
-                    // Row(
-                    //   children: [
-                    //     Expanded(
-                    //       child: SizedBox(
-                    //         height: 48,
-                    //         child: TextFormField(
-                    //           controller: _domainController,
-                    //           onFieldSubmitted: (_) => _searchDomain(context),
-                    //           decoration: InputDecoration(
-                    //             hintText: "Search your domain",
-                    //             fillColor: const Color(
-                    //               0xffEAE8DA,
-                    //             ).withOpacity(0.30),
-                    //             hintStyle: GoogleFonts.poppins(
-                    //               fontSize: 14,
-                    //               color: Colors.grey,
-                    //             ),
-                    //             contentPadding: const EdgeInsets.symmetric(
-                    //               horizontal: 20,
-                    //             ),
-                    //             filled: true,
-                    //             border: OutlineInputBorder(
-                    //               borderSide: BorderSide.none,
-                    //               borderRadius: BorderRadius.circular(46),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 10),
-                    //     GestureDetector(
-                    //       onTap: () => _searchDomain(context),
-                    //       child: Container(
-                    //         height: 40,
-                    //         width: 40,
-                    //         decoration: BoxDecoration(
-                    //           color: const Color(0xffEF7044).withOpacity(0.80),
-                    //           borderRadius: BorderRadius.circular(46),
-                    //         ),
-                    //         child: const Icon(
-                    //           IconlyLight.search,
-                    //           color: Colors.white,
-                    //           size: 24,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     SizedBox(height: 20),
                     Text(
                       "Our Services",
@@ -688,112 +643,58 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             ),
                           )
                         : CarouselSlider(
-                            items: (portfolioProvider.portfolioModel?.portfolios ?? []).map((
-                              project,
-                            ) {
-                              final imageUrl = project.mainImage != null
-                                  ? (project.mainImage!.startsWith('http')
-                                        ? project.mainImage!
-                                        : BaseUrl + project.mainImage!)
-                                  : "";
+                            items:
+                                (portfolioProvider.portfolioModel?.portfolios ??
+                                        [])
+                                    .map((project) {
+                                      final imageUrl = project.mainImage != null
+                                          ? (project.mainImage!.startsWith(
+                                                  'http',
+                                                )
+                                                ? project.mainImage!
+                                                : BaseUrl + project.mainImage!)
+                                          : "";
 
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          AdvertProjectDetailsPage(
-                                            project: project,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 140,
-                                  decoration: BoxDecoration(
-                                    color: Colors
-                                        .grey
-                                        .shade900, // Keeps text readable while the image is loading
-                                    image: DecorationImage(
-                                      image: imageUrl.isNotEmpty
-                                          ? NetworkImage(imageUrl)
-                                                as ImageProvider
-                                          : const AssetImage(
-                                              "images/advertimages/1.png",
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AdvertProjectDetailsPage(
+                                                    project: project,
+                                                  ),
                                             ),
-                                      fit: BoxFit.cover,
-                                      colorFilter: ColorFilter.mode(
-                                        Colors.black.withOpacity(0.45),
-                                        BlendMode.darken,
-                                      ),
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  // child: Row(
-                                  //   children: [
-                                  //     Expanded(
-                                  //       flex: 6,
-                                  //       child: Padding(
-                                  //         padding: const EdgeInsets.only(
-                                  //           left: 18,
-                                  //           top: 20,
-                                  //           bottom: 20,
-                                  //           right: 8,
-                                  //         ),
-                                  //         child: Column(
-                                  //           crossAxisAlignment:
-                                  //               CrossAxisAlignment.start,
-                                  //           mainAxisAlignment:
-                                  //               MainAxisAlignment.center,
-                                  //           children: [
-                                  //             Text(
-                                  //               project.title ??
-                                  //                   "Graphic Design",
-                                  //               style: GoogleFonts.poppins(
-                                  //                 fontSize: 18,
-                                  //                 fontWeight: FontWeight.bold,
-                                  //                 color: Colors.white,
-                                  //               ),
-                                  //               maxLines: 1,
-                                  //               overflow: TextOverflow.ellipsis,
-                                  //             ),
-                                  //             const SizedBox(height: 8),
-                                  //             Expanded(
-                                  //               child: Text(
-                                  //                 project.description ??
-                                  //                     "We create attractive visual designs including logos, social media posts, flyers, banners, and branding materials that make your business stand out.",
-                                  //                 style: GoogleFonts.poppins(
-                                  //                   fontSize: 10,
-                                  //                   color: Colors.white
-                                  //                       .withOpacity(0.9),
-                                  //                   height: 1.3,
-                                  //                 ),
-                                  //                 maxLines: 4,
-                                  //                 overflow:
-                                  //                     TextOverflow.ellipsis,
-                                  //               ),
-                                  //             ),
-                                  //           ],
-                                  //         ),
-                                  //       ),
-                                  //     ),
-                                  //     // Empty space on the right side to let the background image shine through
-                                  //     Expanded(
-                                  //       flex: 4,
-                                  //       child: const SizedBox(
-                                  //         child: Icon(
-                                  //           IconlyLight.arrow_right_2,
-                                  //           color: Colors.white,
-                                  //         ),
-                                  //       ),
-                                  //     ),
-                                  //   ],
-                                  // ),
-                                ),
-                              );
-                            }).toList(),
+                                          );
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 140,
+                                          decoration: BoxDecoration(
+                                            color: Colors
+                                                .grey
+                                                .shade900, // Keeps text readable while the image is loading
+                                            image: DecorationImage(
+                                              image: imageUrl.isNotEmpty
+                                                  ? NetworkImage(imageUrl)
+                                                        as ImageProvider
+                                                  : const AssetImage(
+                                                      "images/advertimages/1.png",
+                                                    ),
+                                              fit: BoxFit.cover,
+                                              colorFilter: ColorFilter.mode(
+                                                Colors.black.withOpacity(0.45),
+                                                BlendMode.darken,
+                                              ),
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    })
+                                    .toList(),
                             options: CarouselOptions(
                               height: 140,
                               viewportFraction: 1.0,
@@ -900,53 +801,8 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Consumer<AchievementProvider>(
-                      builder: (context, achProvider, child) {
-                        if (achProvider.isLoading) {
-                          return const AchievementShimmer();
-                        }
-
-                        final achievements =
-                            achProvider.achievementModel?.data ?? [];
-                        if (achievements.isEmpty) {
-                          return const SizedBox(height: 30);
-                        }
-
-                        List<Widget> leftChildren = [];
-                        List<Widget> rightChildren = [];
-
-                        for (int i = 0; i < achievements.length; i++) {
-                          int styleType =
-                              i %
-                              4; // 0: Left Top, 1: Left Bottom, 2: Right Top, 3: Right Bottom
-
-                          Widget card = AnimatedAchievementCard(
-                            achievement: achievements[i],
-                            styleType: styleType,
-                          );
-
-                          if (styleType == 0 || styleType == 1) {
-                            leftChildren.add(card);
-                            if (i != achievements.length - 1)
-                              leftChildren.add(const SizedBox(height: 10));
-                          } else {
-                            rightChildren.add(card);
-                            if (i != achievements.length - 1)
-                              rightChildren.add(const SizedBox(height: 10));
-                          }
-                        }
-
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: Column(children: leftChildren)),
-                            const SizedBox(width: 10),
-                            Expanded(child: Column(children: rightChildren)),
-                          ],
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 30),
+                    AdvertAchievmentCardWidget(),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
