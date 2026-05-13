@@ -9,11 +9,13 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_social_mediapage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:iconly/iconly.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdvertDrawer extends StatefulWidget {
   const AdvertDrawer({super.key});
@@ -24,17 +26,18 @@ class AdvertDrawer extends StatefulWidget {
 
 class _AdvertDrawerState extends State<AdvertDrawer> {
   @override
-  // void _launchUrl() async {
-  //   String urlString = "https://thisradsan.vercel.app/";
-  //   final Uri uri = Uri.parse(urlString);
-  //   if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
-  //     }
-  //   }
-  // }
+  void _launchUrl() async {
+    String urlString = "https://raadsantech.so/";
+    final Uri uri = Uri.parse(urlString);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
+      }
+    }
+  }
+
   Widget build(BuildContext context) {
     // final box = GetStorage();
     // final isLoggedIn = box.hasData(isLogged);
@@ -80,6 +83,18 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                   ),
                   _buildMenuItem(
                     context: context,
+                    icon: IconlyLight.work,
+                    title: "Careers",
+                    delay: 400,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdvertCareerPage(),
+                      ),
+                    ),
+                  ),
+                  _buildMenuItem(
+                    context: context,
                     icon: IconlyLight.time_square,
                     title: "Transactions",
                     delay: 150,
@@ -114,21 +129,10 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                       ),
                     ),
                   ),
+
                   _buildMenuItem(
                     context: context,
-                    icon: IconlyLight.bag,
-                    title: "Careers",
-                    delay: 400,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdvertCareerPage(),
-                      ),
-                    ),
-                  ),
-                  _buildMenuItem(
-                    context: context,
-                    icon: IconlyLight.info_circle,
+                    icon: IconlyLight.message,
                     title: "Social Media",
                     delay: 600,
                     onTap: () {

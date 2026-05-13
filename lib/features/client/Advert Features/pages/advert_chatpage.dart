@@ -17,6 +17,7 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:deero_advert_app/core/constant.dart';
 
 class AdvertChatConversationPage extends StatefulWidget {
   final Conversation conversation;
@@ -353,9 +354,13 @@ class _AdvertChatConversationPageState
                       backgroundColor: const Color(0xffEF7044).withOpacity(0.2),
                       backgroundImage:
                           otherUser?['image'] != null &&
-                              otherUser!['image'].toString().isNotEmpty
-                          ? NetworkImage(otherUser!['image'])
-                          : null,
+                                  otherUser!['image'].toString().isNotEmpty
+                              ? NetworkImage(
+                                  otherUser!['image'].toString().startsWith('http')
+                                      ? otherUser!['image'].toString()
+                                      : BaseUrl + otherUser!['image'].toString(),
+                                )
+                              : null,
                       child:
                           otherUser?['image'] == null ||
                               otherUser!['image'].toString().isEmpty
@@ -417,11 +422,27 @@ class _AdvertChatConversationPageState
                     final time =
                         "${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}";
 
-                    return _buildMessageBubble(
-                      message,
-                      isSender,
-                      time,
-                      chatProvider.onlineUsers[otherUserId] ?? false,
+                    // Check if we need to show a date separator
+                    bool showDateSeparator = false;
+                    if (index == chatProvider.messages.length - 1) {
+                      showDateSeparator = true;
+                    } else {
+                      final prevMessage = chatProvider.messages[index + 1];
+                      if (!_isSameDay(message.createdAt, prevMessage.createdAt)) {
+                        showDateSeparator = true;
+                      }
+                    }
+
+                    return Column(
+                      children: [
+                        if (showDateSeparator) _buildDateSeparator(message.createdAt),
+                        _buildMessageBubble(
+                          message,
+                          isSender,
+                          time,
+                          chatProvider.onlineUsers[otherUserId] ?? false,
+                        ),
+                      ],
                     );
                   },
                 );
@@ -434,6 +455,15 @@ class _AdvertChatConversationPageState
     );
   }
 
+  String _resolveMediaUrl(String? url) {
+    if (url == null || url.isEmpty) return "";
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/')) return url; // local absolute path
+    if (url.startsWith('file://')) return url; // local absolute path
+    final baseUrlClean = BaseUrl.endsWith('/') ? BaseUrl : "$BaseUrl/";
+    return "$baseUrlClean$url";
+  }
+
   Widget _buildMessageBubble(
     ChatMessage message,
     bool isSender,
@@ -441,36 +471,37 @@ class _AdvertChatConversationPageState
     bool isOtherOnline,
   ) {
     Widget content;
+    final resolvedUrl = _resolveMediaUrl(message.mediaUrl);
+
     switch (message.messageType) {
       case 'image':
         content = ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child:
-              message.mediaUrl != null && message.mediaUrl!.startsWith('http')
-              ? Image.network(
-                  message.mediaUrl!,
-                  width: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image),
-                )
-              : (message.mediaUrl != null
-                    ? Image.file(
-                        File(message.mediaUrl!),
-                        width: 200,
-                        fit: BoxFit.cover,
-                      )
-                    : const Icon(Icons.image_not_supported)),
+          child: resolvedUrl.isNotEmpty
+              ? (resolvedUrl.startsWith('http')
+                  ? Image.network(
+                      resolvedUrl,
+                      width: 200,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image),
+                    )
+                  : Image.file(
+                      File(resolvedUrl),
+                      width: 200,
+                      fit: BoxFit.cover,
+                    ))
+              : const Icon(Icons.image_not_supported),
         );
         break;
       case 'video':
-        content = VideoMessageBubble(url: message.mediaUrl ?? "");
+        content = VideoMessageBubble(url: resolvedUrl);
         break;
       case 'document':
         content = GestureDetector(
           onTap: () {
-            if (message.mediaUrl != null) {
-              launchUrl(Uri.parse(message.mediaUrl!));
+            if (resolvedUrl.isNotEmpty) {
+              launchUrl(Uri.parse(resolvedUrl));
             }
           },
           child: Container(
@@ -504,6 +535,7 @@ class _AdvertChatConversationPageState
           isSender: isSender,
           time: time,
           isOtherOnline: isOtherOnline,
+          resolvedUrl: resolvedUrl,
         );
         break;
       default:
@@ -545,14 +577,79 @@ class _AdvertChatConversationPageState
           children: [
             content,
             const SizedBox(height: 4),
-            Text(
-              time,
-              style: GoogleFonts.poppins(
-                color: isSender ? Colors.white70 : Colors.grey,
-                fontSize: 10,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  time,
+                  style: GoogleFonts.poppins(
+                    color: isSender ? Colors.white70 : Colors.grey,
+                    fontSize: 10,
+                  ),
+                ),
+                if (isSender) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    message.isRead
+                        ? Icons.done_all
+                        : (message.id > 1000000000000 // Temporary ID for optimistic messages
+                            ? Icons.done
+                            : Icons.done_all),
+                    size: 14,
+                    color: message.isRead ? Colors.blueAccent : Colors.white70,
+                  ),
+                ],
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  bool _isSameDay(DateTime d1, DateTime d2) {
+    return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
+  }
+
+  Widget _buildDateSeparator(DateTime date) {
+    final now = DateTime.now();
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    String text;
+
+    if (_isSameDay(date, now)) {
+      text = "Today";
+    } else if (_isSameDay(date, yesterday)) {
+      text = "Yesterday";
+    } else {
+      final months = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ];
+      text = "${date.day} ${months[date.month - 1]}, ${date.year}";
+    }
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            fontSize: 11,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -654,30 +751,40 @@ class VideoMessageBubble extends StatefulWidget {
 }
 
 class _VideoMessageBubbleState extends State<VideoMessageBubble> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
-      ..initialize().then((_) => setState(() => _initialized = true));
+    if (widget.url.isNotEmpty) {
+      try {
+        _controller = widget.url.startsWith('http') 
+          ? VideoPlayerController.networkUrl(Uri.parse(widget.url))
+          : VideoPlayerController.file(File(widget.url));
+        
+        _controller!.initialize().then((_) => setState(() => _initialized = true));
+      } catch (e) {
+        print("Video initialize error: $e");
+      }
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_initialized) return const CircularProgressIndicator();
+    if (widget.url.isEmpty) return const Icon(Icons.broken_image, color: Colors.white);
+    if (!_initialized || _controller == null) return const CircularProgressIndicator();
     return GestureDetector(
       onTap: () => setState(
-        () => _controller.value.isPlaying
-            ? _controller.pause()
-            : _controller.play(),
+        () => _controller!.value.isPlaying
+            ? _controller!.pause()
+            : _controller!.play(),
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -685,11 +792,11 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
           SizedBox(
             width: 200,
             child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
+              aspectRatio: _controller!.value.aspectRatio,
+              child: VideoPlayer(_controller!),
             ),
           ),
-          if (!_controller.value.isPlaying)
+          if (!_controller!.value.isPlaying)
             const Icon(Icons.play_circle_fill, color: Colors.white, size: 40),
         ],
       ),
@@ -702,6 +809,7 @@ class VoiceMessageBubble extends StatefulWidget {
   final bool isSender;
   final String time;
   final bool isOtherOnline;
+  final String resolvedUrl;
 
   const VoiceMessageBubble({
     super.key,
@@ -709,6 +817,7 @@ class VoiceMessageBubble extends StatefulWidget {
     required this.isSender,
     required this.time,
     required this.isOtherOnline,
+    required this.resolvedUrl,
   });
 
   @override
@@ -746,13 +855,16 @@ class _VoiceMessageBubbleState extends State<VoiceMessageBubble> {
     });
 
     // 2. Pre-load source to get duration if not already known
-    final mediaUrl = widget.message.mediaUrl ?? "";
-    if (mediaUrl.isNotEmpty) {
-      _player.setSource(
-        mediaUrl.startsWith('http')
-            ? UrlSource(mediaUrl)
-            : DeviceFileSource(mediaUrl),
-      );
+    if (widget.resolvedUrl.isNotEmpty) {
+      try {
+        _player.setSource(
+          widget.resolvedUrl.startsWith('http')
+              ? UrlSource(widget.resolvedUrl)
+              : DeviceFileSource(widget.resolvedUrl),
+        );
+      } catch (e) {
+        print("Audio source error: $e");
+      }
     }
   }
 

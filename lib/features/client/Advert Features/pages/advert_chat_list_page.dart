@@ -1,3 +1,4 @@
+import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
@@ -349,7 +350,11 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
                         backgroundImage:
                             otherImage != null &&
                                 otherImage.toString().isNotEmpty
-                            ? NetworkImage(otherImage)
+                            ? NetworkImage(
+                                otherImage.toString().startsWith('http')
+                                    ? otherImage.toString()
+                                    : BaseUrl + otherImage.toString(),
+                              )
                             : null,
 
                         child:

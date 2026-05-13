@@ -599,7 +599,11 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                         radius: 25,
                         backgroundColor: Colors.grey.shade200,
                         backgroundImage: imageUrl.isNotEmpty
-                            ? NetworkImage(imageUrl)
+                            ? NetworkImage(
+                                imageUrl.startsWith('http')
+                                    ? imageUrl
+                                    : BaseUrl + imageUrl,
+                              )
                             : null,
                         child: imageUrl.isEmpty
                             ? const Icon(Icons.person, color: Colors.grey)

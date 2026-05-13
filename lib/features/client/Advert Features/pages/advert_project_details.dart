@@ -76,17 +76,17 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                               width: double.infinity,
                               loadingBuilder:
                                   (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Shimmer.fromColors(
-                                  baseColor: Colors.grey.shade300,
-                                  highlightColor: Colors.grey.shade100,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
+                                    if (loadingProgress == null) return child;
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade100,
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
                             );
                           }).toList(),
                         )
@@ -180,6 +180,7 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                   Text(
                     project.description ??
                         "No description provided for this project.",
+                    textAlign: TextAlign.justify,
                     style: GoogleFonts.poppins(
                       fontSize: 15,
                       color: const Color(0xff4B5563),
@@ -254,17 +255,17 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                               fit: BoxFit.cover,
                               loadingBuilder:
                                   (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Shimmer.fromColors(
-                                  baseColor: Colors.grey.shade300,
-                                  highlightColor: Colors.grey.shade100,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
+                                    if (loadingProgress == null) return child;
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade100,
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
                                     color: Colors.grey.shade100,

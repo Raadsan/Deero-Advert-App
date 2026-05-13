@@ -12,6 +12,7 @@ import 'package:deero_advert_app/features/client/Advert%20Features/controllers/c
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/video_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/company_contact_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SocialMediaProvider()),
         ChangeNotifierProvider(create: (_) => TestimonialProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyContactProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

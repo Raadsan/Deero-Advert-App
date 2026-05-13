@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_project_details.dart';
 
 class AdvertPortfoliopage extends StatefulWidget {
@@ -134,13 +135,72 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            itemCount: portfolioList.length,
-            itemBuilder: (context, index) {
-              final item = portfolioList[index];
-              return PortfolioCard(item: item, index: index);
-            },
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  itemCount: portfolioList.length,
+                  itemBuilder: (context, index) {
+                    final item = portfolioList[index];
+                    return PortfolioCard(item: item, index: index);
+                  },
+                ),
+              ),
+              // Behance Call to Action
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "You want to see more? Visit here",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xff4B5563),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _launcherBehance,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff053EFF), // Behance Blue
+                        minimumSize: const Size(double.infinity, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(LineIcons.behance, color: Colors.white, size: 28),
+                          const SizedBox(width: 12),
+                          Text(
+                            "Visit our Behance",
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         },
       ),

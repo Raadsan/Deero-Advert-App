@@ -58,6 +58,7 @@ class AdvertSliderCard extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                           height: 1.4,
                         ),
+                        textAlign: TextAlign.justify,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),

@@ -51,7 +51,19 @@ class AdvertProfilePage extends StatelessWidget {
                               image:
                                   (userProvider.userModel?.user?.image != null && userProvider.userModel!.user!.image!.isNotEmpty)
                                   ? DecorationImage(
-                                      image: NetworkImage(userProvider.userModel!.user!.image!),
+                                      image: NetworkImage(
+                                        userProvider.userModel!.user!.image!
+                                                .startsWith('http')
+                                            ? userProvider
+                                                .userModel!
+                                                .user!
+                                                .image!
+                                            : BaseUrl +
+                                                userProvider
+                                                    .userModel!
+                                                    .user!
+                                                    .image!,
+                                      ),
                                       fit: BoxFit.cover,
                                     )
                                   : null,

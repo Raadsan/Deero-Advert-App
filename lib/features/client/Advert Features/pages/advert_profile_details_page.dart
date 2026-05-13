@@ -3,6 +3,7 @@ import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
+import 'package:deero_advert_app/core/constant.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,7 @@ class AdvertProfileDetailsPage extends StatefulWidget {
 class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isUpdating = false;
 
   Future<void> _pickImage(
     ImageSource source, {
@@ -188,7 +190,11 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                                 : (currentImage != null &&
                                       currentImage.isNotEmpty)
                                 ? DecorationImage(
-                                    image: NetworkImage(currentImage),
+                                    image: NetworkImage(
+                                      currentImage.startsWith('http')
+                                          ? currentImage
+                                          : BaseUrl + currentImage,
+                                    ),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
@@ -406,7 +412,11 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                                   )
                                 : (user.image != null && user.image!.isNotEmpty)
                                 ? DecorationImage(
-                                    image: NetworkImage(user.image!),
+                                    image: NetworkImage(
+                                      user.image!.startsWith('http')
+                                          ? user.image!
+                                          : BaseUrl + user.image!,
+                                    ),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
@@ -454,6 +464,106 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                     ],
                   ),
                 ),
+
+                if (_imageFile != null) ...[
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => setState(() => _imageFile = null),
+                        icon: const Icon(IconlyLight.close_square, size: 18),
+                        label: Text(
+                          "Cancel",
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[100],
+                          foregroundColor: Colors.black87,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: _isUpdating
+                            ? null
+                            : () async {
+                                setState(() => _isUpdating = true);
+                                final success = await Provider.of<UserProvider>(
+                                  context,
+                                  listen: false,
+                                ).updateProfile(
+                                  fullname: user.fullname ?? "",
+                                  email: user.email ?? "",
+                                  phone: user.phone ?? "",
+                                  imageFile: _imageFile,
+                                );
+                                if (success) {
+                                  setState(() {
+                                    _imageFile = null;
+                                    _isUpdating = false;
+                                  });
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Profile image updated successfully!",
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  setState(() => _isUpdating = false);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Failed to update profile image.",
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                        icon: _isUpdating
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(IconlyLight.upload, size: 18),
+                        label: Text(
+                          "Save Image",
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff660E0D),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 32),
 
                 // Info Rows

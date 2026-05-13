@@ -1,3 +1,4 @@
+import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
 import 'package:flutter/material.dart';
@@ -61,12 +62,16 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xffEF7044))),
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xffEF7044)),
+      ),
     );
 
     try {
-      final conversation = await chatProvider.createOrGetConversation(participantId);
-      
+      final conversation = await chatProvider.createOrGetConversation(
+        participantId,
+      );
+
       // Hide loading
       Navigator.pop(context);
 
@@ -74,7 +79,8 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => AdvertChatConversationPage(conversation: conversation),
+            builder: (context) =>
+                AdvertChatConversationPage(conversation: conversation),
           ),
         );
       }
@@ -82,9 +88,9 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
       // Hide loading
       Navigator.pop(context);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     }
   }
@@ -115,13 +121,23 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
             return _buildShimmerLoading();
           }
 
-          final userProvider = Provider.of<UserProvider>(context, listen: false);
-          final currentUserId = int.tryParse(userProvider.userModel?.user?.id.toString() ?? '') ?? -1;
-          final currentUserRole = userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+          final userProvider = Provider.of<UserProvider>(
+            context,
+            listen: false,
+          );
+          final currentUserId =
+              int.tryParse(userProvider.userModel?.user?.id.toString() ?? '') ??
+              -1;
+          final currentUserRole =
+              userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
 
           final filteredUsers = chatProvider.allUsers.where((u) {
-            final userId = int.tryParse(u['_id']?.toString() ?? u['id']?.toString() ?? '') ?? -2;
-            
+            final userId =
+                int.tryParse(
+                  u['_id']?.toString() ?? u['id']?.toString() ?? '',
+                ) ??
+                -2;
+
             // Get role name safely
             String? roleName;
             if (u['role'] != null) {
@@ -131,9 +147,9 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
             // 1. Always exclude self
             if (userId == currentUserId) return false;
 
-            // 2. Logic for "user" role: Only see people who are NOT "user" (e.g. Admin, Manager)
+            // 2. Logic for "user" role: Only see people who are "Customer Care"
             if (currentUserRole == 'user') {
-              return roleName != 'user';
+              return roleName == 'customer care';
             }
 
             // 3. Logic for "admin" role: See everyone
@@ -144,7 +160,7 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
             // Default: show everyone else
             return true;
           }).toList();
-          
+
           if (filteredUsers.isEmpty) {
             return Center(
               child: Text(
@@ -160,27 +176,44 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
             itemBuilder: (context, index) {
               final user = filteredUsers[index];
               return InkWell(
-                onTap: () => _startChat(int.parse(user['_id']?.toString() ?? user['id'].toString())),
+                onTap: () => _startChat(
+                  int.parse(user['_id']?.toString() ?? user['id'].toString()),
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade100),
+                    ),
                   ),
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 24,
-                        backgroundColor: const Color(0xffEF7044).withOpacity(0.1),
-                        backgroundImage: user['image'] != null && user['image'].toString().isNotEmpty
-                            ? NetworkImage(user['image'])
+                        backgroundColor: const Color(
+                          0xffEF7044,
+                        ).withOpacity(0.1),
+                        backgroundImage:
+                            user['image'] != null &&
+                                user['image'].toString().isNotEmpty
+                            ? NetworkImage(
+                                user['image'].toString().startsWith('http')
+                                    ? user['image'].toString()
+                                    : BaseUrl + user['image'].toString(),
+                              )
                             : null,
-                        child: user['image'] == null || user['image'].toString().isEmpty
+                        child:
+                            user['image'] == null ||
+                                user['image'].toString().isEmpty
                             ? Text(
-                                user['fullname'] != null && user['fullname'].toString().isNotEmpty 
-                                    ? user['fullname'][0].toUpperCase() 
+                                user['fullname'] != null &&
+                                        user['fullname'].toString().isNotEmpty
+                                    ? user['fullname'][0].toUpperCase()
                                     : '?',
                                 style: GoogleFonts.poppins(
-                                    color: const Color(0xffEF7044), fontWeight: FontWeight.bold),
+                                  color: const Color(0xffEF7044),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               )
                             : null,
                       ),
@@ -202,9 +235,14 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
                                 if (user['role'] != null) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xffEF7044).withOpacity(0.1),
+                                      color: const Color(
+                                        0xffEF7044,
+                                      ).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(

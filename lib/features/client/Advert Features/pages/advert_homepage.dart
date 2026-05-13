@@ -54,28 +54,36 @@ class _AdvertHomepageState extends State<AdvertHomepage>
 
   @override
   FutureOr<void> afterFirstLayout(BuildContext context) {
-    Provider.of<ServiceProvider>(context, listen: false).getAllServices();
-    Provider.of<HostingProvider>(context, listen: false).getAllHosting();
-    Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    ).activeNotification();
-    Provider.of<PortfolioProvider>(context, listen: false).getPortfolio();
-    Provider.of<AchievementProvider>(context, listen: false).getAchievements();
-    Provider.of<MajorClientProvider>(context, listen: false).getMajorClients();
-    Provider.of<UserProvider>(context, listen: false).refreshUser();
+    // Parallelize core data fetching with slight delays to avoid main thread spikes
+    _initData();
+  }
 
-    // Pre-fetch Social Media Feeds
-    final socialProvider = Provider.of<SocialMediaProvider>(
-      context,
-      listen: false,
-    );
-    double screenWidth = MediaQuery.of(context).size.width;
-    socialProvider.initPlatform("Facebook", screenWidth);
-    socialProvider.initPlatform("TikTok", screenWidth);
-    socialProvider.initPlatform("Instagram", screenWidth);
-    socialProvider.initPlatform("LinkedIn", screenWidth);
-    socialProvider.initPlatform("Behance", screenWidth);
+  Future<void> _initData() async {
+    final sp = Provider.of<ServiceProvider>(context, listen: false);
+    final hp = Provider.of<HostingProvider>(context, listen: false);
+    final np = Provider.of<NotificationProvider>(context, listen: false);
+    final pp = Provider.of<PortfolioProvider>(context, listen: false);
+    final ap = Provider.of<AchievementProvider>(context, listen: false);
+    final mcp = Provider.of<MajorClientProvider>(context, listen: false);
+    final up = Provider.of<UserProvider>(context, listen: false);
+
+    // Initial important data
+    await up.refreshUser();
+    sp.getAllServices();
+
+    // Defer non-critical sections slightly to ensure smooth UI interaction
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      hp.getAllHosting();
+      np.activeNotification();
+    });
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+      pp.getPortfolio();
+      ap.getAchievements();
+      mcp.getMajorClients();
+    });
   }
 
   void _searchDomain(BuildContext context) {
@@ -362,21 +370,33 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                 AdvertSliderCard(
                                   title: "Web Solution",
                                   description:
-                                      "Professional web solutions including design, hosting, and domain services.",
+                                      "We offer complete web services, including web design, domain registration, domain transfer, SSL certificates, and web hosting. We create responsive websites that look wonderful on any device, including smartphones, tablets, and desktop computers.",
                                   imagePath: "images/advertimages/web.png",
                                 ),
                                 AdvertSliderCard(
                                   title: "Graphic Design",
                                   description:
-                                      "Stunning graphics that communicate your brand's core values effectively.",
+                                      "We offer range of graphic design services encompasses logo design, UI design, event branding, and brand identity. With our expertise, we create captivating and memorable brands that resonate with the public, leaving a lasting impression",
                                   imagePath: "images/advertimages/graphic.png",
                                 ),
                                 AdvertSliderCard(
                                   title: "Digital Marketing",
                                   description:
-                                      "Data-driven marketing strategies to increase brand visibility online.",
+                                      "We offer complete digital marketing services, including social media marketing strategy, social media analytics, branding, content writing and social media management. The strategy team understands business cases and how to align digital marketing activities to ensure they deliver on your objectives.",
                                   imagePath:
                                       "images/advertimages/marketing.png",
+                                ),
+                                AdvertSliderCard(
+                                  title: "Event Branding",
+                                  description:
+                                      "Full suite of event branding and consulting, from digital strategy and social media to on-site branding and highlight videos.",
+                                  imagePath: "images/advertimages/event.png",
+                                ),
+                                AdvertSliderCard(
+                                  title: "Digital Consulting",
+                                  description:
+                                      "We offer a full suite of digital consulting services, including digital marketing, branding consulting, event consulting, assisting with content creation, digital media, and communication consulting.",
+                                  imagePath: "images/advertimages/digital.png",
                                 ),
                               ],
                               options: CarouselOptions(
@@ -406,7 +426,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             right: 0,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(3, (index) {
+                              children: List.generate(5, (index) {
                                 return AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
                                   margin: const EdgeInsets.symmetric(

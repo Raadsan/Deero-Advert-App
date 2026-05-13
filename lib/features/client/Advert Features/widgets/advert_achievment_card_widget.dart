@@ -9,18 +9,12 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
   const AdvertAchievmentCardWidget({super.key});
 
   /// ANIMATED NUMBER
-  Widget _buildAnimatedNumber(
-    int targetValue,
-    TextStyle style,
-  ) {
+  Widget _buildAnimatedNumber(int targetValue, TextStyle style) {
     return TweenAnimationBuilder<int>(
       tween: IntTween(begin: 0, end: targetValue),
       duration: const Duration(seconds: 2),
       builder: (context, value, child) {
-        return Text(
-          "$value+",
-          style: style,
-        );
+        return Text("$value+", style: style);
       },
     );
   }
@@ -38,8 +32,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
 
       if (!fullUrl.startsWith("http")) {
         String imagePath = iconUrl.replaceAll("\\", "/");
-        fullUrl =
-            "${EndPoint.replaceAll('api/', '')}$imagePath";
+        fullUrl = "${EndPoint.replaceAll('api/', '')}$imagePath";
       }
 
       return Image.network(
@@ -58,26 +51,19 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
       );
     }
 
-    return Image.asset(
-      fallbackAsset,
-      width: width,
-      height: height,
-      fit: fit,
-    );
+    return Image.asset(fallbackAsset, width: width, height: height, fit: fit);
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AchievementProvider>(
       builder: (context, provider, child) {
-
         /// LOADING
         if (provider.isLoading) {
           return _buildShimmer();
         }
 
-        final achievements =
-            provider.achievementModel?.data ?? [];
+        final achievements = provider.achievementModel?.data ?? [];
 
         /// SAFE DATA
         String getTitle(int index, String fallback) {
@@ -104,12 +90,10 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// LEFT SIDE
             Expanded(
               child: Column(
                 children: [
-
                   /// HAPPY CLIENTS
                   Container(
                     height: 130,
@@ -124,16 +108,14 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         _buildIcon(
                           getIcon(0),
                           "images/advertimages/happyclients.png",
 
-                          width: 35,
-                          height: 35,
+                          width: 40,
+                          height: 40,
                         ),
 
                         const Spacer(),
@@ -153,7 +135,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                           getTitle(0, "Happy Clients"),
 
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
+                            fontSize: 10,
                             letterSpacing: 1,
                             color: const Color(0xFF5C1B1B),
                           ),
@@ -184,20 +166,15 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                       ),
                     ),
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
 
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
 
                             children: [
-
                               _buildAnimatedNumber(
                                 getCount(1, 11),
 
@@ -205,9 +182,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                                   fontSize: 22,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 1,
-                                  color: const Color(
-                                    0xFF5C1B1B,
-                                  ),
+                                  color: const Color(0xFF5C1B1B),
                                   height: 1.1,
                                 ),
                               ),
@@ -218,9 +193,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   letterSpacing: 1,
-                                  color: const Color(
-                                    0xFF5C1B1B,
-                                  ),
+                                  color: const Color(0xFF5C1B1B),
                                 ),
 
                                 maxLines: 1,
@@ -250,7 +223,6 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-
                   /// COMPLETED PROJECTS
                   Container(
                     height: 80,
@@ -264,30 +236,25 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-
                         _buildIcon(
                           getIcon(2),
                           "images/advertimages/completeprojects.png",
 
-                          width: 36,
-                          height: 36,
+                          width: 40,
+                          height: 40,
                         ),
 
                         const SizedBox(width: 6),
 
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
 
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
 
                             children: [
-
                               _buildAnimatedNumber(
                                 getCount(2, 7089),
 
@@ -301,10 +268,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                               ),
 
                               Text(
-                                getTitle(
-                                  2,
-                                  "Completed Project",
-                                ),
+                                getTitle(2, "Completed Project"),
 
                                 style: GoogleFonts.poppins(
                                   fontSize: 9,
@@ -338,30 +302,23 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                       ),
                     ),
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                       children: [
-
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
 
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
 
                             children: [
-
                               _buildAnimatedNumber(
                                 getCount(3, 9),
 
                                 GoogleFonts.poppins(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(
-                                    0xFF5C1B1B,
-                                  ),
+                                  color: const Color(0xFF5C1B1B),
                                   height: 1.1,
                                 ),
                               ),
@@ -371,9 +328,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
 
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
-                                  color: const Color(
-                                    0xFF5C1B1B,
-                                  ),
+                                  color: const Color(0xFF5C1B1B),
                                 ),
 
                                 maxLines: 2,
@@ -410,17 +365,14 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Expanded(
             child: Column(
               children: [
-
                 Container(
                   height: 130,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
 
@@ -430,8 +382,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ],
@@ -443,13 +394,11 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-
                 Container(
                   height: 80,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
 
@@ -459,8 +408,7 @@ class AdvertAchievmentCardWidget extends StatelessWidget {
                   height: 130,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ],
