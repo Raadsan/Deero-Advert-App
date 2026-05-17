@@ -234,14 +234,22 @@ class AdvertProfilePage extends StatelessWidget {
                         _buildMenuItem(
                           icon: IconlyLight.heart,
                           title: "Rate App",
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Rate App feature is coming soon!",
-                                ),
-                              ),
+                          onTap: () async {
+                            final url = Uri.parse(
+                              "https://play.google.com/store/apps/details?id=com.raadsan.deeroadvert",
                             );
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Could not open Play Store."),
+                                ),
+                              );
+                            }
                           },
                         ),
                         _buildMenuItem(
@@ -269,12 +277,9 @@ class AdvertProfilePage extends StatelessWidget {
                           icon: IconlyLight.send,
                           title: "Share App",
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Share App feature is coming soon!",
-                                ),
-                              ),
+                            Share.share(
+                              "Download Deero Advert app from Play Store: https://play.google.com/store/apps/details?id=com.raadsan.deeroadvert",
+                              subject: "Deero Advert App",
                             );
                           },
                         ),
