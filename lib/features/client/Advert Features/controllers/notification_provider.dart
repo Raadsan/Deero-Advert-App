@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
@@ -5,6 +6,7 @@ import 'package:deero_advert_app/features/client/Advert%20Features/models/notifi
 import 'package:deero_advert_app/features/client/Advert%20Features/models/chat_model.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
 import 'package:deero_advert_app/main.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,8 +21,13 @@ class NotificationService {
 
   static Future init() async {
     const android = AndroidInitializationSettings('@mipmap/launcher_icon');
+    const darwin = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
     await _local.initialize(
-      const InitializationSettings(android: android),
+      const InitializationSettings(android: android, iOS: darwin),
       onDidReceiveNotificationResponse: (response) async {
         if (response.payload != null) {
           try {
@@ -33,6 +40,16 @@ class NotificationService {
       },
     );
 
+    if (Firebase.apps.isEmpty) {
+      debugPrint('Firebase not initialized; skipping push notification setup.');
+      return;
+    }
+
+    _setupFirebaseListeners();
+    unawaited(_setupFirebaseMessaging());
+  }
+
+  static void _setupFirebaseListeners() {
     // Listen for foreground messages
     FirebaseMessaging.onMessage.listen((message) {
       if (message.notification != null) {
@@ -48,7 +65,9 @@ class NotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen((message) async {
       await _handleNotificationTap(message.data);
     });
+  }
 
+  static Future<void> _setupFirebaseMessaging() async {
     // Cold start via notification tap
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
@@ -56,7 +75,7 @@ class NotificationService {
     }
 
     // Request permissions
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    final messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -89,6 +108,12 @@ class NotificationService {
       category: AndroidNotificationCategory.message,
     );
 
+    const darwin = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
     // Encode data to JSON for payload
     String? payload;
     if (data != null) {
@@ -99,7 +124,7 @@ class NotificationService {
       DateTime.now().millisecond,
       title,
       body,
-      NotificationDetails(android: android),
+      NotificationDetails(android: android, iOS: darwin),
       payload: payload,
     );
 

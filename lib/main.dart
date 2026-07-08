@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
@@ -21,31 +23,46 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_advert_app/firebase_options.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp();
-    }
-  } catch (e) {
-    debugPrint("Firebase already initialized or error: $e");
+Future<bool> _initializeFirebase() async {
+  if (Firebase.apps.isNotEmpty) {
+    return true;
   }
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await NotificationService.init();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    return Firebase.apps.isNotEmpty;
+  } catch (e, stackTrace) {
+    debugPrint('Firebase initialization failed: $e');
+    debugPrint('$stackTrace');
+    return false;
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+
+  if (await _initializeFirebase()) {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    unawaited(NotificationService.init());
+  }
+
   runApp(MyApp());
 }
 
@@ -65,7 +82,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RegisterUserProvider()),
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(),
-          lazy: false,
         ),
         ChangeNotifierProvider(create: (_) => AchievementProvider()),
         ChangeNotifierProvider(create: (_) => MajorClientProvider()),
