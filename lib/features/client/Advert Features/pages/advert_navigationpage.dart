@@ -211,50 +211,12 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(60),
                             ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              clipBehavior: Clip.none,
-                              children: [
-                                Icon(
-                                  _socialFabOpen
-                                      ? IconlyLight.close_square
-                                      : IconlyLight.chat,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                                if (!_socialFabOpen)
-                                  Consumer<ChatProvider>(
-                                    builder: (context, chatProvider, _) {
-                                      final unreadCount = chatProvider.totalUnreadCount;
-                                      if (unreadCount == 0) return const SizedBox.shrink();
-                                      return Positioned(
-                                        right: -4,
-                                        top: -4,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: Colors.white, width: 2),
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 18,
-                                            minHeight: 18,
-                                          ),
-                                          child: Text(
-                                            unreadCount > 9 ? '9+' : unreadCount.toString(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                              ],
+                            child: Icon(
+                              _socialFabOpen
+                                  ? IconlyLight.chat
+                                  : IconlyLight.chat,
+                              color: Colors.white,
+                              size: 28,
                             ),
                           ),
                         ],
