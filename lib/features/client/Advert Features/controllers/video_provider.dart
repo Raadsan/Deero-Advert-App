@@ -17,7 +17,7 @@ class VideoProvider extends ChangeNotifier {
     try {
       final response = await http.get(Uri.parse("${EndPoint}videos"));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) {  
         final data = jsonDecode(response.body);
         // Backend might return a list or a wrapped object
         if (data is List) {

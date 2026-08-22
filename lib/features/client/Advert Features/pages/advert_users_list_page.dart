@@ -20,7 +20,16 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ChatProvider>(context, listen: false).fetchAllUsers();
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final currentUserRole =
+          userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+
+      if (currentUserRole == 'user') {
+        chatProvider.fetchCustomerCareUsers();
+      } else {
+        chatProvider.fetchAllUsers();
+      }
     });
   }
 
@@ -97,6 +106,11 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentUserRole =
+        userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+    final isRegularUser = currentUserRole == 'user';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -107,7 +121,7 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Select Contact",
+          isRegularUser ? "Customer Care" : "Select Contact",
           style: GoogleFonts.poppins(
             color: Colors.black,
             fontSize: 20,
@@ -117,10 +131,6 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
       ),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
-          if (chatProvider.isLoading && chatProvider.allUsers.isEmpty) {
-            return _buildShimmerLoading();
-          }
-
           final userProvider = Provider.of<UserProvider>(
             context,
             listen: false,
@@ -130,8 +140,24 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
               -1;
           final currentUserRole =
               userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+          final isRegularUser = currentUserRole == 'user';
+          final sourceUsers = isRegularUser
+              ? chatProvider.customerCareUsers
+              : chatProvider.allUsers;
 
-          final filteredUsers = chatProvider.allUsers.where((u) {
+          if (chatProvider.isLoading && sourceUsers.isEmpty) {
+            return _buildShimmerLoading();
+          }
+
+          final filteredUsers = isRegularUser
+              ? sourceUsers.where((u) {
+                  final userId = int.tryParse(
+                        u['_id']?.toString() ?? u['id']?.toString() ?? '',
+                      ) ??
+                      -2;
+                  return userId != currentUserId;
+                }).toList()
+              : sourceUsers.where((u) {
             final userId =
                 int.tryParse(
                   u['_id']?.toString() ?? u['id']?.toString() ?? '',
@@ -164,7 +190,9 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
           if (filteredUsers.isEmpty) {
             return Center(
               child: Text(
-                "No other users found.",
+                isRegularUser
+                    ? "Customer Care is not available right now."
+                    : "No other users found.",
                 style: GoogleFonts.poppins(color: Colors.grey),
               ),
             );

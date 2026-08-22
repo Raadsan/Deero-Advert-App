@@ -9,7 +9,6 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_profilepage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chat_list_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_servicepage.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_vediospage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
@@ -116,10 +115,12 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
 
   List<Widget> _buildPages(int serviceIndex) => [
     AdvertHomepage(),
-    AdvertServicepage(initialIndex: serviceIndex),
-    AdvertVediospage(),
-    AdvertHostingpage(),
+    AdvertServicepage(
+      key: ValueKey('service-$serviceIndex'),
+      initialIndex: serviceIndex,
+    ),
     const AdvertChatListPage(),
+    AdvertHostingpage(),
     const AdvertProfilePage(),
   ];
 
@@ -137,18 +138,13 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
 
         // Regular users get the full navigation
         final pages = _buildPages(navProvider.serviceInitialIndex);
-        final isVideoPage = navProvider.currentIndex == 2;
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle(
-            systemNavigationBarColor: isVideoPage ? Colors.black : bgColor,
-            systemNavigationBarIconBrightness: isVideoPage
-                ? Brightness.light
-                : Brightness.dark,
+            systemNavigationBarColor: bgColor,
+            systemNavigationBarIconBrightness: Brightness.dark,
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness: isVideoPage
-                ? Brightness.light
-                : Brightness.dark,
+            statusBarIconBrightness: Brightness.dark,
           ),
           child: PopScope(
             canPop: false,
@@ -167,7 +163,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               body: pages[navProvider.currentIndex],
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
-              floatingActionButton: (navProvider.currentIndex == 2 || navProvider.currentIndex == 4)
+              floatingActionButton: navProvider.currentIndex == 2
                   ? null
                   : Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -266,7 +262,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                     ),
               bottomNavigationBar: Container(
                 decoration: BoxDecoration(
-                  color: navProvider.currentIndex == 2 ? Colors.black : bgColor,
+                  color: bgColor,
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 20,
@@ -297,9 +293,11 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                           label: 'Service',
                           navProvider: navProvider,
                         ),
-                        _buildVideoNavItem(
+                        _buildNavItem(
                           index: 2,
-                          label: 'Videos',
+                          icon: IconlyLight.chat,
+                          activeIcon: IconlyBold.chat,
+                          label: 'Chat',
                           navProvider: navProvider,
                         ),
                         _buildHostingNavItem(
@@ -309,13 +307,6 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                         ),
                         _buildNavItem(
                           index: 4,
-                          icon: IconlyLight.chat,
-                          activeIcon: IconlyBold.chat,
-                          label: 'Chat',
-                          navProvider: navProvider,
-                        ),
-                        _buildNavItem(
-                          index: 5,
                           icon: IconlyLight.profile,
                           activeIcon: IconlyBold.profile,
                           label: 'Profile',
@@ -341,10 +332,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    bool isVideoPage = navProvider.currentIndex == 2;
     Color color = isSelected
         ? const Color(0xffEF7044)
-        : (isVideoPage ? Colors.white70 : Colors.grey);
+        : Colors.grey;
 
     return InkWell(
       onTap: () => navProvider.setPageIndex(index),
@@ -355,7 +345,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
             clipBehavior: Clip.none,
             children: [
               Icon(isSelected ? activeIcon : icon, color: color, size: 24),
-              if (index == 4) // Chat index for regular users
+              if (index == 2) // Chat index for regular users
                 Consumer<ChatProvider>(
                   builder: (context, chatProvider, _) {
                     final unreadCount = chatProvider.totalUnreadCount;
@@ -403,59 +393,15 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     );
   }
 
-  Widget _buildVideoNavItem({
-    required int index,
-    required String label,
-    required NavigationProvider navProvider,
-  }) {
-    bool isSelected = navProvider.currentIndex == index;
-    bool isVideoPage = navProvider.currentIndex == 2;
-    Color color = isSelected
-        ? const Color(0xffEF7044)
-        : (isVideoPage ? Colors.white70 : Colors.grey);
-
-    return InkWell(
-      onTap: () => navProvider.setPageIndex(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSelected
-                    ? const Color(0xffEF7044)
-                    : Colors.transparent,
-                width: 1.5,
-              ),
-            ),
-            child: Icon(IconlyBold.video, size: 20, color: color),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: color,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHostingNavItem({
     required int index,
     required String label,
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    bool isVideoPage = navProvider.currentIndex == 2;
     Color color = isSelected
         ? const Color(0xffEF7044)
-        : (isVideoPage ? Colors.white70 : Colors.grey);
+        : Colors.grey;
 
     return InkWell(
       onTap: () => navProvider.setPageIndex(index),

@@ -13,12 +13,14 @@ class ChatProvider extends ChangeNotifier {
   List<Conversation> _conversations = [];
   List<ChatMessage> _messages = [];
   List<dynamic> _allUsers = [];
+  List<dynamic> _customerCareUsers = [];
   bool _isLoading = false;
   int? _currentConversationId;
 
   List<Conversation> get conversations => _conversations;
   List<ChatMessage> get messages => _messages;
   List<dynamic> get allUsers => _allUsers;
+  List<dynamic> get customerCareUsers => _customerCareUsers;
   bool get isLoading => _isLoading;
   int get totalUnreadCount => _conversations.fold(0, (sum, conv) => sum + conv.unreadCount);
 
@@ -246,27 +248,39 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAllUsers() async {
+  Future<void> fetchAllUsers({bool customerCareOnly = false}) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       final userInfo = box.read('userInfo');
       final token = userInfo != null ? userInfo['token'] : null;
+      final endpoint = customerCareOnly
+          ? '${EndPoint}users/customer-care'
+          : '${EndPoint}users';
       final response = await http.get(
-        Uri.parse('${EndPoint}users'),
+        Uri.parse(endpoint),
         headers: token != null ? {'Authorization': 'Bearer $token'} : {},
       );
 
       if (response.statusCode == 200) {
-        _allUsers = json.decode(response.body);
+        final users = json.decode(response.body) as List<dynamic>;
+        if (customerCareOnly) {
+          _customerCareUsers = users;
+        } else {
+          _allUsers = users;
+        }
       }
     } catch (e) {
-      print("Error fetching all users: $e");
+      print("Error fetching users: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> fetchCustomerCareUsers() async {
+    await fetchAllUsers(customerCareOnly: true);
   }
 
   Future<Conversation?> createOrGetConversation(int participantId) async {

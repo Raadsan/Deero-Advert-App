@@ -1,10 +1,10 @@
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_advert_app/core/safe_url.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 
 class AdvertNotificationpage extends StatefulWidget {
@@ -19,14 +19,10 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
     if (rawLink == null || rawLink.trim().isEmpty) return;
 
     final trimmed = rawLink.trim();
-    final hasScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final hasScheme = trimmed.startsWith('https://');
     final normalized = hasScheme ? trimmed : 'https://$trimmed';
-    final uri = Uri.tryParse(normalized);
-    if (uri == null) return;
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else if (mounted) {
+    final opened = await launchSafeExternalUrl(normalized);
+    if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Could not open this link")),
       );

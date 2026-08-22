@@ -19,7 +19,6 @@ import 'package:deero_advert_app/features/client/Advert%20Features/widgets/adver
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/service_card.dart';
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';

@@ -365,8 +365,8 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog> {
 
   Future<void> _pickFile(String type) async {
     FilePickerResult? result = await FilePicker.pickFiles(
-      type: type == 'cv' ? FileType.custom : FileType.any,
-      allowedExtensions: type == 'cv' ? ['pdf', 'doc', 'docx'] : null,
+      type: FileType.custom,
+      allowedExtensions: const ['pdf', 'doc', 'docx'],
     );
 
     if (result != null) {

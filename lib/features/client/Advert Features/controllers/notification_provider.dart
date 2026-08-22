@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/safe_url.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
 import 'package:deero_advert_app/features/client/Advert%20Features/models/notification_model.dart' as nm;
 import 'package:deero_advert_app/features/client/Advert%20Features/models/chat_model.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 
@@ -180,14 +180,9 @@ class NotificationService {
   static Future<void> _openLink(String? rawLink) async {
     if (rawLink == null || rawLink.trim().isEmpty) return;
     final trimmed = rawLink.trim();
-    final hasScheme =
-        trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final hasScheme = trimmed.startsWith('https://');
     final normalized = hasScheme ? trimmed : 'https://$trimmed';
-    final uri = Uri.tryParse(normalized);
-    if (uri == null) return;
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await launchSafeExternalUrl(normalized);
   }
 }
 

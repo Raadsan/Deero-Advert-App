@@ -11,13 +11,12 @@ import 'package:shimmer/shimmer.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:video_player/video_player.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/safe_url.dart';
 
 class AdvertChatConversationPage extends StatefulWidget {
   final Conversation conversation;
@@ -47,11 +46,7 @@ class _AdvertChatConversationPageState
 
   Future<void> _openLink(String url) async {
     try {
-      final Uri uri = Uri.parse(url);
-
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
+      await launchSafeExternalUrl(url);
     } catch (e) {
       debugPrint("Error opening link: $e");
     }
@@ -150,7 +145,10 @@ class _AdvertChatConversationPageState
   }
 
   Future<void> _pickDocument() async {
-    FilePickerResult? result = await FilePicker.pickFiles();
+    FilePickerResult? result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: safeDocumentExtensions.toList(),
+    );
 
     if (result != null && result.files.isNotEmpty) {
       final path = result.files.first.path;
@@ -261,7 +259,7 @@ class _AdvertChatConversationPageState
 
   Future<void> _startRecording() async {
     try {
-      if (await Permission.microphone.request().isGranted) {
+      if (await _audioRecorder.hasPermission()) {
         final directory = await getApplicationDocumentsDirectory();
         final filePath =
             '${directory.path}/record_${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -499,9 +497,14 @@ class _AdvertChatConversationPageState
         break;
       case 'document':
         content = GestureDetector(
-          onTap: () {
-            if (resolvedUrl.isNotEmpty) {
-              launchUrl(Uri.parse(resolvedUrl));
+          onTap: () async {
+            final uri = Uri.tryParse(resolvedUrl);
+            if (uri != null && isSafeDocumentUri(uri)) {
+              await launchSafeExternalUrl(resolvedUrl);
+            } else if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Unsupported or unsafe file')),
+              );
             }
           },
           child: Container(

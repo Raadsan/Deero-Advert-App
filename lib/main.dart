@@ -13,7 +13,6 @@ import 'package:deero_advert_app/features/client/Advert%20Features/controllers/s
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/careers_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/controllers/video_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/company_contact_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_navigationpage.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
 import 'package:deero_advert_app/firebase_options.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/controllers/social_media_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -85,9 +83,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => AchievementProvider()),
         ChangeNotifierProvider(create: (_) => MajorClientProvider()),
-        ChangeNotifierProvider(create: (_) => VideoProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => SocialMediaProvider()),
         ChangeNotifierProvider(create: (_) => TestimonialProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => CompanyContactProvider()),

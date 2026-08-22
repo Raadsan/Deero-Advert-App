@@ -26,16 +26,84 @@ class AdvertServicepage extends StatefulWidget {
 
 class _AdvertServicepageState extends State<AdvertServicepage> {
   late int _selectedIndex;
+  ServiceProvider? _serviceProvider;
+  final Map<int, GlobalKey> _categoryItemKeys = {};
+  static const Color _activeCategoryColor = Color(0xffEF7044);
+  static const Color _inactiveCategoryColor = Colors.white;
+
+  GlobalKey _categoryKeyFor(int index) =>
+      _categoryItemKeys.putIfAbsent(index, GlobalKey.new);
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<ServiceProvider>();
+      _serviceProvider = context.read<ServiceProvider>();
+      _serviceProvider!.addListener(_handleServicesUpdate);
+      final provider = _serviceProvider!;
       if (provider.serviceModel == null && !provider.isLoading) {
         provider.getAllServices();
       }
+      _ensureValidSelection(scrollToCategory: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _serviceProvider?.removeListener(_handleServicesUpdate);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(AdvertServicepage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      setState(() => _selectedIndex = widget.initialIndex);
+      _scrollToSelectedCategory();
+    }
+  }
+
+  void _handleServicesUpdate() {
+    _ensureValidSelection(scrollToCategory: true);
+  }
+
+  void _ensureValidSelection({bool scrollToCategory = false}) {
+    final serviceCount = _serviceProvider?.serviceModel?.data?.length ?? 0;
+    if (serviceCount == 0 || !mounted) return;
+
+    final clampedIndex = _selectedIndex.clamp(0, serviceCount - 1);
+    if (clampedIndex != _selectedIndex) {
+      setState(() => _selectedIndex = clampedIndex);
+    }
+
+    if (scrollToCategory) {
+      _scrollToSelectedCategory();
+    }
+  }
+
+  void _selectCategory(int index) {
+    setState(() => _selectedIndex = index);
+    _scrollToSelectedCategory();
+  }
+
+  void _scrollToSelectedCategory({int attempt = 0}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final targetContext = _categoryItemKeys[_selectedIndex]?.currentContext;
+      if (targetContext == null) {
+        if (attempt < 5) {
+          _scrollToSelectedCategory(attempt: attempt + 1);
+        }
+        return;
+      }
+
+      Scrollable.ensureVisible(
+        targetContext,
+        alignment: 0.5,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
@@ -187,58 +255,46 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                 final service = services[index];
                                 final isSelected = _selectedIndex == index;
                                 return Padding(
+                                  key: _categoryKeyFor(index),
                                   padding: const EdgeInsets.only(right: 12),
-                                  child: InkWell(
-                                    onTap: () =>
-                                        setState(() => _selectedIndex = index),
+                                  child: Material(
+                                    color: isSelected
+                                        ? _activeCategoryColor
+                                        : _inactiveCategoryColor,
+                                    elevation: isSelected ? 4 : 0,
+                                    shadowColor: isSelected
+                                        ? _activeCategoryColor.withOpacity(0.35)
+                                        : Colors.transparent,
                                     borderRadius: BorderRadius.circular(16),
-                                    child: AnimatedContainer(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      curve: Curves.easeInOut,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? const Color(0xff651313)
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: isSelected
-                                            ? [
-                                                BoxShadow(
-                                                  color: const Color(
-                                                    0xff651313,
-                                                  ).withOpacity(0.3),
-                                                  blurRadius: 12,
-                                                  offset: const Offset(0, 6),
-                                                ),
-                                              ]
-                                            : [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.03),
-                                                  blurRadius: 4,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                        border: Border.all(
-                                          color: isSelected
-                                              ? const Color(0xff651313)
-                                              : Colors.grey.withOpacity(0.1),
-                                          width: 1.5,
+                                    child: InkWell(
+                                      onTap: () => _selectCategory(index),
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 250,
                                         ),
-                                      ),
-                                      child: Center(
+                                        curve: Curves.easeInOut,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? _activeCategoryColor
+                                                : Colors.grey.withOpacity(0.25),
+                                            width: isSelected ? 2 : 1,
+                                          ),
+                                        ),
                                         child: Text(
                                           service.serviceTitle ?? "Service",
                                           style: GoogleFonts.outfit(
                                             fontSize: 15,
                                             fontWeight: isSelected
-                                                ? FontWeight.bold
-                                                : FontWeight.w600,
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
                                             color: isSelected
                                                 ? Colors.white
                                                 : const Color(0xff4B5563),

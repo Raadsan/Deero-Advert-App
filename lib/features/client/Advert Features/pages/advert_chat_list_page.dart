@@ -3,6 +3,7 @@ import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_users_list_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/chat_model.dart';
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -38,6 +39,12 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
 
         chatProvider.connectSocket(currentUserId);
         chatProvider.fetchConversations();
+
+        final currentUserRole =
+            userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+        if (currentUserRole == 'user') {
+          chatProvider.fetchCustomerCareUsers();
+        }
       }
     });
   }
@@ -92,6 +99,313 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
           ),
         );
       },
+    );
+  }
+
+  Conversation? _findConversationWithUser(
+    List<Conversation> conversations,
+    int userId,
+    int currentUserId,
+  ) {
+    for (final conv in conversations) {
+      final otherId = conv.participant1Id == currentUserId
+          ? conv.participant2Id
+          : conv.participant1Id;
+      if (otherId == userId) return conv;
+    }
+    return null;
+  }
+
+  Future<void> _openConversation(Conversation conversation) async {
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final currentUserId =
+        int.tryParse(
+          Provider.of<UserProvider>(context, listen: false)
+                  .userModel
+                  ?.user
+                  ?.id
+                  .toString() ??
+              '',
+        ) ??
+        -1;
+    final isUser1 = conversation.participant1Id == currentUserId;
+    final otherUser =
+        isUser1 ? conversation.participant2 : conversation.participant1;
+    final otherName = otherUser?['fullname'] ?? "Unknown User";
+    final otherImage = otherUser?['image'];
+
+    chatProvider.markAsRead(conversation.id, currentUserId);
+    box.write('last_chat_user', {
+      'name': otherName,
+      'image': otherImage,
+      'convId': conversation.id,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AdvertChatConversationPage(conversation: conversation),
+      ),
+    );
+
+    if (mounted) {
+      chatProvider.fetchConversations();
+    }
+  }
+
+  Future<void> _startChatWithAgent(int participantId) async {
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final currentUserId =
+        int.tryParse(
+          Provider.of<UserProvider>(context, listen: false)
+                  .userModel
+                  ?.user
+                  ?.id
+                  .toString() ??
+              '',
+        ) ??
+        -1;
+
+    final existing = _findConversationWithUser(
+      chatProvider.conversations,
+      participantId,
+      currentUserId,
+    );
+
+    if (existing != null) {
+      await _openConversation(existing);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xffEF7044)),
+      ),
+    );
+
+    try {
+      final conversation = await chatProvider.createOrGetConversation(
+        participantId,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (conversation != null) {
+        await _openConversation(conversation);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
+  Widget _buildCustomerCareTile(Map<String, dynamic> user) {
+    final name = user['fullname']?.toString() ?? 'Customer Care';
+    final image = user['image']?.toString();
+    final userId = int.tryParse(
+          user['_id']?.toString() ?? user['id']?.toString() ?? '',
+        ) ??
+        -1;
+
+    return InkWell(
+      onTap: userId == -1 ? null : () => _startChatWithAgent(userId),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xffEF7044).withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xffEF7044).withOpacity(0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: const Color(0xffEF7044).withOpacity(0.15),
+              backgroundImage: image != null && image.isNotEmpty
+                  ? NetworkImage(
+                      image.startsWith('http') ? image : BaseUrl + image,
+                    )
+                  : null,
+              child: image == null || image.isEmpty
+                  ? Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : 'C',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xffEF7044),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Customer Care • Tap to chat",
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: const Color(0xffEF7044),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              IconlyLight.chat,
+              color: Color(0xffEF7044),
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConversationTile({
+    required dynamic conv,
+    required int currentUserId,
+  }) {
+    final isUser1 = conv.participant1Id == currentUserId;
+    final otherUser = isUser1 ? conv.participant2 : conv.participant1;
+    final otherName = otherUser?['fullname'] ?? "Unknown User";
+    final otherImage = otherUser?['image'];
+
+    return InkWell(
+      onTap: () => _openConversation(conv as Conversation),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 8,
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: const Color(0xffEF7044).withOpacity(0.2),
+              backgroundImage: otherImage != null &&
+                      otherImage.toString().isNotEmpty
+                  ? NetworkImage(
+                      otherImage.toString().startsWith('http')
+                          ? otherImage.toString()
+                          : BaseUrl + otherImage.toString(),
+                    )
+                  : null,
+              child: otherImage == null || otherImage.toString().isEmpty
+                  ? Text(
+                      otherName.isNotEmpty
+                          ? otherName[0].toUpperCase()
+                          : '?',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xffEF7044),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          otherName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: conv.unreadCount > 0
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        _formatDateTime(conv.updatedAt),
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: conv.unreadCount > 0
+                              ? const Color(0xffEF7044)
+                              : Colors.grey,
+                          fontWeight: conv.unreadCount > 0
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          conv.lastMessage ?? "Started a conversation",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: conv.unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey.shade600,
+                            fontWeight: conv.unreadCount > 0
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (conv.unreadCount > 0)
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xffEF7044),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            conv.unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -206,6 +520,12 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
       );
     }
 
+    final currentUserRole =
+        userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+    final isRegularUser = currentUserRole == 'user';
+    final currentUserId =
+        int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
+
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -232,34 +552,121 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
 
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
-          if (chatProvider.isLoading && chatProvider.conversations.isEmpty) {
+          final sortedConversations = List<Conversation>.from(
+            chatProvider.conversations,
+          )..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+          if (isRegularUser) {
+            final customerCareUsers = chatProvider.customerCareUsers
+                .where((user) {
+                  final userId = int.tryParse(
+                        user['_id']?.toString() ??
+                            user['id']?.toString() ??
+                            '',
+                      ) ??
+                      -2;
+                  return userId != currentUserId;
+                })
+                .map((user) => Map<String, dynamic>.from(user as Map))
+                .toList();
+
+            final availableAgents = customerCareUsers.where((user) {
+              final userId = int.tryParse(
+                    user['_id']?.toString() ?? user['id']?.toString() ?? '',
+                  ) ??
+                  -1;
+              return _findConversationWithUser(
+                    sortedConversations,
+                    userId,
+                    currentUserId,
+                  ) ==
+                  null;
+            }).toList();
+
+            final isInitialLoading = chatProvider.isLoading &&
+                sortedConversations.isEmpty &&
+                customerCareUsers.isEmpty;
+
+            if (isInitialLoading) {
+              return _buildShimmerLoading();
+            }
+
+            if (sortedConversations.isEmpty && availableAgents.isEmpty) {
+              return Center(
+                child: Text(
+                  "Customer Care is not available right now.",
+                  style: GoogleFonts.poppins(color: Colors.grey),
+                ),
+              );
+            }
+
+            return ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              children: [
+                if (sortedConversations.isNotEmpty) ...[
+                  ...sortedConversations.map(
+                    (conv) => _buildConversationTile(
+                      conv: conv,
+                      currentUserId: currentUserId,
+                    ),
+                  ),
+                ],
+                if (availableAgents.isNotEmpty) ...[
+                  if (sortedConversations.isNotEmpty) const SizedBox(height: 16),
+                  Text(
+                    "Customer Care",
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (chatProvider.isLoading && customerCareUsers.isEmpty)
+                    ...List.generate(
+                      2,
+                      (_) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 72,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ...availableAgents.map(_buildCustomerCareTile),
+                ],
+              ],
+            );
+          }
+
+          if (chatProvider.isLoading && sortedConversations.isEmpty) {
             return _buildShimmerLoading();
           }
 
-          if (chatProvider.conversations.isEmpty) {
+          if (sortedConversations.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-
                 children: [
                   Container(
                     padding: const EdgeInsets.all(24),
-
                     decoration: BoxDecoration(
                       color: const Color(0xffEF7044).withOpacity(0.1),
-
                       shape: BoxShape.circle,
                     ),
-
                     child: const Icon(
                       IconlyLight.chat,
                       size: 60,
                       color: Color(0xffEF7044),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Text(
                     "No conversations yet",
                     style: GoogleFonts.poppins(
@@ -268,11 +675,10 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
                       color: Colors.black87,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   Text(
                     "Tap the button below to start chatting",
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: Colors.grey,
                       fontSize: 14,
@@ -283,222 +689,33 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
             );
           }
 
-          final sortedConversations = List.from(chatProvider.conversations)
-            ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-
             itemCount: sortedConversations.length,
-
             itemBuilder: (context, index) {
-              final conv = sortedConversations[index];
-
-              int currentUserId =
-                  int.tryParse(userProvider.userModel!.user!.id.toString()) ??
-                  -1;
-
-              final isUser1 = conv.participant1Id == currentUserId;
-
-              final otherUser = isUser1 ? conv.participant2 : conv.participant1;
-
-              final otherName = otherUser?['fullname'] ?? "Unknown User";
-
-              final otherImage = otherUser?['image'];
-
-              return InkWell(
-                onTap: () {
-                  Provider.of<ChatProvider>(
-                    context,
-                    listen: false,
-                  ).markAsRead(conv.id, currentUserId);
-
-                  box.write('last_chat_user', {
-                    'name': otherName,
-                    'image': otherImage,
-                    'convId': conv.id,
-                    'timestamp': DateTime.now().toIso8601String(),
-                  });
-
-                  Navigator.push(
-                    context,
-
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AdvertChatConversationPage(conversation: conv),
-                    ),
-                  );
-                },
-
-                borderRadius: BorderRadius.circular(12),
-
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 8,
-                  ),
-
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 26,
-
-                        backgroundColor: const Color(
-                          0xffEF7044,
-                        ).withOpacity(0.2),
-
-                        backgroundImage:
-                            otherImage != null &&
-                                otherImage.toString().isNotEmpty
-                            ? NetworkImage(
-                                otherImage.toString().startsWith('http')
-                                    ? otherImage.toString()
-                                    : BaseUrl + otherImage.toString(),
-                              )
-                            : null,
-
-                        child:
-                            otherImage == null || otherImage.toString().isEmpty
-                            ? Text(
-                                otherName.isNotEmpty
-                                    ? otherName[0].toUpperCase()
-                                    : '?',
-
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xffEF7044),
-
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            : null,
-                      ),
-
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    otherName,
-
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-
-                                      fontWeight: conv.unreadCount > 0
-                                          ? FontWeight.bold
-                                          : FontWeight.w600,
-
-                                      color: Colors.black87,
-                                    ),
-
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-
-                                Text(
-                                  _formatDateTime(conv.updatedAt),
-
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-
-                                    color: conv.unreadCount > 0
-                                        ? const Color(0xffEF7044)
-                                        : Colors.grey,
-
-                                    fontWeight: conv.unreadCount > 0
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    conv.lastMessage ??
-                                        "Started a conversation",
-
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-
-                                      color: conv.unreadCount > 0
-                                          ? Colors.black87
-                                          : Colors.grey.shade600,
-
-                                      fontWeight: conv.unreadCount > 0
-                                          ? FontWeight.w500
-                                          : FontWeight.normal,
-                                    ),
-
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-
-                                if (conv.unreadCount > 0)
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xffEF7044),
-
-                                      shape: BoxShape.circle,
-                                    ),
-
-                                    child: Text(
-                                      conv.unreadCount.toString(),
-
-                                      style: const TextStyle(
-                                        color: Colors.white,
-
-                                        fontSize: 10,
-
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return _buildConversationTile(
+                conv: sortedConversations[index],
+                currentUserId: currentUserId,
               );
             },
           );
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xffEF7044),
-
-        onPressed: () {
-          Navigator.push(
-            context,
-
-            MaterialPageRoute(
-              builder: (context) => const AdvertUsersListPage(),
+      floatingActionButton: isRegularUser
+          ? null
+          : FloatingActionButton(
+              backgroundColor: const Color(0xffEF7044),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdvertUsersListPage(),
+                  ),
+                );
+              },
+              child: const Icon(IconlyLight.edit_square, color: Colors.white),
             ),
-          );
-        },
-
-        child: const Icon(IconlyLight.edit_square, color: Colors.white),
-      ),
     );
   }
 }
