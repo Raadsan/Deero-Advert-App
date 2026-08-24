@@ -267,10 +267,8 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                           label: 'Hosting',
                           navProvider: navProvider,
                         ),
-                        _buildNavItem(
+                        _buildProfileNavItem(
                           index: 4,
-                          icon: IconlyLight.profile,
-                          activeIcon: IconlyBold.profile,
                           label: 'Profile',
                           navProvider: navProvider,
                         ),
@@ -340,6 +338,63 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                   },
                 ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: color,
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileNavItem({
+    required int index,
+    required String label,
+    required NavigationProvider navProvider,
+  }) {
+    bool isSelected = navProvider.currentIndex == index;
+    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
+
+    return InkWell(
+      onTap: () => navProvider.setPageIndex(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              final image = userProvider.userModel?.user?.image;
+              final hasImage = image != null && image.isNotEmpty;
+              final imageUrl = hasImage
+                  ? (image.startsWith('http') ? image : BaseUrl + image)
+                  : null;
+
+              if (imageUrl != null) {
+                return Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color, width: 1.6),
+                    image: DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              }
+
+              return Icon(
+                isSelected ? IconlyBold.profile : IconlyLight.profile,
+                color: color,
+                size: 24,
+              );
+            },
           ),
           const SizedBox(height: 4),
           Text(

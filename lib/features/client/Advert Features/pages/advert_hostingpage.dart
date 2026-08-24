@@ -44,10 +44,26 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
   Widget build(BuildContext context) {
     return Consumer<HostingProvider>(
       builder: (context, hostingProvider, child) {
-        final hostingData = hostingProvider.hostingModel?.data ?? [];
-        final maxPrice = hostingData.isEmpty 
-            ? 0.0 
-            : hostingData.map((h) => h.price ?? 0.0).reduce((a, b) => a > b ? a : b);
+        final hostingData = List<hosting.Data>.from(
+          hostingProvider.hostingModel?.data ?? [],
+        );
+        final maxPrice = hostingData.isEmpty
+            ? 0.0
+            : hostingData
+                .map((h) => h.price ?? 0.0)
+                .reduce((a, b) => a > b ? a : b);
+        int popularIndex = hostingData.indexWhere(
+          (h) => h.pudgeText != null && h.pudgeText!.trim().isNotEmpty,
+        );
+        if (popularIndex < 0) {
+          popularIndex = hostingData.indexWhere(
+            (h) => (h.price ?? 0.0) == maxPrice,
+          );
+        }
+        if (popularIndex > 0) {
+          final popular = hostingData.removeAt(popularIndex);
+          hostingData.insert(0, popular);
+        }
 
         return Scaffold(
           backgroundColor: const Color(0xFFF9FAFB),
@@ -103,8 +119,7 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                           return HostingPackageCard(
                             hostingPackage: hostingPackage,
                             isYearly: isYearly,
-                            isMaxPrice:
-                                (hostingPackage.price ?? 0.0) == maxPrice,
+                            isMaxPrice: index == 0 && popularIndex >= 0,
                           );
                         },
                       ),

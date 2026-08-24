@@ -37,12 +37,10 @@ class AdvertProfilePage extends StatelessWidget {
               child: Column(
                 children: [
                   // Header Section
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
@@ -105,8 +103,7 @@ class AdvertProfilePage extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
 
                   const SizedBox(height: 20),
 

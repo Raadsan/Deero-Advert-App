@@ -391,7 +391,7 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Avatar Section
                 Center(
@@ -627,12 +627,16 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
   }
 
   Widget _buildInfoSection(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: const Color(0xFF9CA3AF),
+    return Align(
+      alignment: Alignment.center,
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF9CA3AF),
+        ),
       ),
     );
   }
@@ -641,6 +645,7 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(10),

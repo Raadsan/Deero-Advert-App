@@ -346,18 +346,21 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ).discountPercentage,
                     ),
                     SizedBox(height: 16),
-                    Container(
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Container(
                       height: 160,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                           colors: [
-                            Color(0xFF7B1710),
+                            Color(0xFF5C0F0C),
                             Color(0xFFB52E1D),
                             Color(0xFFE24122),
+                            Color(0xFFF3664C),
                           ],
-                          stops: [0.0, 0.6, 1.0],
+                          stops: [0.0, 0.38, 0.72, 1.0],
                         ),
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -448,6 +451,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                         ],
                       ),
                     ),
+                    ),
                     SizedBox(height: 20),
                     Text(
                       "Our Services",
@@ -482,7 +486,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               child: Wrap(
                                 spacing: 12,
                                 runSpacing: 12,
-                                alignment: WrapAlignment.start,
+                                alignment: WrapAlignment.center,
                                 children: service.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   var s = entry.value;
@@ -673,6 +677,14 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                                 ? project.mainImage!
                                                 : BaseUrl + project.mainImage!)
                                           : "";
+                                      final title =
+                                          project.title ?? "Our Work";
+                                      final description =
+                                          (project.description ?? "")
+                                              .trim()
+                                              .isNotEmpty
+                                          ? project.description!
+                                          : "Explore this featured project from our portfolio.";
 
                                       return GestureDetector(
                                         onTap: () {
@@ -690,9 +702,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                           width: double.infinity,
                                           height: 140,
                                           decoration: BoxDecoration(
-                                            color: Colors
-                                                .grey
-                                                .shade900, // Keeps text readable while the image is loading
+                                            color: Colors.grey.shade900,
                                             image: DecorationImage(
                                               image: imageUrl.isNotEmpty
                                                   ? NetworkImage(imageUrl)
@@ -702,13 +712,45 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                                     ),
                                               fit: BoxFit.cover,
                                               colorFilter: ColorFilter.mode(
-                                                Colors.black.withOpacity(0.45),
+                                                Colors.black.withOpacity(0.5),
                                                 BlendMode.darken,
                                               ),
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               15,
                                             ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 18,
+                                            vertical: 16,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                title,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                description,
+                                                textAlign: TextAlign.justify,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  height: 1.4,
+                                                  color: Colors.white
+                                                      .withOpacity(0.9),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       );

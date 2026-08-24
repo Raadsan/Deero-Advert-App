@@ -340,6 +340,15 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                           ),
                                         );
 
+                                        if (packages.length >= 3) {
+                                          final popularIndex =
+                                              (packages.length / 2).floor();
+                                          final popular = packages.removeAt(
+                                            popularIndex,
+                                          );
+                                          packages.insert(0, popular);
+                                        }
+
                                         return packages.asMap().entries.map((
                                           entry,
                                         ) {
@@ -347,8 +356,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                                           final package = entry.value;
                                           final isPopular =
                                               packages.length >= 3 &&
-                                              index ==
-                                                  (packages.length / 2).floor();
+                                              index == 0;
 
                                           return PackageCard(
                                             package: package,
