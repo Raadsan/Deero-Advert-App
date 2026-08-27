@@ -28,7 +28,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
   late int _selectedIndex;
   ServiceProvider? _serviceProvider;
   final Map<int, GlobalKey> _categoryItemKeys = {};
-  static const Color _activeCategoryColor = Color(0xffEF7044);
+  static const Color _activeCategoryColor = const Color(0xff651313);
   static const Color _inactiveCategoryColor = Colors.white;
 
   GlobalKey _categoryKeyFor(int index) =>
@@ -42,6 +42,9 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
       _serviceProvider = context.read<ServiceProvider>();
       _serviceProvider!.addListener(_handleServicesUpdate);
       final provider = _serviceProvider!;
+      final userProvider = context.read<UserProvider>();
+      userProvider.fetchGlobalDiscounts();
+      userProvider.refreshUser();
       if (provider.serviceModel == null && !provider.isLoading) {
         provider.getAllServices();
       }
@@ -254,6 +257,17 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                               itemBuilder: (context, index) {
                                 final service = services[index];
                                 final isSelected = _selectedIndex == index;
+                                final userProvider =
+                                    Provider.of<UserProvider>(context);
+                                final packageIds = (service.packages ?? [])
+                                    .map((p) => p.sId ?? "")
+                                    .where((id) => id.isNotEmpty)
+                                    .toList();
+                                final discountLabel =
+                                    userProvider.getServiceDiscountBadge(
+                                  service.sId,
+                                  packageIds: packageIds,
+                                );
                                 return Padding(
                                   key: _categoryKeyFor(index),
                                   padding: const EdgeInsets.only(right: 12),
@@ -601,6 +615,11 @@ class _PackageCardState extends State<PackageCard> {
                                         .getBestDiscount(
                                           "service",
                                           widget.package.sId ?? "all",
+                                          alsoMatchIds: [
+                                            if (widget.serviceId != null &&
+                                                widget.serviceId!.isNotEmpty)
+                                              widget.serviceId!,
+                                          ],
                                         );
                                     final bool isBonusAvailable =
                                         userProvider
@@ -833,6 +852,11 @@ class _PackageCardState extends State<PackageCard> {
                                         .getBestDiscount(
                                           "service",
                                           widget.package.sId ?? "all",
+                                          alsoMatchIds: [
+                                            if (widget.serviceId != null &&
+                                                widget.serviceId!.isNotEmpty)
+                                              widget.serviceId!,
+                                          ],
                                         );
                                     final bool isBonusAvailable =
                                         userProvider
@@ -1095,13 +1119,20 @@ class _PackageCardState extends State<PackageCard> {
               ),
             ],
           ),
-          child: Padding(
+          child: Stack(
+            children: [
+              Padding(
             padding: const EdgeInsets.all(24.0),
             child: Builder(
               builder: (context) {
                 final bestFlex = userProvider.getBestDiscount(
                   "service",
                   widget.package.sId ?? "all",
+                  alsoMatchIds: [
+                    if (widget.serviceId != null &&
+                        widget.serviceId!.isNotEmpty)
+                      widget.serviceId!,
+                  ],
                 );
                 final bool isBonusAvailable =
                     userProvider.userModel?.user?.bonusStatus ==
@@ -1360,6 +1391,8 @@ class _PackageCardState extends State<PackageCard> {
                 );
               },
             ),
+          ),
+            ],
           ),
         );
       },

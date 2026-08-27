@@ -181,6 +181,8 @@ class Discount {
   double? discountValue;
   String? discountType;
   String? status;
+  String? startDate;
+  String? endDate;
 
   Discount({
     this.id,
@@ -189,15 +191,19 @@ class Discount {
     this.discountValue,
     this.discountType,
     this.status,
+    this.startDate,
+    this.endDate,
   });
 
   Discount.fromJson(Map<String, dynamic> json) {
     id = json['id'] != null ? int.tryParse(json['id'].toString()) : null;
-    targetType = json['targetType'];
-    targetId = json['targetId'];
+    targetType = json['targetType']?.toString();
+    targetId = json['targetId']?.toString();
     discountValue = (json['discountValue'] as num?)?.toDouble();
-    discountType = json['discountType'];
-    status = json['status'];
+    discountType = json['discountType']?.toString();
+    status = json['status']?.toString();
+    startDate = json['startDate']?.toString();
+    endDate = json['endDate']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -208,7 +214,32 @@ class Discount {
     data['discountValue'] = this.discountValue;
     data['discountType'] = this.discountType;
     data['status'] = this.status;
+    data['startDate'] = this.startDate;
+    data['endDate'] = this.endDate;
     return data;
+  }
+
+  bool get isCurrentlyActive {
+    if (status != null && status!.toLowerCase() != "active") return false;
+    final now = DateTime.now();
+    if (startDate != null && startDate!.isNotEmpty) {
+      final start = DateTime.tryParse(startDate!);
+      if (start != null && start.isAfter(now)) return false;
+    }
+    if (endDate != null && endDate!.isNotEmpty) {
+      final end = DateTime.tryParse(endDate!);
+      if (end != null && end.isBefore(now)) return false;
+    }
+    return true;
+  }
+
+  String get badgeLabel {
+    if (discountType == "percentage") {
+      final value = discountValue ?? 0;
+      return "${value % 1 == 0 ? value.toInt() : value}% OFF";
+    }
+    final value = discountValue ?? 0;
+    return "\$${value % 1 == 0 ? value.toInt() : value} OFF";
   }
 }
 

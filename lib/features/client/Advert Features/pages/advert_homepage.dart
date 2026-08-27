@@ -66,8 +66,11 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     final mcp = Provider.of<MajorClientProvider>(context, listen: false);
     final up = Provider.of<UserProvider>(context, listen: false);
 
-    // Initial important data
-    await up.refreshUser();
+    // Initial important data — global discounts work without login
+    await Future.wait([
+      up.refreshUser(),
+      up.fetchGlobalDiscounts(),
+    ]);
     sp.getAllServices();
 
     // Defer non-critical sections slightly to ensure smooth UI interaction
@@ -256,18 +259,127 @@ class _AdvertHomepageState extends State<AdvertHomepage>
         listen: false,
       ).getMajorClients(),
       Provider.of<UserProvider>(context, listen: false).refreshUser(),
+      Provider.of<UserProvider>(context, listen: false).fetchGlobalDiscounts(),
     ]);
   }
 
+  List<_HomeSliderItem> _defaultSliderItems() => const [
+        _HomeSliderItem(
+          title: "Web Solution",
+          description:
+              "We offer complete web services, including web design, domain registration, domain transfer, SSL certificates, and web hosting. We create responsive websites that look wonderful on any device, including smartphones, tablets, and desktop computers.",
+          imagePath: "images/advertimages/web.png",
+        ),
+        _HomeSliderItem(
+          title: "Graphic Design",
+          description:
+              "We offer range of graphic design services encompasses logo design, UI design, event branding, and brand identity. With our expertise, we create captivating and memorable brands that resonate with the public, leaving a lasting impression",
+          imagePath: "images/advertimages/graphic.png",
+        ),
+        _HomeSliderItem(
+          title: "Digital Marketing",
+          description:
+              "We offer complete digital marketing services, including social media marketing strategy, social media analytics, branding, content writing and social media management. The strategy team understands business cases and how to align digital marketing activities to ensure they deliver on your objectives.",
+          imagePath: "images/advertimages/marketing.png",
+        ),
+        _HomeSliderItem(
+          title: "Event Branding",
+          description:
+              "Full suite of event branding and consulting, from digital strategy and social media to on-site branding and highlight videos.",
+          imagePath: "images/advertimages/event.png",
+        ),
+        _HomeSliderItem(
+          title: "Digital Consulting",
+          description:
+              "We offer a full suite of digital consulting services, including digital marketing, branding consulting, event consulting, assisting with content creation, digital media, and communication consulting.",
+          imagePath: "images/advertimages/digital.png",
+        ),
+      ];
+
+  /// One offer slide per service (not per sub-package). Defaults if none.
+  List<_HomeSliderItem> _buildSliderItems(
+    ServiceProvider serviceProvider,
+    UserProvider userProvider,
+  ) {
+    final offers = <_HomeSliderItem>[];
+    final services = serviceProvider.serviceModel?.data ?? [];
+
+    for (var serviceIndex = 0; serviceIndex < services.length; serviceIndex++) {
+      final service = services[serviceIndex];
+      final serviceId = service.sId ?? "";
+      final packages = service.packages ?? [];
+      final packageIds = packages
+          .map((p) => p.sId ?? "")
+          .where((id) => id.isNotEmpty)
+          .toList();
+
+      // Best discount for this service (service id or any of its packages)
+      final best = userProvider.getBestDiscount(
+        "service",
+        serviceId.isNotEmpty ? serviceId : "all",
+        alsoMatchIds: packageIds,
+      );
+      if (best == null) continue;
+
+      // Use cheapest package price for fixed→% conversion when needed
+      double refPrice = 0;
+      for (final pkg in packages) {
+        final p = (pkg.price ?? 0).toDouble();
+        if (p > 0 && (refPrice == 0 || p < refPrice)) refPrice = p;
+      }
+
+      String offerTitle;
+      if (best.discountType == "percentage") {
+        final value = best.discountValue ?? 0;
+        offerTitle =
+            "${value % 1 == 0 ? value.toInt() : value.toStringAsFixed(0)}% OFF";
+      } else {
+        final value = best.discountValue ?? 0;
+        final pct = refPrice > 0 ? ((value / refPrice) * 100).clamp(0, 100) : 0;
+        offerTitle = pct > 0
+            ? "${pct.round()}% OFF"
+            : "\$${value % 1 == 0 ? value.toInt() : value} OFF";
+      }
+
+      String imagePath = "";
+      final icon = service.serviceIcon;
+      if (icon != null && icon.isNotEmpty) {
+        imagePath =
+            icon.startsWith("http") ? icon : "${BaseUrl}uploads/$icon";
+      }
+
+      offers.add(
+        _HomeSliderItem(
+          title: offerTitle,
+          description: service.serviceTitle ?? "Service",
+          imagePath:
+              imagePath.isNotEmpty ? imagePath : "images/advertimages/web.png",
+          isNetworkImage: imagePath.isNotEmpty,
+          isOffer: true,
+          serviceIndex: serviceIndex,
+        ),
+      );
+    }
+
+    if (offers.isNotEmpty) return offers;
+    return _defaultSliderItems();
+  }
+
   Widget build(BuildContext context) {
-    return Consumer2<ServiceProvider, PortfolioProvider>(
-      builder: (context, serviceprovider, portfolioProvider, _) {
+    return Consumer3<ServiceProvider, PortfolioProvider, UserProvider>(
+      builder: (context, serviceprovider, portfolioProvider, userProvider, _) {
         final service = serviceprovider.serviceModel?.data ?? [];
-        final loggedUser = Provider.of<UserProvider>(context).userModel?.user;
+        final loggedUser = userProvider.userModel?.user;
         final bonus = loggedUser?.bonus ?? 0;
         final bonusStatus = loggedUser?.bonusStatus ?? "BonusNotAvailable";
         final registerSource = loggedUser?.registerSource ?? "website";
         _maybeShowBonusCelebration(bonus);
+        final sliderItems = _buildSliderItems(serviceprovider, userProvider);
+        if (_currentIndex >= sliderItems.length) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _currentIndex = 0);
+          });
+        }
 
         return Scaffold(
           backgroundColor: bgColor,
@@ -346,10 +458,12 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       ).discountPercentage,
                     ),
                     SizedBox(height: 16),
-                    ClipRRect(
+                    serviceprovider.isLoading && service.isEmpty
+                        ? const AdvertSliderShimmer()
+                        : ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
-                      height: 160,
+                      height: 150,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
@@ -368,39 +482,25 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                         children: [
                           Positioned.fill(
                             child: CarouselSlider(
-                              items: const [
-                                AdvertSliderCard(
-                                  title: "Web Solution",
-                                  description:
-                                      "We offer complete web services, including web design, domain registration, domain transfer, SSL certificates, and web hosting. We create responsive websites that look wonderful on any device, including smartphones, tablets, and desktop computers.",
-                                  imagePath: "images/advertimages/web.png",
-                                ),
-                                AdvertSliderCard(
-                                  title: "Graphic Design",
-                                  description:
-                                      "We offer range of graphic design services encompasses logo design, UI design, event branding, and brand identity. With our expertise, we create captivating and memorable brands that resonate with the public, leaving a lasting impression",
-                                  imagePath: "images/advertimages/graphic.png",
-                                ),
-                                AdvertSliderCard(
-                                  title: "Digital Marketing",
-                                  description:
-                                      "We offer complete digital marketing services, including social media marketing strategy, social media analytics, branding, content writing and social media management. The strategy team understands business cases and how to align digital marketing activities to ensure they deliver on your objectives.",
-                                  imagePath:
-                                      "images/advertimages/marketing.png",
-                                ),
-                                AdvertSliderCard(
-                                  title: "Event Branding",
-                                  description:
-                                      "Full suite of event branding and consulting, from digital strategy and social media to on-site branding and highlight videos.",
-                                  imagePath: "images/advertimages/event.png",
-                                ),
-                                AdvertSliderCard(
-                                  title: "Digital Consulting",
-                                  description:
-                                      "We offer a full suite of digital consulting services, including digital marketing, branding consulting, event consulting, assisting with content creation, digital media, and communication consulting.",
-                                  imagePath: "images/advertimages/digital.png",
-                                ),
-                              ],
+                              items: sliderItems.map((item) {
+                                return AdvertSliderCard(
+                                  title: item.title,
+                                  description: item.description,
+                                  imagePath: item.imagePath,
+                                  isNetworkImage: item.isNetworkImage,
+                                  isOffer: item.isOffer,
+                                  onTap: item.serviceIndex != null
+                                      ? () {
+                                          Provider.of<NavigationProvider>(
+                                            context,
+                                            listen: false,
+                                          ).navigateToService(
+                                            item.serviceIndex!,
+                                          );
+                                        }
+                                      : null,
+                                );
+                              }).toList(),
                               options: CarouselOptions(
                                 height: 160,
                                 viewportFraction: 1,
@@ -428,7 +528,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             right: 0,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(5, (index) {
+                              children: List.generate(sliderItems.length, (index) {
                                 return AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
                                   margin: const EdgeInsets.symmetric(
@@ -490,6 +590,17 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                 children: service.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   var s = entry.value;
+                                  final userProvider =
+                                      Provider.of<UserProvider>(context);
+                                  final packageIds = (s.packages ?? [])
+                                      .map((p) => p.sId ?? "")
+                                      .where((id) => id.isNotEmpty)
+                                      .toList();
+                                  final discountLabel =
+                                      userProvider.getServiceDiscountBadge(
+                                    s.sId,
+                                    packageIds: packageIds,
+                                  );
                                   return ServiceCard(
                                     ImageUrl: s.serviceIcon != null
                                         ? (s.serviceIcon!.startsWith('http')
@@ -499,6 +610,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                                     s.serviceIcon!)
                                         : "",
                                     serviceTitle: s.serviceTitle,
+                                    discountLabel: discountLabel,
                                     onTap: () {
                                       Provider.of<NavigationProvider>(
                                         context,
@@ -1144,3 +1256,22 @@ class ServiceCardShimmer extends StatelessWidget {
     );
   }
 }
+
+class _HomeSliderItem {
+  final String title;
+  final String description;
+  final String imagePath;
+  final bool isNetworkImage;
+  final bool isOffer;
+  final int? serviceIndex;
+
+  const _HomeSliderItem({
+    required this.title,
+    required this.description,
+    required this.imagePath,
+    this.isNetworkImage = false,
+    this.isOffer = false,
+    this.serviceIndex,
+  });
+}
+

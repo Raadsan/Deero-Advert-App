@@ -34,6 +34,9 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<HostingProvider>();
+      final userProvider = context.read<UserProvider>();
+      userProvider.fetchGlobalDiscounts();
+      userProvider.refreshUser();
       if (provider.hostingModel == null && !provider.isLoading) {
         provider.getAllHosting();
       }
@@ -809,6 +812,7 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                     ),
                   ),
                 ),
+             
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Builder(

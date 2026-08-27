@@ -194,6 +194,45 @@ class UserProvider extends ChangeNotifier {
   int minBonusForDiscount = 100; // 100 points to unlock discount
   int discountPercentage = 50; // 50% discount (hardcoded default)
 
+  /// "All Users" discounts — visible without login
+  List<Discount> globalDiscounts = [];
+
+  Future<void> fetchGlobalDiscounts() async {
+    try {
+      final response = await http.get(
+        Uri.parse("${EndPoint}discounts/public"),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final list = data['discounts'];
+        if (list is List) {
+          globalDiscounts =
+              list.map((e) => Discount.fromJson(e)).toList();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print("Failed to fetch global discounts: $e");
+    }
+  }
+
+  /// Global + (if logged in) user-specific discounts
+  List<Discount> get allApplicableDiscounts {
+    final map = <String, Discount>{};
+    for (final d in globalDiscounts) {
+      final key = d.id?.toString() ??
+          "${d.targetType}-${d.targetId}-${d.discountValue}";
+      map[key] = d;
+    }
+    for (final d in userModel?.user?.discounts ?? <Discount>[]) {
+      final key = d.id?.toString() ??
+          "${d.targetType}-${d.targetId}-${d.discountValue}";
+      map[key] = d;
+    }
+    return map.values.toList();
+  }
+
   Future<void> getBonusHistoryLocal() async {
     final userId = userModel?.user?.id;
     if (userId == null) return;
@@ -332,28 +371,64 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Discount? getBestDiscount(String targetType, String targetId) {
-    if (userModel?.user?.discounts == null) return null;
+  /// Matches discounts for [targetType] against [targetId] and optional
+  /// [alsoMatchIds] (e.g. service id + package ids).
+  /// Includes global ("All Users") discounts even when guest / not logged in.
+  Discount? getBestDiscount(
+    String targetType,
+    String targetId, {
+    List<String>? alsoMatchIds,
+  }) {
+    final source = allApplicableDiscounts;
+    if (source.isEmpty) return null;
 
-    final applicable = userModel!.user!.discounts!.where((d) {
-      if (d.status != "active") return false;
+    final ids = <String>{
+      targetId.toString(),
+      ...?alsoMatchIds?.map((id) => id.toString()),
+    }.where((id) => id.isNotEmpty && id != "null").toSet();
 
-      bool targetMatch = (d.targetType == targetType || d.targetType == "all");
-      bool idMatch =
-          (d.targetId == targetId || d.targetId == "all" || d.targetId == null);
+    final applicable = source.where((d) {
+      if (!d.isCurrentlyActive) return false;
+
+      final type = (d.targetType ?? "").toLowerCase();
+      final targetMatch =
+          type == targetType.toLowerCase() || type == "all";
+
+      final discountTargetId = d.targetId?.toString();
+      final idMatch = discountTargetId == null ||
+          discountTargetId.isEmpty ||
+          discountTargetId == "all" ||
+          ids.contains(discountTargetId);
 
       return targetMatch && idMatch;
     }).toList();
 
     if (applicable.isEmpty) return null;
 
-    // Sort by value (this is simplified as it doesn't account for percentage vs fixed correctly in sorting,
-    // but usually users prefer the highest percentage or highest amount)
     applicable.sort(
       (a, b) => (b.discountValue ?? 0).compareTo(a.discountValue ?? 0),
     );
 
     return applicable[0];
+  }
+
+  /// Best badge text for a service (checks service id + all package ids).
+  String? getServiceDiscountBadge(
+    String? serviceId, {
+    List<String>? packageIds,
+  }) {
+    final best = getBestDiscount(
+      "service",
+      serviceId ?? "all",
+      alsoMatchIds: packageIds,
+    );
+    if (best != null) return best.badgeLabel;
+
+    // Bonus discount only for logged-in users who unlocked it
+    if (userModel?.user?.bonusStatus == "BonusAvailable") {
+      return "$discountPercentage% OFF";
+    }
+    return null;
   }
 
   Future<bool> updateProfile({
