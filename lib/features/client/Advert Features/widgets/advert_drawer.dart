@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:iconly/iconly.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AdvertDrawer extends StatefulWidget {
   const AdvertDrawer({super.key});
@@ -27,17 +26,6 @@ class AdvertDrawer extends StatefulWidget {
 
 class _AdvertDrawerState extends State<AdvertDrawer> {
   @override
-  void _launchUrl() async {
-    String urlString = "https://raadsantech.so/";
-    final Uri uri = Uri.parse(urlString);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Action failed to open")));
-      }
-    }
-  }
 
   Widget build(BuildContext context) {
     // final box = GetStorage();

@@ -180,6 +180,7 @@ class Discount {
   String? targetId;
   double? discountValue;
   String? discountType;
+  String? platform;
   String? status;
   String? startDate;
   String? endDate;
@@ -190,6 +191,7 @@ class Discount {
     this.targetId,
     this.discountValue,
     this.discountType,
+    this.platform,
     this.status,
     this.startDate,
     this.endDate,
@@ -201,6 +203,7 @@ class Discount {
     targetId = json['targetId']?.toString();
     discountValue = (json['discountValue'] as num?)?.toDouble();
     discountType = json['discountType']?.toString();
+    platform = json['platform']?.toString() ?? "all";
     status = json['status']?.toString();
     startDate = json['startDate']?.toString();
     endDate = json['endDate']?.toString();
@@ -213,6 +216,7 @@ class Discount {
     data['targetId'] = this.targetId;
     data['discountValue'] = this.discountValue;
     data['discountType'] = this.discountType;
+    data['platform'] = this.platform;
     data['status'] = this.status;
     data['startDate'] = this.startDate;
     data['endDate'] = this.endDate;
@@ -221,6 +225,12 @@ class Discount {
 
   bool get isCurrentlyActive {
     if (status != null && status!.toLowerCase() != "active") return false;
+    // Exclude discounts created exclusively for website
+    if (platform != null &&
+        platform!.isNotEmpty &&
+        platform!.toLowerCase() == "website") {
+      return false;
+    }
     final now = DateTime.now();
     if (startDate != null && startDate!.isNotEmpty) {
       final start = DateTime.tryParse(startDate!);

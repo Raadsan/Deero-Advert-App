@@ -1,5 +1,5 @@
-// const String BaseUrl = "http://178.18.241.5:8000/";
-const String BaseUrl = "http://192.168.100.64:8000/";
+const String BaseUrl = "http://178.18.241.5:8000/";
+// const String BaseUrl = "http://192.168.100.64:8000/";
 const String EndPoint = "${BaseUrl}api/";
 const String WHOISXML_API_KEY = "at_YxhHaYdXUyaU9qLH7w0vnZarnjRHi";
 

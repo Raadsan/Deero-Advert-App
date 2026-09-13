@@ -200,7 +200,7 @@ class UserProvider extends ChangeNotifier {
   Future<void> fetchGlobalDiscounts() async {
     try {
       final response = await http.get(
-        Uri.parse("${EndPoint}discounts/public"),
+        Uri.parse("${EndPoint}discounts/public?platform=app"),
         headers: {"Content-Type": "application/json"},
       );
       if (response.statusCode == 200) {
@@ -217,18 +217,22 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Global + (if logged in) user-specific discounts
+  /// Global + (if logged in) user-specific discounts (active on app)
   List<Discount> get allApplicableDiscounts {
     final map = <String, Discount>{};
     for (final d in globalDiscounts) {
-      final key = d.id?.toString() ??
-          "${d.targetType}-${d.targetId}-${d.discountValue}";
-      map[key] = d;
+      if (d.isCurrentlyActive) {
+        final key = d.id?.toString() ??
+            "${d.targetType}-${d.targetId}-${d.discountValue}";
+        map[key] = d;
+      }
     }
     for (final d in userModel?.user?.discounts ?? <Discount>[]) {
-      final key = d.id?.toString() ??
-          "${d.targetType}-${d.targetId}-${d.discountValue}";
-      map[key] = d;
+      if (d.isCurrentlyActive) {
+        final key = d.id?.toString() ??
+            "${d.targetType}-${d.targetId}-${d.discountValue}";
+        map[key] = d;
+      }
     }
     return map.values.toList();
   }

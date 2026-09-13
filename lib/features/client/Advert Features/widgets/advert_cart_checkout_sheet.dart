@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:iconly/iconly.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_advert_app/core/app_error_handler.dart';

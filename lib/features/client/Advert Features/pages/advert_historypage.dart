@@ -27,7 +27,6 @@ class AdvertHistorypage extends StatefulWidget {
 }
 
 class _AdvertHistorypageState extends State<AdvertHistorypage> {
-
   @override
   void initState() {
     super.initState();
@@ -366,9 +365,9 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
       amount: tx.amount ?? 0,
       originalAmount: tx.originalAmount,
       discountAmount: tx.discountApplied,
-      date: DateFormat('MMM dd, yyyy • hh:mm a').format(
-        DateTime.tryParse(tx.createdAt ?? "") ?? DateTime.now(),
-      ),
+      date: DateFormat(
+        'MMM dd, yyyy • hh:mm a',
+      ).format(DateTime.tryParse(tx.createdAt ?? "") ?? DateTime.now()),
     );
   }
 }

@@ -1,6 +1,5 @@
-import 'package:deero_advert_app/features/client/Advert%20Features/models/chat_model.dart';
+
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chat_list_page.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chat_main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';

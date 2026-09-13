@@ -57,7 +57,7 @@ class _AdvertBonusHistoryPageState extends State<AdvertBonusHistoryPage> {
             return _buildShimmer(context);
           }
 
-          final currentBonus = userProvider.userModel?.user?.bonus ?? 0;
+
 
           Widget content;
           if (userProvider.bonusHistory.isEmpty) {
