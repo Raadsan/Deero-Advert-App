@@ -39,10 +39,15 @@ class ServiceCard extends StatelessWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 6,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
                       width: 40,
@@ -51,26 +56,30 @@ class ServiceCard extends StatelessWidget {
                           ? Image.network(
                               ImageUrl!,
                               fit: BoxFit.contain,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Shimmer.fromColors(
-                                  baseColor: Colors.grey.shade200,
-                                  highlightColor: Colors.grey.shade50,
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade200,
+                                      highlightColor: Colors.grey.shade50,
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(
+                                    Icons.broken_image,
+                                    size: 24,
+                                    color: Colors.grey.shade400,
                                   ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) => Icon(
-                                Icons.broken_image,
-                                size: 24,
-                                color: Colors.grey.shade400,
-                              ),
                             )
                           : Icon(
                               Icons.image_not_supported_outlined,
@@ -78,7 +87,7 @@ class ServiceCard extends StatelessWidget {
                               color: Colors.grey.shade300,
                             ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     Text(
                       serviceTitle ?? "",
                       overflow: TextOverflow.ellipsis,

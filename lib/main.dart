@@ -22,6 +22,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
 import 'package:deero_advert_app/firebase_options.dart';
 
 @pragma('vm:entry-point')
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TestimonialProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => CompanyContactProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

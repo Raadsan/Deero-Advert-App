@@ -89,57 +89,6 @@ class _AdvertNotificationpageState extends State<AdvertNotificationpage> {
             return const NotificationShimmer();
           }
 
-          // Error state (network / server) — list is public; no login gate
-          if (notificationProvider.error != null && notificationList.isEmpty) {
-            // Other errors
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      LineIcons.exclamationCircle,
-                      size: 50,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Error loading notifications",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      notificationProvider.error ?? "",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () =>
-                          notificationProvider.getAllNotifications(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffEF7044),
-                        minimumSize: const Size(120, 45),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "Retry",
-                        style: GoogleFonts.poppins(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
           if (notificationList.isEmpty) {
             return RefreshIndicator(
               onRefresh: () async {

@@ -17,6 +17,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/core/safe_url.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 
 class AdvertChatConversationPage extends StatefulWidget {
   final Conversation conversation;
@@ -347,31 +348,29 @@ class _AdvertChatConversationPageState
               children: [
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: const Color(0xffEF7044).withOpacity(0.2),
-                      backgroundImage:
-                          otherUser?['image'] != null &&
-                                  otherUser!['image'].toString().isNotEmpty
-                              ? NetworkImage(
-                                  otherUser!['image'].toString().startsWith('http')
-                                      ? otherUser!['image'].toString()
-                                      : BaseUrl + otherUser!['image'].toString(),
-                                )
-                              : null,
-                      child:
-                          otherUser?['image'] == null ||
-                              otherUser!['image'].toString().isEmpty
-                          ? Text(
-                              otherUser?['fullname']?.isNotEmpty == true
-                                  ? otherUser!['fullname'][0].toUpperCase()
-                                  : '?',
-                              style: GoogleFonts.poppins(
-                                color: const Color(0xffEF7044),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
+                    SafeNetworkAvatar(
+                      imageUrl: otherUser?['image'] != null &&
+                              otherUser!['image'].toString().isNotEmpty
+                          ? (otherUser!['image'].toString().startsWith('http')
+                              ? otherUser!['image'].toString()
+                              : BaseUrl + otherUser!['image'].toString())
                           : null,
+                      radius: 20,
+                      shimmerBase: const Color(0xFFFFE4D8),
+                      shimmerHighlight: const Color(0xFFFFF0EB),
+                      errorWidget: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: const Color(0xffEF7044).withValues(alpha: 0.2),
+                        child: Text(
+                          otherUser?['fullname']?.isNotEmpty == true
+                              ? otherUser!['fullname'][0].toUpperCase()
+                              : '?',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xffEF7044),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
                     PositionImage(isOnline: isOnline),
                   ],

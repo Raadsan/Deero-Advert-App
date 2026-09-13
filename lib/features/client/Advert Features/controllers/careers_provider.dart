@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/careers_model.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +29,10 @@ class CareersProvider extends ChangeNotifier {
         final data = jsonDecode(response.body);
         careersModel = CareersModel.fromJson(data);
       } else {
-        error = "Failed to load careers. Status code: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      error = e.toString();
+      error = AppErrorHandler.toFriendlyMessage(e);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -98,12 +99,16 @@ class CareersProvider extends ChangeNotifier {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       } else {
-        final data = jsonDecode(response.body);
-        submitError = data['message'] ?? "Failed to submit application";
+        try {
+          final data = jsonDecode(response.body);
+          submitError = AppErrorHandler.toFriendlyMessage(data['message']);
+        } catch (_) {
+          submitError = AppErrorHandler.fromStatusCode(response.statusCode);
+        }
         return false;
       }
     } catch (e) {
-      submitError = e.toString();
+      submitError = AppErrorHandler.toFriendlyMessage(e);
       return false;
     } finally {
       isSubmitting = false;

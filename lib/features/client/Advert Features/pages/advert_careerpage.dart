@@ -73,10 +73,13 @@ class _AdvertCareerPageState extends State<AdvertCareerPage> {
           ),
           body: careersProvider.isLoading
               ? const CareerListShimmer()
-              : careersList.isEmpty
-              ? const Center(child: Text("No careers found"))
-              : careersProvider.error != null
-              ? Center(child: Text(careersProvider.error!))
+              : (careersProvider.error != null || careersList.isEmpty)
+              ? Center(
+                  child: Text(
+                    "No careers available yet.",
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                )
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

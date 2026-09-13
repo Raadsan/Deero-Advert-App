@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/testimonial_model.dart';
 import 'package:flutter/material.dart';
@@ -39,10 +40,10 @@ class TestimonialProvider extends ChangeNotifier {
           testimonials: list.map((e) => Testimonial.fromJson(e)).toList(),
         );
       } else {
-        _error = "Failed to load testimonials. Status code: ${response.statusCode}";
+        _error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      _error = "An error occurred: $e";
+      _error = AppErrorHandler.toFriendlyMessage(e);
     }
 
     _isLoading = false;

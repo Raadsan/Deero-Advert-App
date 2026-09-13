@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/core/safe_url.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/active_notification_model.dart' as an;
@@ -413,13 +414,12 @@ class NotificationProvider extends ChangeNotifier {
           }
         }
       } else {
-        error =
-            "Failed to load notifications. Status code: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      error = e.toString();
+      error = AppErrorHandler.toFriendlyMessage(e);
       isLoading = false;
       notifyListeners();
     }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/hosting_model.dart';
 import 'package:flutter/material.dart';
@@ -15,20 +16,20 @@ class HostingProvider extends ChangeNotifier {
   Future<void> getAllHosting() async {
     try {
       isLoading = true;
+      error = null;
       notifyListeners();
       final response = await http.get(Uri.parse(EndPoint + "hosting"));
       if (response.statusCode == 200) {
-        print("Worked");
-        print("${response.statusCode}");
-        print(response.body);
         final data = jsonDecode(response.body);
         hostingModel = HostingModel.fromJson(data);
+        error = null;
+      } else {
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
-      print(hostingModel?.data?.length);
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      error = e.toString();
+      error = AppErrorHandler.toFriendlyMessage(e);
       isLoading = false;
       notifyListeners();
     }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/service_model.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,13 @@ class ServiceProvider extends ChangeNotifier {
         serviceModel = ServiceModel.fromJson(data);
         error = null; // Clear error on success
       } else {
-        error = "Failed to load services: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
 
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      error = "Connection error: ${e.toString()}";
+      error = AppErrorHandler.toFriendlyMessage(e);
       isLoading = false;
       notifyListeners();
     }

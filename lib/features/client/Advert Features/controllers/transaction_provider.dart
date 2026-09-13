@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/transaction_model.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ class TransactionProvider extends ChangeNotifier {
       return "LOGIN_REQUIRED";
     }
     if (raw.isEmpty) return "Failed to load transaction history";
-    return raw;
+    return AppErrorHandler.toFriendlyMessage(raw);
   }
 
   Future<bool> CreateTransaction({
@@ -113,16 +114,29 @@ class TransactionProvider extends ChangeNotifier {
         },
       );
 
-      var decodedResponse = jsonDecode(response.body);
+      dynamic decodedResponse;
+      try {
+        if (response.body.isNotEmpty && response.body.trim().startsWith('{')) {
+          decodedResponse = jsonDecode(response.body);
+        } else {
+          decodedResponse = null;
+        }
+      } catch (_) {
+        decodedResponse = null;
+      }
       print("Backend Response: $decodedResponse");
 
-      if (response.statusCode == 200 || decodedResponse['success'] == true) {
+      final isSuccessResponse = response.statusCode == 200 ||
+          (decodedResponse is Map && decodedResponse['success'] == true);
+
+      if (isSuccessResponse) {
         isSuccess = true;
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                decodedResponse['message'] ?? "Transaction successful",
+                (decodedResponse is Map ? decodedResponse['message'] : null) ??
+                    "Lacag bixintu si guul leh ayay u dhacday",
               ),
               backgroundColor: Colors.green,
             ),
@@ -130,20 +144,29 @@ class TransactionProvider extends ChangeNotifier {
         }
       } else {
         isSuccess = false;
+        String failMsg = "Payment failed. Please try again.";
+        if (decodedResponse is Map && decodedResponse['message'] != null) {
+          failMsg = AppErrorHandler.toFriendlyMessage(decodedResponse['message']);
+        } else if (response.statusCode == 404) {
+          failMsg = "Payment service is currently unavailable.";
+        } else if (response.statusCode >= 500) {
+          failMsg = "Server error. Please try again later.";
+        }
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(decodedResponse['message'] ?? "Transaction failed"),
+              content: Text(failMsg),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      print("Error creating transaction: $e");
+      debugPrint("Error creating transaction: $e");
+      String cleanErr = AppErrorHandler.toFriendlyMessage(e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text(cleanErr), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -152,4 +175,89 @@ class TransactionProvider extends ChangeNotifier {
     }
     return isSuccess;
   }
+
+  Future<Map<String, dynamic>> checkoutCart({
+    required String userId,
+    required String accountNo,
+    required List<Map<String, dynamic>> items,
+    String paymentMethod = "waafi",
+  }) async {
+    try {
+      isLoading = true;
+      errorMessage = "";
+      notifyListeners();
+
+      final box = GetStorage();
+      final userInfo = box.read("userInfo");
+      final token = userInfo != null ? userInfo["token"] : null;
+
+      final payload = {
+        "userId": userId,
+        "accountNo": accountNo,
+        "paymentMethod": paymentMethod,
+        "items": items,
+      };
+
+      print("Sending Cart Checkout Payload: ${jsonEncode(payload)}");
+
+      final response = await http.post(
+        Uri.parse("${EndPoint}transactions/checkout"),
+        body: jsonEncode(payload),
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
+      );
+
+      dynamic decodedResponse;
+      try {
+        if (response.body.isNotEmpty && response.body.trim().startsWith('{')) {
+          decodedResponse = jsonDecode(response.body);
+        } else {
+          decodedResponse = null;
+        }
+      } catch (_) {
+        decodedResponse = null;
+      }
+
+      print("Cart Checkout Response: $decodedResponse");
+
+      final isSuccess = response.statusCode == 200 ||
+          (decodedResponse is Map && decodedResponse['success'] == true);
+
+      if (isSuccess) {
+        return {
+          "success": true,
+          "message": (decodedResponse is Map ? decodedResponse['message'] : null) ??
+              "Payment completed successfully.",
+          "data": decodedResponse,
+        };
+      } else {
+        String failureMsg = "Payment failed. Please try again.";
+        if (decodedResponse is Map && decodedResponse['message'] != null) {
+          failureMsg = AppErrorHandler.toFriendlyMessage(decodedResponse['message']);
+        } else if (response.statusCode == 404) {
+          failureMsg = "Payment service is currently unavailable.";
+        } else if (response.statusCode >= 500) {
+          failureMsg = "Server error. Please try again later.";
+        }
+        return {
+          "success": false,
+          "message": failureMsg,
+          "data": decodedResponse,
+        };
+      }
+    } catch (e) {
+      debugPrint("Error in cart checkout: $e");
+      return {
+        "success": false,
+        "message": AppErrorHandler.toFriendlyMessage(e),
+      };
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
+
+

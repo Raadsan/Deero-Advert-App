@@ -3,6 +3,9 @@ import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/service_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/cart_item_model.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_cart_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/service_model.dart';
 import 'package:deero_advert_app/core/widgets/transaction_receipt_bottomsheet.dart';
 import 'package:intl/intl.dart';
@@ -127,16 +130,7 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
-            leading: Navigator.canPop(context)
-                ? IconButton(
-                    icon: const Icon(
-                      IconlyLight.arrow_left_2,
-                      color: Colors.black,
-                      size: 20,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  )
-                : null,
+            leading: null,
             title: Text(
               "Our Services",
               style: GoogleFonts.outfit(
@@ -145,78 +139,46 @@ class _AdvertServicepageState extends State<AdvertServicepage> {
                 color: const Color(0xff651313),
               ),
             ),
+            actions: [
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, _) {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertCartPage(),
+                        ),
+                      );
+                    },
+                    icon: Badge(
+                      isLabelVisible: cartProvider.totalItems > 0,
+                      label: Text(
+                        "${cartProvider.totalItems}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFEB4724),
+                      child: const Icon(
+                        IconlyLight.buy,
+                        color: Color(0xff651313),
+                        size: 24,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-          body: serviceProvider.error != null && services.isEmpty
+          body: (serviceProvider.error != null || services.isEmpty) &&
+                  !serviceProvider.isLoading
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        IconlyLight.danger,
-                        size: 60,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Something went wrong",
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          serviceProvider.error!,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(color: Colors.grey),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () => serviceProvider.getAllServices(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff651313),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          "Retry",
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : services.isEmpty && !serviceProvider.isLoading
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        IconlyLight.info_square,
-                        size: 60,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No services available",
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    "No services available yet.",
+                    style: GoogleFonts.poppins(color: Colors.grey),
                   ),
                 )
               : Column(
@@ -1340,52 +1302,134 @@ class _PackageCardState extends State<PackageCard> {
                           ),
                         ),
                       ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (isLoggedIn) {
-                            _showPaymentSelection(
-                              context,
-                              userProvider,
-                              transactionProvider,
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
+                    const SizedBox(height: 28),
+                    Consumer<CartProvider>(
+                      builder: (context, cartProvider, _) {
+                        final cartItemId =
+                            'service_${widget.serviceId}_${widget.package.sId}';
+                        final subtitle =
+                            '${widget.serviceTitle ?? 'Service'} - ${widget.package.packageTitle ?? 'Plan'}';
+                        final isInCart = cartProvider.isInCart(cartItemId) ||
+                            cartProvider.isInCart(subtitle);
+
+                        final cartItem = CartItem(
+                          id: cartItemId,
+                          type: 'service',
+                          title: widget.serviceTitle ?? 'Service',
+                          subtitle: subtitle,
+                          price: finalPrice,
+                          originalAmount:
+                              (widget.package.price ?? 0).toDouble(),
+                          discountApplied: appliedDiscount,
+                          options:
+                              '${widget.package.features?.length ?? 0} Features included',
+                          serviceId: widget.serviceId,
+                          packageId: widget.package.sId,
+                        );
+
+                        return Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  cartProvider.toggleCartItem(
+                                    cartItem,
+                                    context: context,
+                                  );
+                                },
+                                icon: Icon(
+                                  isInCart
+                                      ? Icons.check_circle_rounded
+                                      : IconlyLight.buy,
+                                  size: 19,
+                                  color: isInCart
+                                      ? Colors.white
+                                      : const Color(0xFF651313),
+                                ),
+                                label: Text(
+                                  isInCart ? "In Cart • Remove" : "Add to Cart",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isInCart
+                                        ? Colors.white
+                                        : const Color(0xFF651313),
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isInCart
+                                      ? const Color(0xFF651313)
+                                      : const Color(0xFFFCD7C3),
+                                  foregroundColor: isInCart
+                                      ? Colors.white
+                                      : const Color(0xFF651313),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(
+                                      color: isInCart
+                                          ? const Color(0xFF651313)
+                                          : const Color(0xFFEB4724)
+                                              .withOpacity(0.3),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ).then((_) {
-                              if (GetStorage().hasData(isLogged)) {
-                                _showPaymentSelection(
-                                  context,
-                                  userProvider,
-                                  transactionProvider,
-                                );
-                              }
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEB4724),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shadowColor: const Color(0xFFEB4724).withOpacity(0.3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Text(
-                          "Purchase Plan",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (isLoggedIn) {
+                                    _showPaymentSelection(
+                                      context,
+                                      userProvider,
+                                      transactionProvider,
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage(),
+                                      ),
+                                    ).then((_) {
+                                      if (GetStorage().hasData(isLogged)) {
+                                        _showPaymentSelection(
+                                          context,
+                                          userProvider,
+                                          transactionProvider,
+                                        );
+                                      }
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFEB4724),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shadowColor: const Color(0xFFEB4724)
+                                      .withOpacity(0.3),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Buy Now",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 );

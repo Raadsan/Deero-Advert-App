@@ -5,6 +5,9 @@ import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/cart_item_model.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_cart_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/hosting_model.dart'
     as hosting;
 import 'package:deero_advert_app/core/widgets/transaction_receipt_bottomsheet.dart';
@@ -87,6 +90,39 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                 color: const Color(0xff651313),
               ),
             ),
+            actions: [
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, _) {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertCartPage(),
+                        ),
+                      );
+                    },
+                    icon: Badge(
+                      isLabelVisible: cartProvider.totalItems > 0,
+                      label: Text(
+                        "${cartProvider.totalItems}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFEB4724),
+                      child: const Icon(
+                        IconlyLight.buy,
+                        color: Color(0xff651313),
+                        size: 24,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1008,58 +1044,137 @@ class _HostingPackageCardState extends State<HostingPackageCard> {
                           ),
                         ),
                       ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (isLoggedIn) {
-                            _showPaymentSelection(
-                              context,
-                              userProvider,
-                              transactionProvider,
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
+                    const SizedBox(height: 28),
+                    Consumer<CartProvider>(
+                      builder: (context, cartProvider, _) {
+                        final cartItemId =
+                            'hosting_${widget.hostingPackage.sId}_${widget.isYearly ? 'yearly' : 'monthly'}';
+                        final subtitle =
+                            '${widget.hostingPackage.name} (${widget.isYearly ? 'Yearly' : 'Monthly'})';
+                        final isInCart = cartProvider.isInCart(cartItemId) ||
+                            cartProvider.isInCart(subtitle);
+
+                        final cartItem = CartItem(
+                          id: cartItemId,
+                          type: 'hosting',
+                          title: 'Hosting Package',
+                          subtitle: subtitle,
+                          price: finalPrice,
+                          originalAmount: totalPrice,
+                          discountApplied: appliedDiscount,
+                          options: widget.isYearly
+                              ? 'Billed annually'
+                              : 'Billed monthly',
+                          hostingPackageId: widget.hostingPackage.sId,
+                        );
+
+                        return Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  cartProvider.toggleCartItem(
+                                    cartItem,
+                                    context: context,
+                                  );
+                                },
+                                icon: Icon(
+                                  isInCart
+                                      ? Icons.check_circle_rounded
+                                      : IconlyLight.buy,
+                                  size: 19,
+                                  color: isInCart
+                                      ? Colors.white
+                                      : const Color(0xFF651313),
+                                ),
+                                label: Text(
+                                  isInCart ? "In Cart • Remove" : "Add to Cart",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isInCart
+                                        ? Colors.white
+                                        : const Color(0xFF651313),
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isInCart
+                                      ? const Color(0xFF651313)
+                                      : const Color(0xFFFCD7C3),
+                                  foregroundColor: isInCart
+                                      ? Colors.white
+                                      : const Color(0xFF651313),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(
+                                      color: isInCart
+                                          ? const Color(0xFF651313)
+                                          : const Color(0xFFEB4724)
+                                              .withOpacity(0.3),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ).then((_) {
-                              if (GetStorage().hasData(isLogged)) {
-                                _showPaymentSelection(
-                                  context,
-                                  userProvider,
-                                  transactionProvider,
-                                );
-                              }
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: widget.isMaxPrice
-                              ? const Color(0xff651313)
-                              : const Color(0xFFEB4724),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shadowColor:
-                              (widget.isMaxPrice
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (isLoggedIn) {
+                                    _showPaymentSelection(
+                                      context,
+                                      userProvider,
+                                      transactionProvider,
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage(),
+                                      ),
+                                    ).then((_) {
+                                      if (GetStorage().hasData(isLogged)) {
+                                        _showPaymentSelection(
+                                          context,
+                                          userProvider,
+                                          transactionProvider,
+                                        );
+                                      }
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: widget.isMaxPrice
                                       ? const Color(0xff651313)
-                                      : const Color(0xFFEB4724))
-                                  .withOpacity(0.3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Text(
-                          "Purchase Plan",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                                      : const Color(0xFFEB4724),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shadowColor: (widget.isMaxPrice
+                                          ? const Color(0xff651313)
+                                          : const Color(0xFFEB4724))
+                                      .withOpacity(0.3),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Buy Now",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 );

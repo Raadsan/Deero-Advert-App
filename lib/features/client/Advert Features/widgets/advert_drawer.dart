@@ -8,8 +8,9 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_historypage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_newspage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_cart_page.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_helpcenter_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_social_mediapage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -92,6 +93,22 @@ class _AdvertDrawerState extends State<AdvertDrawer> {
                         builder: (context) => const AdvertCareerPage(),
                       ),
                     ),
+                  ),
+                  Consumer<CartProvider>(
+                    builder: (context, cart, _) {
+                      return _buildMenuItem(
+                        context: context,
+                        icon: IconlyLight.buy,
+                        title: "Shopping Cart${cart.totalItems > 0 ? ' (${cart.totalItems})' : ''}",
+                        delay: 100,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdvertCartPage(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     context: context,

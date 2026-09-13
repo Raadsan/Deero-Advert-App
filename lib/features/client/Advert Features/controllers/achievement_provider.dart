@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/achievement_model.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +23,13 @@ class AchievementProvider extends ChangeNotifier {
         if (data['success'] == true) {
           achievementModel = AchievementModel.fromJson(data);
         } else {
-          error = data['message'] ?? "Unknown error occurred";
+          error = AppErrorHandler.toFriendlyMessage(data['message']);
         }
       } else {
-        error = "Failed to load achievements. Status: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      error = "Network Error: ${e.toString()}";
+      error = AppErrorHandler.toFriendlyMessage(e);
     } finally {
       isLoading = false;
       notifyListeners();

@@ -1,4 +1,5 @@
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_aboutpage.dart';
@@ -40,70 +41,52 @@ class AdvertProfilePage extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color(0xFFF3F4F6),
-                              image:
-                                  (userProvider.userModel?.user?.image != null && userProvider.userModel!.user!.image!.isNotEmpty)
-                                  ? DecorationImage(
-                                      image: NetworkImage(
-                                        userProvider.userModel!.user!.image!
-                                                .startsWith('http')
-                                            ? userProvider
-                                                .userModel!
-                                                .user!
-                                                .image!
-                                            : BaseUrl +
-                                                userProvider
-                                                    .userModel!
-                                                    .user!
-                                                    .image!,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                            ),
-                            child: (userProvider.userModel?.user?.image == null || userProvider.userModel?.user?.image?.isEmpty == true)
-                                ? Center(
-                                    child: Text(
-                                      userProvider.userModel?.user?.fullname != null &&
-                                              userProvider.userModel!.user!.fullname!.isNotEmpty
-                                          ? userProvider.userModel!.user!.fullname!
-                                                .substring(0, 1)
-                                                .toUpperCase()
-                                          : "U",
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF374151),
-                                      ),
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            userProvider.userModel?.user?.fullname ?? "Guest User",
-                            style: GoogleFonts.outfit(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                        SafeNetworkAvatar(
+                          imageUrl: () {
+                            final img = userProvider.userModel?.user?.image;
+                            if (img == null || img.isEmpty) return null;
+                            return img.startsWith('http') ? img : BaseUrl + img;
+                          }(),
+                          radius: 40,
+                          shimmerBase: const Color(0xFFE5E7EB),
+                          shimmerHighlight: const Color(0xFFF3F4F6),
+                          errorWidget: CircleAvatar(
+                            radius: 40,
+                            backgroundColor: const Color(0xFFF3F4F6),
+                            child: Text(
+                              userProvider.userModel?.user?.fullname?.isNotEmpty == true
+                                  ? userProvider.userModel!.user!.fullname![0].toUpperCase()
+                                  : 'U',
+                              style: GoogleFonts.outfit(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF374151),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            userProvider.userModel?.user?.phone ?? "Login to see details",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          userProvider.userModel?.user?.fullname ??
+                              "Guest User",
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          userProvider.userModel?.user?.phone ??
+                              "Login to see details",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
 
                   const SizedBox(height: 20),
 
@@ -144,7 +127,8 @@ class AdvertProfilePage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const AdvertHistorypage(),
+                                  builder: (context) =>
+                                      const AdvertHistorypage(),
                                 ),
                               );
                             } else {

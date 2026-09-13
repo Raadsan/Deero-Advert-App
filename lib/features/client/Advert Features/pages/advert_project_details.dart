@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/portfolio_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -70,45 +71,26 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                             final fullUrl = url.startsWith('http')
                                 ? url
                                 : BaseUrl + url;
-                            return Image.network(
-                              fullUrl,
+                            return SafeNetworkImage(
+                              imageUrl: fullUrl,
                               fit: BoxFit.cover,
                               width: double.infinity,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
+                              shimmerBase: Colors.grey.shade300,
+                              shimmerHighlight: Colors.grey.shade100,
                             );
                           }).toList(),
                         )
-                      : Image.network(
-                          project.mainImage != null
+                      : SafeNetworkImage(
+                          imageUrl: project.mainImage != null
                               ? (project.mainImage!.startsWith('http')
                                     ? project.mainImage!
                                     : BaseUrl + project.mainImage!)
                               : "",
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Container(
-                                width: double.infinity,
-                                height: double.infinity,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
+                          width: double.infinity,
+                          height: 380,
+                          shimmerBase: Colors.grey.shade300,
+                          shimmerHighlight: Colors.grey.shade100,
                         ),
                   // Gradient Overlay
                   DecoratedBox(
@@ -248,33 +230,12 @@ class AdvertProjectDetailsPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: ClipRRect(
+                          child: SafeNetworkImage(
+                            imageUrl: fullImageUrl,
+                            fit: BoxFit.cover,
                             borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              fullImageUrl,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    color: Colors.grey.shade100,
-                                    child: const Icon(
-                                      Icons.broken_image,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                            ),
+                            shimmerBase: Colors.grey.shade300,
+                            shimmerHighlight: Colors.grey.shade100,
                           ),
                         ),
                       ),
@@ -355,7 +316,12 @@ class _FullscreenGalleryViewerState extends State<FullscreenGalleryViewer> {
                 maxScale: 4.0,
                 child: Hero(
                   tag: 'gallery_$index',
-                  child: Image.network(fullImageUrl, fit: BoxFit.contain),
+                  child: SafeNetworkImage(
+                    imageUrl: fullImageUrl,
+                    fit: BoxFit.contain,
+                    shimmerBase: Colors.grey.shade900,
+                    shimmerHighlight: Colors.grey.shade800,
+                  ),
                 ),
               );
             },

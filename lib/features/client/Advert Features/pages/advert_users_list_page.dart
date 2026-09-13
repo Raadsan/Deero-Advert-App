@@ -1,4 +1,6 @@
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
 import 'package:flutter/material.dart';
@@ -97,9 +99,9 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
       // Hide loading
       Navigator.pop(context);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppErrorHandler.toFriendlyMessage(e))),
+        );
       }
     }
   }
@@ -216,34 +218,30 @@ class _AdvertUsersListPageState extends State<AdvertUsersListPage> {
                   ),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundColor: const Color(
-                          0xffEF7044,
-                        ).withOpacity(0.1),
-                        backgroundImage:
-                            user['image'] != null &&
+                      SafeNetworkAvatar(
+                        imageUrl: user['image'] != null &&
                                 user['image'].toString().isNotEmpty
-                            ? NetworkImage(
-                                user['image'].toString().startsWith('http')
-                                    ? user['image'].toString()
-                                    : BaseUrl + user['image'].toString(),
-                              )
+                            ? (user['image'].toString().startsWith('http')
+                                ? user['image'].toString()
+                                : BaseUrl + user['image'].toString())
                             : null,
-                        child:
-                            user['image'] == null ||
-                                user['image'].toString().isEmpty
-                            ? Text(
-                                user['fullname'] != null &&
-                                        user['fullname'].toString().isNotEmpty
-                                    ? user['fullname'][0].toUpperCase()
-                                    : '?',
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xffEF7044),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            : null,
+                        radius: 24,
+                        shimmerBase: const Color(0xFFFFE4D8),
+                        shimmerHighlight: const Color(0xFFFFF0EB),
+                        errorWidget: CircleAvatar(
+                          radius: 24,
+                          backgroundColor: const Color(0xffEF7044).withValues(alpha: 0.1),
+                          child: Text(
+                            user['fullname'] != null &&
+                                    user['fullname'].toString().isNotEmpty
+                                ? user['fullname'][0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xffEF7044),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(

@@ -77,60 +77,14 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
             return const PortfolioShimmer();
           }
 
-          if (portfolioProvider.error.isNotEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    portfolioProvider.error,
-                    style: GoogleFonts.poppins(color: Colors.grey.shade700),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => portfolioProvider.getPortfolio(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEB4724),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "Retry",
-                      style: GoogleFonts.poppins(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
           final portfolioList =
               portfolioProvider.portfolioModel?.portfolios ?? [];
 
-          if (portfolioList.isEmpty) {
+          if (portfolioProvider.error.isNotEmpty || portfolioList.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.folder_open,
-                    size: 64,
-                    color: Colors.grey.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "No projects found",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
+              child: Text(
+                "No portfolio projects available yet.",
+                style: GoogleFonts.poppins(color: Colors.grey),
               ),
             );
           }

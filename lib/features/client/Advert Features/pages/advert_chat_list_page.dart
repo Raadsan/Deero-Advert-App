@@ -1,4 +1,6 @@
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_chatpage.dart';
@@ -201,9 +203,9 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppErrorHandler.toFriendlyMessage(e))),
+      );
     }
   }
 
@@ -230,24 +232,25 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
+            SafeNetworkAvatar(
+              imageUrl: image != null && image.isNotEmpty
+                  ? (image.startsWith('http') ? image : BaseUrl + image)
+                  : null,
               radius: 26,
-              backgroundColor: const Color(0xffEF7044).withOpacity(0.15),
-              backgroundImage: image != null && image.isNotEmpty
-                  ? NetworkImage(
-                      image.startsWith('http') ? image : BaseUrl + image,
-                    )
-                  : null,
-              child: image == null || image.isEmpty
-                  ? Text(
-                      name.isNotEmpty ? name[0].toUpperCase() : 'C',
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xffEF7044),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
+              shimmerBase: const Color(0xFFFFE4D8),
+              shimmerHighlight: const Color(0xFFFFF0EB),
+              errorWidget: CircleAvatar(
+                radius: 26,
+                backgroundColor: const Color(0xffEF7044).withValues(alpha: 0.15),
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : 'C',
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xffEF7044),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -303,29 +306,28 @@ class _AdvertChatListPageState extends State<AdvertChatListPage> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: const Color(0xffEF7044).withOpacity(0.2),
-              backgroundImage: otherImage != null &&
+            SafeNetworkAvatar(
+              imageUrl: otherImage != null &&
                       otherImage.toString().isNotEmpty
-                  ? NetworkImage(
-                      otherImage.toString().startsWith('http')
-                          ? otherImage.toString()
-                          : BaseUrl + otherImage.toString(),
-                    )
+                  ? (otherImage.toString().startsWith('http')
+                      ? otherImage.toString()
+                      : BaseUrl + otherImage.toString())
                   : null,
-              child: otherImage == null || otherImage.toString().isEmpty
-                  ? Text(
-                      otherName.isNotEmpty
-                          ? otherName[0].toUpperCase()
-                          : '?',
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xffEF7044),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
+              radius: 26,
+              shimmerBase: const Color(0xFFFFE4D8),
+              shimmerHighlight: const Color(0xFFFFF0EB),
+              errorWidget: CircleAvatar(
+                radius: 26,
+                backgroundColor: const Color(0xffEF7044).withValues(alpha: 0.2),
+                child: Text(
+                  otherName.isNotEmpty ? otherName[0].toUpperCase() : '?',
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xffEF7044),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(

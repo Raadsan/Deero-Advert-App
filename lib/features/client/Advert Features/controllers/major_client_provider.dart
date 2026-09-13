@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/major_client_model.dart';
 
@@ -21,11 +22,11 @@ class MajorClientProvider extends ChangeNotifier {
         final decodedData = jsonDecode(response.body);
         majorClientModel = MajorClientModel.fromJson(decodedData);
       } else {
-        errorMessage = "Failed to load major clients: ${response.statusCode}";
+        errorMessage = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      errorMessage = "Error fetching major clients: $e";
-      print(errorMessage);
+      errorMessage = AppErrorHandler.toFriendlyMessage(e);
+      debugPrint("Error fetching major clients: $e");
     } finally {
       isLoading = false;
       notifyListeners();

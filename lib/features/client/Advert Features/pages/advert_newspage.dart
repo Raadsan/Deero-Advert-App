@@ -74,25 +74,12 @@ class _AdvertNewspageState extends State<AdvertNewspage> {
             return const NewsListShimmer();
           }
 
-          if (newsProvider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(newsProvider.error!),
-                ],
-              ),
-            );
-          }
-
           final newsList = newsProvider.newsModel?.data ?? [];
 
-          if (newsList.isEmpty) {
+          if (newsProvider.error != null || newsList.isEmpty) {
             return Center(
               child: Text(
-                "No news available",
+                "No news available yet.",
                 style: GoogleFonts.poppins(color: Colors.grey),
               ),
             );

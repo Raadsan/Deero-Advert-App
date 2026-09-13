@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -176,49 +177,41 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                         onTap: () {
                           _showImageSourceDialog(setModalState: setModalState);
                         },
-                        child: Container(
-                          width: 90,
-                          height: 90,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFFF3F4F6),
-                            image: _imageFile != null
-                                ? DecorationImage(
+                        child: _imageFile != null
+                            ? Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFFF3F4F6),
+                                  image: DecorationImage(
                                     image: FileImage(_imageFile!),
                                     fit: BoxFit.cover,
-                                  )
-                                : (currentImage != null &&
-                                      currentImage.isNotEmpty)
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                      currentImage.startsWith('http')
-                                          ? currentImage
-                                          : BaseUrl + currentImage,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child:
-                              (_imageFile == null &&
-                                  (currentImage == null ||
-                                      currentImage.isEmpty))
-                              ? Center(
+                                  ),
+                                ),
+                              )
+                            : SafeNetworkAvatar(
+                                imageUrl: (currentImage != null && currentImage.isNotEmpty)
+                                    ? (currentImage.startsWith('http') ? currentImage : BaseUrl + currentImage)
+                                    : null,
+                                radius: 45,
+                                shimmerBase: const Color(0xFFE5E7EB),
+                                shimmerHighlight: const Color(0xFFF9FAFB),
+                                errorWidget: CircleAvatar(
+                                  radius: 45,
+                                  backgroundColor: const Color(0xFFF3F4F6),
                                   child: Text(
                                     currentName.isNotEmpty
-                                        ? currentName
-                                              .substring(0, 1)
-                                              .toUpperCase()
-                                        : "U",
+                                        ? currentName.substring(0, 1).toUpperCase()
+                                        : 'U',
                                     style: GoogleFonts.outfit(
                                       fontSize: 36,
                                       fontWeight: FontWeight.bold,
                                       color: const Color(0xFF374151),
                                     ),
                                   ),
-                                )
-                              : null,
-                        ),
+                                ),
+                              ),
                       ),
                       Positioned(
                         bottom: 0,
@@ -399,48 +392,41 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                     children: [
                       GestureDetector(
                         onTap: _showImageSourceDialog,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFFF3F4F6),
-                            image: _imageFile != null
-                                ? DecorationImage(
+                        child: _imageFile != null
+                            ? Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFFF3F4F6),
+                                  image: DecorationImage(
                                     image: FileImage(_imageFile!),
                                     fit: BoxFit.cover,
-                                  )
-                                : (user.image != null && user.image!.isNotEmpty)
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                      user.image!.startsWith('http')
-                                          ? user.image!
-                                          : BaseUrl + user.image!,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child:
-                              (_imageFile == null &&
-                                  (user.image == null || user.image!.isEmpty))
-                              ? Center(
+                                  ),
+                                ),
+                              )
+                            : SafeNetworkAvatar(
+                                imageUrl: (user.image != null && user.image!.isNotEmpty)
+                                    ? (user.image!.startsWith('http') ? user.image! : BaseUrl + user.image!)
+                                    : null,
+                                radius: 50,
+                                shimmerBase: const Color(0xFFE5E7EB),
+                                shimmerHighlight: const Color(0xFFF9FAFB),
+                                errorWidget: CircleAvatar(
+                                  radius: 50,
+                                  backgroundColor: const Color(0xFFF3F4F6),
                                   child: Text(
-                                    user.fullname != null &&
-                                            user.fullname!.isNotEmpty
-                                        ? user.fullname!
-                                              .substring(0, 1)
-                                              .toUpperCase()
-                                        : "U",
+                                    user.fullname?.isNotEmpty == true
+                                        ? user.fullname![0].toUpperCase()
+                                        : 'U',
                                     style: GoogleFonts.outfit(
                                       fontSize: 40,
                                       fontWeight: FontWeight.bold,
                                       color: const Color(0xFF374151),
                                     ),
                                   ),
-                                )
-                              : null,
-                        ),
+                                ),
+                              ),
                       ),
                       Positioned(
                         bottom: 0,

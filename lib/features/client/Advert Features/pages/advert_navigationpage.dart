@@ -1,4 +1,5 @@
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/core/themes/color_page.dart';
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/chat_provider.dart';
@@ -35,9 +36,10 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      
+
       if (userProvider.userModel?.user != null) {
-        int currentUserId = int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
+        int currentUserId =
+            int.tryParse(userProvider.userModel!.user!.id.toString()) ?? -1;
         chatProvider.connectSocket(currentUserId);
         chatProvider.fetchConversations();
       }
@@ -67,6 +69,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
       }
     }
   }
+
   Future<void> _openlinkedin() async {
     if (!await launchUrl(
       Uri.parse(kAdvertSocialLinkedInUrl),
@@ -129,8 +132,9 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     return Consumer<NavigationProvider>(
       builder: (context, navProvider, _) {
         final userProvider = Provider.of<UserProvider>(context);
-        final userRole = userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
-        
+        final userRole =
+            userProvider.userModel?.user?.role?.name?.toLowerCase() ?? 'user';
+
         // If not a regular 'user' (Admin/Staff), show the simplified chat navigation
         if (userRole != 'user') {
           return const AdvertChatMainNavigation();
@@ -292,9 +296,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    Color color = isSelected
-        ? const Color(0xffEF7044)
-        : Colors.grey;
+    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
 
     return InkWell(
       onTap: () => navProvider.setPageIndex(index),
@@ -375,16 +377,15 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                   : null;
 
               if (imageUrl != null) {
-                return Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: color, width: 1.6),
-                    image: DecorationImage(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.cover,
-                    ),
+                return SafeNetworkAvatar(
+                  imageUrl: imageUrl,
+                  radius: 13,
+                  shimmerBase: const Color(0xFF2A2A2A),
+                  shimmerHighlight: const Color(0xFF3D3D3D),
+                  errorWidget: Icon(
+                    isSelected ? IconlyBold.profile : IconlyLight.profile,
+                    color: color,
+                    size: 24,
                   ),
                 );
               }
@@ -416,9 +417,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    Color color = isSelected
-        ? const Color(0xffEF7044)
-        : Colors.grey;
+    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
 
     return InkWell(
       onTap: () => navProvider.setPageIndex(index),

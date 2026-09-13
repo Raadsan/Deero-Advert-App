@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/portfolio_model.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +21,10 @@ class PortfolioProvider extends ChangeNotifier {
         final decodeData = jsonDecode(response.body);
         portfolioModel = PortfolioModel.fromJson(decodeData);
       } else {
-        error = "Failed to load portfolio. Status code: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      error = "Failed to load portfolio: $e";
+      error = AppErrorHandler.toFriendlyMessage(e);
     }
     isLoading = false;
     notifyListeners();

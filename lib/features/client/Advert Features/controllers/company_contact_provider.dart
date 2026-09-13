@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -43,13 +44,13 @@ class CompanyContactProvider with ChangeNotifier {
               .map((item) => CompanyContact.fromJson(item))
               .toList();
         } else {
-          _errorMessage = data['message'] ?? "Failed to fetch contacts";
+          _errorMessage = AppErrorHandler.toFriendlyMessage(data['message']);
         }
       } else {
-        _errorMessage = "Server error: ${response.statusCode}";
+        _errorMessage = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      _errorMessage = "Connection error: $e";
+      _errorMessage = AppErrorHandler.toFriendlyMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();

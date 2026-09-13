@@ -2,17 +2,19 @@ import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/core/themes/color_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/hosting_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/portfolio_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/achievement_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/major_client_provider.dart';
-import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_notificationpage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_portfoliopage.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_project_details.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/service_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/navigation_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_cart_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_achievment_card_widget.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
@@ -67,10 +69,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     final up = Provider.of<UserProvider>(context, listen: false);
 
     // Initial important data — global discounts work without login
-    await Future.wait([
-      up.refreshUser(),
-      up.fetchGlobalDiscounts(),
-    ]);
+    await Future.wait([up.refreshUser(), up.fetchGlobalDiscounts()]);
     sp.getAllServices();
 
     // Defer non-critical sections slightly to ensure smooth UI interaction
@@ -264,37 +263,37 @@ class _AdvertHomepageState extends State<AdvertHomepage>
   }
 
   List<_HomeSliderItem> _defaultSliderItems() => const [
-        _HomeSliderItem(
-          title: "Web Solution",
-          description:
-              "We offer complete web services, including web design, domain registration, domain transfer, SSL certificates, and web hosting. We create responsive websites that look wonderful on any device, including smartphones, tablets, and desktop computers.",
-          imagePath: "images/advertimages/web.png",
-        ),
-        _HomeSliderItem(
-          title: "Graphic Design",
-          description:
-              "We offer range of graphic design services encompasses logo design, UI design, event branding, and brand identity. With our expertise, we create captivating and memorable brands that resonate with the public, leaving a lasting impression",
-          imagePath: "images/advertimages/graphic.png",
-        ),
-        _HomeSliderItem(
-          title: "Digital Marketing",
-          description:
-              "We offer complete digital marketing services, including social media marketing strategy, social media analytics, branding, content writing and social media management. The strategy team understands business cases and how to align digital marketing activities to ensure they deliver on your objectives.",
-          imagePath: "images/advertimages/marketing.png",
-        ),
-        _HomeSliderItem(
-          title: "Event Branding",
-          description:
-              "Full suite of event branding and consulting, from digital strategy and social media to on-site branding and highlight videos.",
-          imagePath: "images/advertimages/event.png",
-        ),
-        _HomeSliderItem(
-          title: "Digital Consulting",
-          description:
-              "We offer a full suite of digital consulting services, including digital marketing, branding consulting, event consulting, assisting with content creation, digital media, and communication consulting.",
-          imagePath: "images/advertimages/digital.png",
-        ),
-      ];
+    _HomeSliderItem(
+      title: "Web Solution",
+      description:
+          "We offer complete web services, including web design, domain registration, domain transfer, SSL certificates, and web hosting. We create responsive websites that look wonderful on any device, including smartphones, tablets, and desktop computers.",
+      imagePath: "images/advertimages/web.png",
+    ),
+    _HomeSliderItem(
+      title: "Graphic Design",
+      description:
+          "We offer range of graphic design services encompasses logo design, UI design, event branding, and brand identity. With our expertise, we create captivating and memorable brands that resonate with the public, leaving a lasting impression",
+      imagePath: "images/advertimages/graphic.png",
+    ),
+    _HomeSliderItem(
+      title: "Digital Marketing",
+      description:
+          "We offer complete digital marketing services, including social media marketing strategy, social media analytics, branding, content writing and social media management. The strategy team understands business cases and how to align digital marketing activities to ensure they deliver on your objectives.",
+      imagePath: "images/advertimages/marketing.png",
+    ),
+    _HomeSliderItem(
+      title: "Event Branding",
+      description:
+          "Full suite of event branding and consulting, from digital strategy and social media to on-site branding and highlight videos.",
+      imagePath: "images/advertimages/event.png",
+    ),
+    _HomeSliderItem(
+      title: "Digital Consulting",
+      description:
+          "We offer a full suite of digital consulting services, including digital marketing, branding consulting, event consulting, assisting with content creation, digital media, and communication consulting.",
+      imagePath: "images/advertimages/digital.png",
+    ),
+  ];
 
   /// One offer slide per service (not per sub-package). Defaults if none.
   List<_HomeSliderItem> _buildSliderItems(
@@ -344,16 +343,16 @@ class _AdvertHomepageState extends State<AdvertHomepage>
       String imagePath = "";
       final icon = service.serviceIcon;
       if (icon != null && icon.isNotEmpty) {
-        imagePath =
-            icon.startsWith("http") ? icon : "${BaseUrl}uploads/$icon";
+        imagePath = icon.startsWith("http") ? icon : "${BaseUrl}uploads/$icon";
       }
 
       offers.add(
         _HomeSliderItem(
           title: offerTitle,
           description: service.serviceTitle ?? "Service",
-          imagePath:
-              imagePath.isNotEmpty ? imagePath : "images/advertimages/web.png",
+          imagePath: imagePath.isNotEmpty
+              ? imagePath
+              : "images/advertimages/web.png",
           isNetworkImage: imagePath.isNotEmpty,
           isOffer: true,
           serviceIndex: serviceIndex,
@@ -392,16 +391,36 @@ class _AdvertHomepageState extends State<AdvertHomepage>
             backgroundColor: bgColor,
             centerTitle: true,
             actions: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdvertNotificationpage(),
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, _) {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertCartPage(),
+                        ),
+                      );
+                    },
+                    icon: Badge(
+                      isLabelVisible: cartProvider.totalItems > 0,
+                      label: Text(
+                        "${cartProvider.totalItems}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFEB4724),
+                      child: const Icon(
+                        IconlyLight.buy,
+                        color: Color(0xff660E0D),
+                        size: 24,
+                      ),
                     ),
                   );
                 },
-                icon: Icon(IconlyLight.notification, color: Color(0xff660E0D)),
               ),
             ],
             title: SizedBox(
@@ -461,97 +480,109 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                     serviceprovider.isLoading && service.isEmpty
                         ? const AdvertSliderShimmer()
                         : ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF5C0F0C),
-                            Color(0xFFB52E1D),
-                            Color(0xFFE24122),
-                            Color(0xFFF3664C),
-                          ],
-                          stops: [0.0, 0.38, 0.72, 1.0],
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: CarouselSlider(
-                              items: sliderItems.map((item) {
-                                return AdvertSliderCard(
-                                  title: item.title,
-                                  description: item.description,
-                                  imagePath: item.imagePath,
-                                  isNetworkImage: item.isNetworkImage,
-                                  isOffer: item.isOffer,
-                                  onTap: item.serviceIndex != null
-                                      ? () {
-                                          Provider.of<NavigationProvider>(
-                                            context,
-                                            listen: false,
-                                          ).navigateToService(
-                                            item.serviceIndex!,
-                                          );
-                                        }
-                                      : null,
-                                );
-                              }).toList(),
-                              options: CarouselOptions(
-                                height: 160,
-                                viewportFraction: 1,
-                                aspectRatio: 16 / 9,
-                                autoPlay: true,
-                                autoPlayInterval: const Duration(seconds: 4),
-                                autoPlayAnimationDuration: const Duration(
-                                  milliseconds: 800,
+                            borderRadius: BorderRadius.circular(15),
+                            child: Container(
+                              height: 150,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF5C0F0C),
+                                    Color(0xFFB52E1D),
+                                    Color(0xFFE24122),
+                                    Color(0xFFF3664C),
+                                  ],
+                                  stops: [0.0, 0.38, 0.72, 1.0],
                                 ),
-                                autoPlayCurve: Curves.fastOutSlowIn,
-                                enlargeCenterPage: true,
-                                scrollDirection: Axis.horizontal,
-                                onPageChanged: (index, reason) {
-                                  setState(() {
-                                    _currentIndex = index;
-                                  });
-                                },
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: CarouselSlider(
+                                      items: sliderItems.map((item) {
+                                        return AdvertSliderCard(
+                                          title: item.title,
+                                          description: item.description,
+                                          imagePath: item.imagePath,
+                                          isNetworkImage: item.isNetworkImage,
+                                          isOffer: item.isOffer,
+                                          onTap: item.serviceIndex != null
+                                              ? () {
+                                                  Provider.of<
+                                                        NavigationProvider
+                                                      >(context, listen: false)
+                                                      .navigateToService(
+                                                        item.serviceIndex!,
+                                                      );
+                                                }
+                                              : null,
+                                        );
+                                      }).toList(),
+                                      options: CarouselOptions(
+                                        height: 160,
+                                        viewportFraction: 1,
+                                        aspectRatio: 16 / 9,
+                                        autoPlay: true,
+                                        autoPlayInterval: const Duration(
+                                          seconds: 4,
+                                        ),
+                                        autoPlayAnimationDuration:
+                                            const Duration(milliseconds: 800),
+                                        autoPlayCurve: Curves.fastOutSlowIn,
+                                        enlargeCenterPage: true,
+                                        scrollDirection: Axis.horizontal,
+                                        onPageChanged: (index, reason) {
+                                          setState(() {
+                                            _currentIndex = index;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  // Indicator dots
+                                  Positioned(
+                                    bottom: 12,
+                                    left: 0,
+                                    right: 0,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: List.generate(
+                                        sliderItems.length,
+                                        (index) {
+                                          return AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 300,
+                                            ),
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            width: _currentIndex == index
+                                                ? 20
+                                                : 8,
+                                            height: 5,
+                                            decoration: BoxDecoration(
+                                              color: _currentIndex == index
+                                                  ? const Color(
+                                                      0xFFF3664C,
+                                                    ) // Active button-like color
+                                                  : Colors.white.withOpacity(
+                                                      0.5,
+                                                    ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          // Indicator dots
-                          Positioned(
-                            bottom: 12,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(sliderItems.length, (index) {
-                                return AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  width: _currentIndex == index ? 20 : 8,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    color: _currentIndex == index
-                                        ? const Color(
-                                            0xFFF3664C,
-                                          ) // Active button-like color
-                                        : Colors.white.withOpacity(0.5),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ),
                     SizedBox(height: 20),
                     Text(
                       "Our Services",
@@ -566,19 +597,14 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                       // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
                       child: serviceprovider.isLoading
                           ? const Center(child: ServiceCardShimmer())
-                          : serviceprovider.error != null
+                          : (serviceprovider.error != null || service.isEmpty)
                           ? Center(
-                              child: Text(
-                                "Error: ${serviceprovider.error}",
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          : service.isEmpty
-                          ? Center(
-                              child: Text(
-                                "No services available",
-                                style: GoogleFonts.poppins(color: Colors.grey),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 24),
+                                child: Text(
+                                  "No services available yet.",
+                                  style: GoogleFonts.poppins(color: Colors.grey),
+                                ),
                               ),
                             )
                           : Padding(
@@ -596,19 +622,20 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                       .map((p) => p.sId ?? "")
                                       .where((id) => id.isNotEmpty)
                                       .toList();
-                                  final discountLabel =
-                                      userProvider.getServiceDiscountBadge(
-                                    s.sId,
-                                    packageIds: packageIds,
-                                  );
+                                  final discountLabel = userProvider
+                                      .getServiceDiscountBadge(
+                                        s.sId,
+                                        packageIds: packageIds,
+                                      );
                                   return ServiceCard(
-                                    ImageUrl: s.serviceIcon != null
-                                        ? (s.serviceIcon!.startsWith('http')
-                                              ? s.serviceIcon!
-                                              : BaseUrl +
-                                                    "uploads/" +
-                                                    s.serviceIcon!)
-                                        : "",
+                                    ImageUrl: () {
+                                      final icon = s.serviceIcon;
+                                      if (icon == null || icon.trim().isEmpty) return "";
+                                      if (icon.startsWith('http')) return icon;
+                                      final clean = icon.replaceAll('\\', '/');
+                                      if (clean.startsWith('uploads/')) return BaseUrl + clean;
+                                      return "${BaseUrl}uploads/$clean";
+                                    }(),
                                     serviceTitle: s.serviceTitle,
                                     discountLabel: discountLabel,
                                     onTap: () {
@@ -743,7 +770,8 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               ),
                             ),
                           )
-                        : portfolioProvider.error.isNotEmpty
+                        : (portfolioProvider.error.isNotEmpty ||
+                            (portfolioProvider.portfolioModel?.portfolios?.isEmpty ?? true))
                         ? Container(
                             height: 140,
                             width: double.infinity,
@@ -753,26 +781,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             ),
                             child: Center(
                               child: Text(
-                                "Error: ${portfolioProvider.error}",
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          )
-                        : (portfolioProvider
-                                  .portfolioModel
-                                  ?.portfolios
-                                  ?.isEmpty ??
-                              true)
-                        ? Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "No portfolio projects yet",
+                                "No portfolio projects yet.",
                                 style: GoogleFonts.poppins(color: Colors.grey),
                               ),
                             ),
@@ -789,8 +798,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                                 ? project.mainImage!
                                                 : BaseUrl + project.mainImage!)
                                           : "";
-                                      final title =
-                                          project.title ?? "Our Work";
+                                      final title = project.title ?? "Our Work";
                                       final description =
                                           (project.description ?? "")
                                               .trim()
@@ -810,56 +818,70 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                             ),
                                           );
                                         },
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: 140,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade900,
-                                            image: DecorationImage(
-                                              image: imageUrl.isNotEmpty
-                                                  ? NetworkImage(imageUrl)
-                                                        as ImageProvider
-                                                  : const AssetImage(
-                                                      "images/advertimages/1.png",
-                                                    ),
-                                              fit: BoxFit.cover,
-                                              colorFilter: ColorFilter.mode(
-                                                Colors.black.withOpacity(0.5),
-                                                BlendMode.darken,
-                                              ),
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 18,
-                                            vertical: 16,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(15),
+                                          child: Stack(
                                             children: [
-                                              Text(
-                                                title,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                              // Background image with shimmer + error fallback
+                                              Positioned.fill(
+                                                child: imageUrl.isNotEmpty
+                                                    ? SafeNetworkImage(
+                                                        imageUrl: imageUrl,
+                                                        fit: BoxFit.cover,
+                                                        shimmerBase: Colors.grey.shade900,
+                                                        shimmerHighlight: Colors.grey.shade800,
+                                                        errorWidget: Image.asset(
+                                                          "images/advertimages/1.png",
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "images/advertimages/1.png",
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                              ),
+                                              // Dark overlay
+                                              Positioned.fill(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black.withValues(alpha: 0.5),
+                                                  ),
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                description,
-                                                textAlign: TextAlign.justify,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 12,
-                                                  height: 1.4,
-                                                  color: Colors.white
-                                                      .withOpacity(0.9),
+                                              // Text content
+                                              Container(
+                                                width: double.infinity,
+                                                height: 140,
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 18,
+                                                  vertical: 16,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      title,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      description,
+                                                      textAlign: TextAlign.justify,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 12,
+                                                        height: 1.4,
+                                                        color: Colors.white.withValues(alpha: 0.9),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
@@ -935,19 +957,16 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                                     ),
                                   ],
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    fullUrl,
+                                  child: SafeNetworkImage(
+                                    imageUrl: fullUrl,
                                     fit: BoxFit.contain,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.business,
-                                              color: Colors.grey,
-                                            ),
+                                    shimmerBase: const Color(0xFFEEEEEE),
+                                    shimmerHighlight: const Color(0xFFFAFAFA),
+                                    errorWidget: const Icon(
+                                      Icons.business,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
                               );
                             }).toList(),
                             options: CarouselOptions(
@@ -1054,9 +1073,14 @@ class AnimatedAchievementCard extends StatelessWidget {
         fullUrl = "${EndPoint.replaceAll('api/', '')}$imagePath";
       }
 
-      iconWidget = Image.network(
-        fullUrl,
-        errorBuilder: (c, e, s) => const SizedBox(),
+      iconWidget = SafeNetworkImage(
+        imageUrl: fullUrl,
+        width: 55,
+        height: 55,
+        fit: BoxFit.contain,
+        shimmerBase: const Color(0xFF2A2A2A),
+        shimmerHighlight: const Color(0xFF3D3D3D),
+        errorWidget: const SizedBox(),
       );
     }
 
@@ -1274,4 +1298,3 @@ class _HomeSliderItem {
     this.serviceIndex,
   });
 }
-

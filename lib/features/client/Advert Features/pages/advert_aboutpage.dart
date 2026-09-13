@@ -3,6 +3,7 @@ import 'package:deero_advert_app/features/client/Advert%20Features/widgets/adver
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:deero_advert_app/core/constant.dart';
+import 'package:deero_advert_app/core/widgets/safe_network_image.dart';
 import 'package:deero_advert_app/core/themes/color_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/testimonial_provider.dart';
 import 'package:flutter/material.dart';
@@ -595,19 +596,20 @@ class _AdvertAboutpageState extends State<AdvertAboutpage>
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      CircleAvatar(
+                      SafeNetworkAvatar(
+                        imageUrl: imageUrl.isNotEmpty
+                            ? (imageUrl.startsWith('http')
+                                ? imageUrl
+                                : BaseUrl + imageUrl)
+                            : null,
                         radius: 25,
-                        backgroundColor: Colors.grey.shade200,
-                        backgroundImage: imageUrl.isNotEmpty
-                            ? NetworkImage(
-                                imageUrl.startsWith('http')
-                                    ? imageUrl
-                                    : BaseUrl + imageUrl,
-                              )
-                            : null,
-                        child: imageUrl.isEmpty
-                            ? const Icon(Icons.person, color: Colors.grey)
-                            : null,
+                        shimmerBase: const Color(0xFFE5E7EB),
+                        shimmerHighlight: const Color(0xFFF3F4F6),
+                        errorWidget: CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.grey.shade200,
+                          child: const Icon(Icons.person, color: Colors.grey),
+                        ),
                       ),
                       const SizedBox(width: 15),
                       Expanded(

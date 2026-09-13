@@ -3,6 +3,9 @@ import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/check_domain_provider.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/transaction_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/controllers/cart_provider.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/models/cart_item_model.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_cart_page.dart';
 import 'package:deero_advert_app/core/widgets/transaction_receipt_bottomsheet.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +20,7 @@ import 'package:line_icons/line_icons.dart';
 class AdvertDomainsPage extends StatelessWidget {
   final String searchedDomain;
 
-  const AdvertDomainsPage({super.key, required this.searchedDomain});
+  const AdvertDomainsPage({super.key, this.searchedDomain = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +46,43 @@ class AdvertDomainsPage extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 letterSpacing: 2.0,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xff111827),
+                fontWeight: FontWeight.bold,
+                color: const Color(0xff651313),
               ),
             ),
+            actions: [
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, _) {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdvertCartPage(),
+                        ),
+                      );
+                    },
+                    icon: Badge(
+                      isLabelVisible: cartProvider.totalItems > 0,
+                      label: Text(
+                        "${cartProvider.totalItems}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: const Color(0xFFEB4724),
+                      child: const Icon(
+                        IconlyLight.buy,
+                        color: Color(0xff651313),
+                        size: 24,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           body: domainProvider.loading
               ? const DomainResultShimmer()
@@ -839,43 +875,138 @@ class _DomainCardState extends State<_DomainCard> {
                   ),
                 ),
                 if (widget.isAvailable)
-                  Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xff111827).withOpacity(0.8),
-                        width: 1.5,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () {
-                          if (isLoggedIn) {
-                            _showPaymentSelection(
-                              context,
-                              userProvider,
-                              transactionProvider,
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginPage(),
-                              ),
-                            );
-                          }
+                  Consumer<CartProvider>(
+                    builder: (context, cartProvider, _) {
+                      final cartItemId = 'domain_${widget.domain}';
+                      final isInCart = cartProvider.isInCart(cartItemId) ||
+                          cartProvider.isInCart(widget.domain);
+
+                      final double parsedPrice = double.tryParse(
+                            widget.price.replaceAll(RegExp(r'[^0-9.]'), ''),
+                          ) ??
+                          0.0;
+                      final String tld = widget.domain.contains('.')
+                          ? ".${widget.domain.split('.').last}"
+                          : "all";
+                      final bestFlex =
+                          userProvider.getBestDiscount("domain", tld);
+                      final bool isBonusAvailable =
+                          userProvider.userModel?.user?.bonusStatus ==
+                              "BonusAvailable";
+
+                      double bonusDiscount =
+                          isBonusAvailable ? parsedPrice / 2 : 0;
+                      double flexDiscount = 0;
+
+                      if (bestFlex != null) {
+                        if (bestFlex.discountType == "percentage") {
+                          flexDiscount = parsedPrice *
+                              (bestFlex.discountValue ?? 0) /
+                              100;
+                        } else {
+                          flexDiscount = (bestFlex.discountValue ?? 0);
+                        }
+                      }
+
+                      final double appliedDiscount = bonusDiscount > flexDiscount
+                          ? bonusDiscount
+                          : flexDiscount;
+                      final double finalPrice = parsedPrice - appliedDiscount;
+
+                      final cartItem = CartItem(
+                        id: cartItemId,
+                        type: 'domain',
+                        title: 'Domain Registration',
+                        subtitle: widget.domain,
+                        price: finalPrice,
+                        originalAmount: parsedPrice,
+                        discountApplied: appliedDiscount,
+                        options: '1 Year Registration',
+                        domainData: {
+                          'name': widget.domain,
+                          'price': finalPrice,
+                          if (widget.id != null) '_id': widget.id,
                         },
-                        child: const Icon(
-                          IconlyLight.buy,
-                          color: Color(0xff111827),
-                          size: 24,
-                        ),
-                      ),
-                    ),
+                      );
+
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            height: 46,
+                            width: 46,
+                            decoration: BoxDecoration(
+                              color: isInCart
+                                  ? const Color(0xFF651313)
+                                  : const Color(0xFFFCD7C3),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isInCart
+                                    ? const Color(0xFF651313)
+                                    : const Color(0xFFEB4724).withOpacity(0.3),
+                              ),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  cartProvider.toggleCartItem(
+                                    cartItem,
+                                    context: context,
+                                  );
+                                },
+                                child: Icon(
+                                  isInCart
+                                      ? Icons.check_circle_rounded
+                                      : IconlyLight.buy,
+                                  color: isInCart
+                                      ? Colors.white
+                                      : const Color(0xFF651313),
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            height: 46,
+                            width: 46,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEB4724),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  if (isLoggedIn) {
+                                    _showPaymentSelection(
+                                      context,
+                                      userProvider,
+                                      transactionProvider,
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const LoginPage(),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Icon(
+                                  IconlyLight.arrow_right,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
               ],
             ),

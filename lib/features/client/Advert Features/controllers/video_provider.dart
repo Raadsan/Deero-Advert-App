@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deero_advert_app/core/app_error_handler.dart';
 import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/models/video_model.dart';
 import 'package:flutter/material.dart';
@@ -25,14 +26,14 @@ class VideoProvider extends ChangeNotifier {
         } else if (data['success'] == true || data.containsKey('title')) {
           videoModel = VideoModel.fromJson(data);
         } else {
-          error = data['message'] ?? "Unknown error occurred";
+          error = AppErrorHandler.toFriendlyMessage(data['message']);
         }
       } else {
-        error = "Failed to load videos. Status: ${response.statusCode}";
+        error = AppErrorHandler.fromStatusCode(response.statusCode);
       }
     } catch (e) {
-      error = "Network Error: ${e.toString()}";
-      print("Video fetch error: $e");
+      error = AppErrorHandler.toFriendlyMessage(e);
+      debugPrint("Video fetch error: $e");
     } finally {
       isLoading = false;
       notifyListeners();
