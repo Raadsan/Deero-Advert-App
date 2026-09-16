@@ -9,18 +9,18 @@ class ServiceCard extends StatelessWidget {
     this.ImageUrl,
     this.onTap,
     this.discountLabel,
+    this.width,
   });
   final String? serviceTitle;
   final String? ImageUrl;
   final VoidCallback? onTap;
   final String? discountLabel;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width:
-          (MediaQuery.of(context).size.width - 55) /
-          3, // Leave room for padding & spacing
+      width: width ?? (MediaQuery.of(context).size.width - 55) / 3,
       decoration: BoxDecoration(
         color: const Color(0xffFCD7C3).withOpacity(0.30),
         borderRadius: BorderRadius.circular(10),
@@ -90,10 +90,11 @@ class ServiceCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       serviceTitle ?? "",
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                        fontSize: 10,
+                        fontSize: 13,
                         fontWeight: FontWeight.w400,
                         color: const Color(0xff5D6574),
                         height: 1.2,

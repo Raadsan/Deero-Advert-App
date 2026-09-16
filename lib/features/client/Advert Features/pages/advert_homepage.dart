@@ -380,626 +380,779 @@ class _AdvertHomepageState extends State<AdvertHomepage>
           });
         }
 
-        return Scaffold(
-          backgroundColor: bgColor,
-          drawer: const AdvertDrawer(),
-          appBar: AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle(
-              systemNavigationBarColor: bgColor,
-            ),
-            surfaceTintColor: const Color(0xFFF9FAFB),
-            backgroundColor: bgColor,
-            centerTitle: true,
-            actions: [
-              Consumer<CartProvider>(
-                builder: (context, cartProvider, _) {
-                  return IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AdvertCartPage(),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final pageWidth =
+                (constraints.maxWidth -
+                        MediaQuery.paddingOf(context).horizontal)
+                    .clamp(0.0, 1200.0)
+                    .toDouble();
+            final gutter = pageWidth >= 600 ? 24.0 : 16.0;
+            final contentWidth = pageWidth - gutter * 2;
+            final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+            final columns = (contentWidth / (100 * textScale.clamp(1.0, 2.0)))
+                .floor()
+                .clamp(1, 3);
+            final cardWidth = (contentWidth - (columns - 1) * 12) / columns;
+            final bannerHeight = 190.0 * textScale.clamp(1.0, 2.5);
+            return Scaffold(
+              backgroundColor: bgColor,
+              drawer: const AdvertDrawer(),
+              appBar: AppBar(
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  systemNavigationBarColor: bgColor,
+                ),
+                surfaceTintColor: const Color(0xFFF9FAFB),
+                backgroundColor: bgColor,
+                centerTitle: true,
+                actions: [
+                  Consumer<CartProvider>(
+                    builder: (context, cartProvider, _) {
+                      return IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdvertCartPage(),
+                            ),
+                          );
+                        },
+                        icon: Badge(
+                          isLabelVisible: cartProvider.totalItems > 0,
+                          label: Text(
+                            "${cartProvider.totalItems}",
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          backgroundColor: const Color(0xFFEB4724),
+                          child: const Icon(
+                            IconlyLight.buy,
+                            color: Color(0xff660E0D),
+                            size: 24,
+                          ),
                         ),
                       );
                     },
-                    icon: Badge(
-                      isLabelVisible: cartProvider.totalItems > 0,
-                      label: Text(
-                        "${cartProvider.totalItems}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                  ),
+                ],
+                title: SizedBox(
+                  height: 40,
+                  child: TextFormField(
+                    controller: _domainController,
+                    onFieldSubmitted: (_) => _searchDomain(context),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(IconlyLight.search, color: Colors.grey),
+                      hintText: "Search your domain",
+                      fillColor: Colors.white,
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
-                      backgroundColor: const Color(0xFFEB4724),
-                      child: const Icon(
-                        IconlyLight.buy,
-                        color: Color(0xff660E0D),
-                        size: 24,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(46),
                       ),
                     ),
-                  );
-                },
-              ),
-            ],
-            title: SizedBox(
-              height: 40,
-              child: TextFormField(
-                controller: _domainController,
-                onFieldSubmitted: (_) => _searchDomain(context),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(IconlyLight.search, color: Colors.grey),
-                  hintText: "Search your domain",
-                  fillColor: Colors.white,
-                  hintStyle: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(46),
                   ),
                 ),
+                leading: Builder(
+                  builder: (context) => IconButton(
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                    icon: Image.asset("images/advertimages/menu.png"),
+                  ),
+                ),
+                automaticallyImplyLeading: false,
               ),
-            ),
-            leading: Builder(
-              builder: (context) => IconButton(
-                onPressed: () => Scaffold.of(context).openDrawer(),
-                icon: Image.asset("images/advertimages/menu.png"),
-              ),
-            ),
-            automaticallyImplyLeading: false,
-          ),
-          body: RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: const Color(0xffEF7044),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 10),
+              body: SafeArea(
+                top: false,
+                child: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  color: const Color(0xffEF7044),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1200),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(gutter, 0, gutter, 96),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10),
 
-                    BonusProgressCard(
-                      bonus: bonus,
-                      bonusStatus: bonusStatus,
-                      registerSource: registerSource,
-                      minBonus: Provider.of<UserProvider>(
-                        context,
-                      ).minBonusForDiscount,
-                      discount: Provider.of<UserProvider>(
-                        context,
-                      ).discountPercentage,
-                    ),
-                    SizedBox(height: 16),
-                    serviceprovider.isLoading && service.isEmpty
-                        ? const AdvertSliderShimmer()
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Container(
-                              height: 150,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFF5C0F0C),
-                                    Color(0xFFB52E1D),
-                                    Color(0xFFE24122),
-                                    Color(0xFFF3664C),
-                                  ],
-                                  stops: [0.0, 0.38, 0.72, 1.0],
-                                ),
-                                borderRadius: BorderRadius.circular(15),
+                              BonusProgressCard(
+                                bonus: bonus,
+                                bonusStatus: bonusStatus,
+                                registerSource: registerSource,
+                                minBonus: Provider.of<UserProvider>(
+                                  context,
+                                ).minBonusForDiscount,
+                                discount: Provider.of<UserProvider>(
+                                  context,
+                                ).discountPercentage,
                               ),
-                              child: Stack(
+                              SizedBox(height: 16),
+                              serviceprovider.isLoading && service.isEmpty
+                                  ? AdvertSliderShimmer(height: bannerHeight)
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: Container(
+                                        height: bannerHeight,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              Color(0xFF5C0F0C),
+                                              Color(0xFFB52E1D),
+                                              Color(0xFFE24122),
+                                              Color(0xFFF3664C),
+                                            ],
+                                            stops: [0.0, 0.38, 0.72, 1.0],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Positioned.fill(
+                                              child: CarouselSlider(
+                                                items: sliderItems.map((item) {
+                                                  return AdvertSliderCard(
+                                                    title: item.title,
+                                                    description:
+                                                        item.description,
+                                                    imagePath: item.imagePath,
+                                                    isNetworkImage:
+                                                        item.isNetworkImage,
+                                                    isOffer: item.isOffer,
+                                                    onTap:
+                                                        item.serviceIndex !=
+                                                            null
+                                                        ? () {
+                                                            Provider.of<
+                                                                  NavigationProvider
+                                                                >(
+                                                                  context,
+                                                                  listen: false,
+                                                                )
+                                                                .navigateToService(
+                                                                  item.serviceIndex!,
+                                                                );
+                                                          }
+                                                        : null,
+                                                  );
+                                                }).toList(),
+                                                options: CarouselOptions(
+                                                  height: bannerHeight,
+                                                  viewportFraction: 1,
+                                                  aspectRatio: 16 / 9,
+                                                  autoPlay: true,
+                                                  autoPlayInterval:
+                                                      const Duration(
+                                                        seconds: 4,
+                                                      ),
+                                                  autoPlayAnimationDuration:
+                                                      const Duration(
+                                                        milliseconds: 800,
+                                                      ),
+                                                  autoPlayCurve:
+                                                      Curves.fastOutSlowIn,
+                                                  enlargeCenterPage: true,
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  onPageChanged:
+                                                      (index, reason) {
+                                                        setState(() {
+                                                          _currentIndex = index;
+                                                        });
+                                                      },
+                                                ),
+                                              ),
+                                            ),
+                                            // Indicator dots
+                                            Positioned(
+                                              bottom: 12,
+                                              left: 0,
+                                              right: 0,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: List.generate(
+                                                  sliderItems.length,
+                                                  (index) {
+                                                    return AnimatedContainer(
+                                                      duration: const Duration(
+                                                        milliseconds: 300,
+                                                      ),
+                                                      margin:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 4,
+                                                          ),
+                                                      width:
+                                                          _currentIndex == index
+                                                          ? 20
+                                                          : 8,
+                                                      height: 5,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            _currentIndex ==
+                                                                index
+                                                            ? const Color(
+                                                                0xFFF3664C,
+                                                              ) // Active button-like color
+                                                            : Colors.white
+                                                                  .withOpacity(
+                                                                    0.5,
+                                                                  ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              10,
+                                                            ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                              SizedBox(height: 20),
+                              Text(
+                                "Our Services",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 17,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                width: double.infinity,
+                                // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
+                                child: serviceprovider.isLoading
+                                    ? ServiceCardShimmer(cardWidth: cardWidth)
+                                    : (serviceprovider.error != null ||
+                                          service.isEmpty)
+                                    ? Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 24,
+                                          ),
+                                          child: Text(
+                                            "No services available yet.",
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                        ),
+                                        child: Wrap(
+                                          spacing: 12,
+                                          runSpacing: 12,
+                                          alignment: WrapAlignment.center,
+                                          children: service.asMap().entries.map((
+                                            entry,
+                                          ) {
+                                            int index = entry.key;
+                                            var s = entry.value;
+                                            final userProvider =
+                                                Provider.of<UserProvider>(
+                                                  context,
+                                                );
+                                            final packageIds =
+                                                (s.packages ?? [])
+                                                    .map((p) => p.sId ?? "")
+                                                    .where(
+                                                      (id) => id.isNotEmpty,
+                                                    )
+                                                    .toList();
+                                            final discountLabel = userProvider
+                                                .getServiceDiscountBadge(
+                                                  s.sId,
+                                                  packageIds: packageIds,
+                                                );
+                                            return ServiceCard(
+                                              width: cardWidth,
+                                              ImageUrl: () {
+                                                final icon = s.serviceIcon;
+                                                if (icon == null ||
+                                                    icon.trim().isEmpty)
+                                                  return "";
+                                                if (icon.startsWith('http'))
+                                                  return icon;
+                                                final clean = icon.replaceAll(
+                                                  '\\',
+                                                  '/',
+                                                );
+                                                if (clean.startsWith(
+                                                  'uploads/',
+                                                ))
+                                                  return BaseUrl + clean;
+                                                return "${BaseUrl}uploads/$clean";
+                                              }(),
+                                              serviceTitle: s.serviceTitle,
+                                              discountLabel: discountLabel,
+                                              onTap: () {
+                                                Provider.of<NavigationProvider>(
+                                                  context,
+                                                  listen: false,
+                                                ).navigateToService(index);
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                              ),
+
+                              SizedBox(height: 15),
+
+                              // Our Portfolio Section
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Positioned.fill(
-                                    child: CarouselSlider(
-                                      items: sliderItems.map((item) {
-                                        return AdvertSliderCard(
-                                          title: item.title,
-                                          description: item.description,
-                                          imagePath: item.imagePath,
-                                          isNetworkImage: item.isNetworkImage,
-                                          isOffer: item.isOffer,
-                                          onTap: item.serviceIndex != null
-                                              ? () {
-                                                  Provider.of<
-                                                        NavigationProvider
-                                                      >(context, listen: false)
-                                                      .navigateToService(
-                                                        item.serviceIndex!,
-                                                      );
-                                                }
-                                              : null,
-                                        );
-                                      }).toList(),
+                                  Text(
+                                    "Our Portfolio",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 17,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AdvertPortfoliopage(),
+                                        ),
+                                      );
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(50, 30),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: Text(
+                                      "See All",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: const Color(
+                                          0xFFE24122,
+                                        ), // Matching light orange text
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              portfolioProvider.isLoading
+                                  ? Container(
+                                      height: 140,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      padding: const EdgeInsets.only(
+                                        left: 18,
+                                        top: 20,
+                                        bottom: 20,
+                                        right: 8,
+                                      ),
+                                      child: Shimmer.fromColors(
+                                        baseColor: Colors.grey.shade300,
+                                        highlightColor: Colors.grey.shade100,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 6,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    height: 20,
+                                                    width: double.infinity,
+                                                    color: Colors.white,
+                                                  ),
+                                                  const SizedBox(height: 12),
+                                                  Container(
+                                                    height: 10,
+                                                    width: double.infinity,
+                                                    color: Colors.white,
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Container(
+                                                    height: 10,
+                                                    width:
+                                                        MediaQuery.of(
+                                                          context,
+                                                        ).size.width *
+                                                        0.4,
+                                                    color: Colors.white,
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Container(
+                                                    height: 10,
+                                                    width:
+                                                        MediaQuery.of(
+                                                          context,
+                                                        ).size.width *
+                                                        0.2,
+                                                    color: Colors.white,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 4,
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Container(
+                                                  height: 30,
+                                                  width: 30,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Colors.white,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : (portfolioProvider.error.isNotEmpty ||
+                                        (portfolioProvider
+                                                .portfolioModel
+                                                ?.portfolios
+                                                ?.isEmpty ??
+                                            true))
+                                  ? Container(
+                                      height: 140,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "No portfolio projects yet.",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : CarouselSlider(
+                                      items:
+                                          (portfolioProvider
+                                                      .portfolioModel
+                                                      ?.portfolios ??
+                                                  [])
+                                              .map((project) {
+                                                final imageUrl =
+                                                    project.mainImage != null
+                                                    ? (project.mainImage!
+                                                              .startsWith(
+                                                                'http',
+                                                              )
+                                                          ? project.mainImage!
+                                                          : BaseUrl +
+                                                                project
+                                                                    .mainImage!)
+                                                    : "";
+                                                final title =
+                                                    project.title ?? "Our Work";
+                                                final description =
+                                                    (project.description ?? "")
+                                                        .trim()
+                                                        .isNotEmpty
+                                                    ? project.description!
+                                                    : "Explore this featured project from our portfolio.";
+
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            AdvertProjectDetailsPage(
+                                                              project: project,
+                                                            ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          15,
+                                                        ),
+                                                    child: Stack(
+                                                      children: [
+                                                        // Background image with shimmer + error fallback
+                                                        Positioned.fill(
+                                                          child:
+                                                              imageUrl
+                                                                  .isNotEmpty
+                                                              ? SafeNetworkImage(
+                                                                  imageUrl:
+                                                                      imageUrl,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  shimmerBase:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade900,
+                                                                  shimmerHighlight:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade800,
+                                                                  errorWidget: Image.asset(
+                                                                    "images/advertimages/1.png",
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                                )
+                                                              : Image.asset(
+                                                                  "images/advertimages/1.png",
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                        ),
+                                                        // Dark overlay
+                                                        Positioned.fill(
+                                                          child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.5,
+                                                                      ),
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        // Text content
+                                                        Container(
+                                                          width:
+                                                              double.infinity,
+                                                          height: 140,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 18,
+                                                                vertical: 16,
+                                                              ),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                title,
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: GoogleFonts.poppins(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              Text(
+                                                                description,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .justify,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: GoogleFonts.poppins(
+                                                                  fontSize: 12,
+                                                                  height: 1.4,
+                                                                  color: Colors
+                                                                      .white
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.9,
+                                                                      ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              })
+                                              .toList(),
                                       options: CarouselOptions(
-                                        height: 160,
-                                        viewportFraction: 1,
-                                        aspectRatio: 16 / 9,
+                                        height: 140,
+                                        viewportFraction: 1.0,
                                         autoPlay: true,
                                         autoPlayInterval: const Duration(
                                           seconds: 4,
                                         ),
-                                        autoPlayAnimationDuration:
-                                            const Duration(milliseconds: 800),
-                                        autoPlayCurve: Curves.fastOutSlowIn,
-                                        enlargeCenterPage: true,
-                                        scrollDirection: Axis.horizontal,
-                                        onPageChanged: (index, reason) {
-                                          setState(() {
-                                            _currentIndex = index;
-                                          });
-                                        },
+                                        enlargeCenterPage: false,
                                       ),
                                     ),
-                                  ),
-                                  // Indicator dots
-                                  Positioned(
-                                    bottom: 12,
-                                    left: 0,
-                                    right: 0,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: List.generate(
-                                        sliderItems.length,
-                                        (index) {
-                                          return AnimatedContainer(
-                                            duration: const Duration(
-                                              milliseconds: 300,
-                                            ),
-                                            margin: const EdgeInsets.symmetric(
-                                              horizontal: 4,
-                                            ),
-                                            width: _currentIndex == index
-                                                ? 20
-                                                : 8,
-                                            height: 5,
-                                            decoration: BoxDecoration(
-                                              color: _currentIndex == index
-                                                  ? const Color(
-                                                      0xFFF3664C,
-                                                    ) // Active button-like color
-                                                  : Colors.white.withOpacity(
-                                                      0.5,
-                                                    ),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Our Services",
-                      style: GoogleFonts.poppins(
-                        fontSize: 17,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      // Note: Removed the grey/orange background box to match the clean look of the new mock-up.
-                      child: serviceprovider.isLoading
-                          ? const Center(child: ServiceCardShimmer())
-                          : (serviceprovider.error != null || service.isEmpty)
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 24),
-                                child: Text(
-                                  "No services available yet.",
-                                  style: GoogleFonts.poppins(color: Colors.grey),
+
+                              SizedBox(height: 40),
+
+                              Text(
+                                "Our Major Clients",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 17,
+                                  letterSpacing: 1,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                alignment: WrapAlignment.center,
-                                children: service.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  var s = entry.value;
-                                  final userProvider =
-                                      Provider.of<UserProvider>(context);
-                                  final packageIds = (s.packages ?? [])
-                                      .map((p) => p.sId ?? "")
-                                      .where((id) => id.isNotEmpty)
-                                      .toList();
-                                  final discountLabel = userProvider
-                                      .getServiceDiscountBadge(
-                                        s.sId,
-                                        packageIds: packageIds,
-                                      );
-                                  return ServiceCard(
-                                    ImageUrl: () {
-                                      final icon = s.serviceIcon;
-                                      if (icon == null || icon.trim().isEmpty) return "";
-                                      if (icon.startsWith('http')) return icon;
-                                      final clean = icon.replaceAll('\\', '/');
-                                      if (clean.startsWith('uploads/')) return BaseUrl + clean;
-                                      return "${BaseUrl}uploads/$clean";
-                                    }(),
-                                    serviceTitle: s.serviceTitle,
-                                    discountLabel: discountLabel,
-                                    onTap: () {
-                                      Provider.of<NavigationProvider>(
-                                        context,
-                                        listen: false,
-                                      ).navigateToService(index);
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                    ),
+                              const SizedBox(height: 10),
+                              Consumer<MajorClientProvider>(
+                                builder: (context, clientProvider, child) {
+                                  if (clientProvider.isLoading) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
 
-                    SizedBox(height: 15),
+                                  final clients =
+                                      clientProvider
+                                          .majorClientModel
+                                          ?.clients ??
+                                      [];
+                                  if (clients.isEmpty)
+                                    return const SizedBox.shrink();
 
-                    // Our Portfolio Section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Our Portfolio",
-                          style: GoogleFonts.poppins(
-                            fontSize: 17,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const AdvertPortfoliopage(),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(50, 30),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            "See All",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: const Color(
-                                0xFFE24122,
-                              ), // Matching light orange text
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    portfolioProvider.isLoading
-                        ? Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            padding: const EdgeInsets.only(
-                              left: 18,
-                              top: 20,
-                              bottom: 20,
-                              right: 8,
-                            ),
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 6,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          height: 20,
-                                          width: double.infinity,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Container(
-                                          height: 10,
-                                          width: double.infinity,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Container(
-                                          height: 10,
-                                          width:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.width *
-                                              0.4,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Container(
-                                          height: 10,
-                                          width:
-                                              MediaQuery.of(
-                                                context,
-                                              ).size.width *
-                                              0.2,
-                                          color: Colors.white,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Container(
-                                        height: 30,
-                                        width: 30,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : (portfolioProvider.error.isNotEmpty ||
-                            (portfolioProvider.portfolioModel?.portfolios?.isEmpty ?? true))
-                        ? Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "No portfolio projects yet.",
-                                style: GoogleFonts.poppins(color: Colors.grey),
-                              ),
-                            ),
-                          )
-                        : CarouselSlider(
-                            items:
-                                (portfolioProvider.portfolioModel?.portfolios ??
-                                        [])
-                                    .map((project) {
-                                      final imageUrl = project.mainImage != null
-                                          ? (project.mainImage!.startsWith(
-                                                  'http',
-                                                )
-                                                ? project.mainImage!
-                                                : BaseUrl + project.mainImage!)
-                                          : "";
-                                      final title = project.title ?? "Our Work";
-                                      final description =
-                                          (project.description ?? "")
-                                              .trim()
-                                              .isNotEmpty
-                                          ? project.description!
-                                          : "Explore this featured project from our portfolio.";
+                                  return SizedBox(
+                                    height: 80,
+                                    width: double.infinity,
+                                    child: CarouselSlider(
+                                      items: clients.map((client) {
+                                        String imagePath =
+                                            (client.images != null &&
+                                                client.images!.isNotEmpty)
+                                            ? client.images![0].replaceAll(
+                                                '\\',
+                                                '/',
+                                              )
+                                            : "";
 
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AdvertProjectDetailsPage(
-                                                    project: project,
-                                                  ),
+                                        String fullUrl =
+                                            imagePath.startsWith('http')
+                                            ? imagePath
+                                            : "${EndPoint.replaceAll('api/', '')}$imagePath";
+
+                                        return Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                          );
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(15),
-                                          child: Stack(
-                                            children: [
-                                              // Background image with shimmer + error fallback
-                                              Positioned.fill(
-                                                child: imageUrl.isNotEmpty
-                                                    ? SafeNetworkImage(
-                                                        imageUrl: imageUrl,
-                                                        fit: BoxFit.cover,
-                                                        shimmerBase: Colors.grey.shade900,
-                                                        shimmerHighlight: Colors.grey.shade800,
-                                                        errorWidget: Image.asset(
-                                                          "images/advertimages/1.png",
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      )
-                                                    : Image.asset(
-                                                        "images/advertimages/1.png",
-                                                        fit: BoxFit.cover,
-                                                      ),
+                                            border: Border.all(
+                                              color: Colors.grey.withOpacity(
+                                                0.1,
                                               ),
-                                              // Dark overlay
-                                              Positioned.fill(
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black.withValues(alpha: 0.5),
-                                                  ),
+                                              width: 1.0,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.02,
                                                 ),
-                                              ),
-                                              // Text content
-                                              Container(
-                                                width: double.infinity,
-                                                height: 140,
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 18,
-                                                  vertical: 16,
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      title,
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      description,
-                                                      textAlign: TextAlign.justify,
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 12,
-                                                        height: 1.4,
-                                                        color: Colors.white.withValues(alpha: 0.9),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      );
-                                    })
-                                    .toList(),
-                            options: CarouselOptions(
-                              height: 140,
-                              viewportFraction: 1.0,
-                              autoPlay: true,
-                              autoPlayInterval: const Duration(seconds: 4),
-                              enlargeCenterPage: false,
-                            ),
+                                          child: SafeNetworkImage(
+                                            imageUrl: fullUrl,
+                                            fit: BoxFit.contain,
+                                            shimmerBase: const Color(
+                                              0xFFEEEEEE,
+                                            ),
+                                            shimmerHighlight: const Color(
+                                              0xFFFAFAFA,
+                                            ),
+                                            errorWidget: const Icon(
+                                              Icons.business,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      options: CarouselOptions(
+                                        height: 80,
+                                        viewportFraction: (180 / contentWidth)
+                                            .clamp(0.15, 1.0),
+                                        autoPlay: true,
+                                        scrollDirection: Axis.horizontal,
+                                        enableInfiniteScroll: true,
+                                        enlargeCenterPage: false,
+                                        scrollPhysics:
+                                            const BouncingScrollPhysics(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 40),
+                              Text(
+                                "Our Achievements",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 17,
+                                  letterSpacing: 1,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              AdvertAchievmentCardWidget(),
+                              SizedBox(height: 20),
+                            ],
                           ),
-
-                    SizedBox(height: 40),
-
-                    Text(
-                      "Our Major Clients",
-                      style: GoogleFonts.poppins(
-                        fontSize: 17,
-                        letterSpacing: 1,
-                        color: Colors.grey,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Consumer<MajorClientProvider>(
-                      builder: (context, clientProvider, child) {
-                        if (clientProvider.isLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        final clients =
-                            clientProvider.majorClientModel?.clients ?? [];
-                        if (clients.isEmpty) return const SizedBox.shrink();
-
-                        return SizedBox(
-                          height: 80,
-                          width: double.infinity,
-                          child: CarouselSlider(
-                            items: clients.map((client) {
-                              String imagePath =
-                                  (client.images != null &&
-                                      client.images!.isNotEmpty)
-                                  ? client.images![0].replaceAll('\\', '/')
-                                  : "";
-
-                              String fullUrl = imagePath.startsWith('http')
-                                  ? imagePath
-                                  : "${EndPoint.replaceAll('api/', '')}$imagePath";
-
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    width: 1.0,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.02),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                  child: SafeNetworkImage(
-                                    imageUrl: fullUrl,
-                                    fit: BoxFit.contain,
-                                    shimmerBase: const Color(0xFFEEEEEE),
-                                    shimmerHighlight: const Color(0xFFFAFAFA),
-                                    errorWidget: const Icon(
-                                      Icons.business,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                              );
-                            }).toList(),
-                            options: CarouselOptions(
-                              height: 80,
-                              viewportFraction: 0.32,
-                              autoPlay: true,
-                              scrollDirection: Axis.horizontal,
-                              enableInfiniteScroll: true,
-                              enlargeCenterPage: false,
-                              scrollPhysics: const BouncingScrollPhysics(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 40),
-                    Text(
-                      "Our Achievements",
-                      style: GoogleFonts.poppins(
-                        fontSize: 17,
-                        letterSpacing: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    AdvertAchievmentCardWidget(),
-                    SizedBox(height: 20),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -1241,20 +1394,26 @@ class AchievementShimmer extends StatelessWidget {
 
 class ServiceCardShimmer extends StatelessWidget {
   final int itemCount;
+  final double cardWidth;
 
-  const ServiceCardShimmer({super.key, this.itemCount = 6});
+  const ServiceCardShimmer({
+    super.key,
+    this.itemCount = 6,
+    required this.cardWidth,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+      spacing: 12,
+      runSpacing: 12,
       children: List.generate(itemCount, (index) {
         return Shimmer.fromColors(
           baseColor: Colors.grey.shade300,
           highlightColor: Colors.grey.shade100,
           child: Container(
-            width: (MediaQuery.of(context).size.width - 50) / 3,
+            width: cardWidth,
+            padding: const EdgeInsets.symmetric(vertical: 16),
             child: SizedBox(
               width: 90,
               child: Column(

@@ -23,125 +23,137 @@ class AdvertSliderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageWidth = isOffer ? 110.0 : 155.0;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 600;
+        final imageWidth = (constraints.maxWidth * 0.30)
+            .clamp(64.0, 260.0)
+            .toDouble();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 10, top: 15, bottom: 25),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              right: isOffer ? 4 : -10,
-              top: isOffer ? 8 : -10,
-              bottom: isOffer ? 18 : -10,
-              child: FadeInRight(
-                child: SizedBox(
-                  width: imageWidth,
-                  child: isNetworkImage && imagePath.isNotEmpty
-                      ? Image.network(
-                          imagePath,
-                          width: imageWidth,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, progress) {
-                            if (progress == null) return child;
-                            return Shimmer.fromColors(
-                              baseColor: Colors.white24,
-                              highlightColor: Colors.white54,
-                              child: Container(
-                                width: imageWidth * 0.75,
-                                height: imageWidth * 0.75,
-                                decoration: BoxDecoration(
-                                  color: Colors.white24,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            "images/advertimages/web.png",
-                            width: imageWidth,
-                            fit: BoxFit.contain,
-                          ),
-                        )
-                      : Image.asset(
-                          imagePath,
-                          width: imageWidth,
-                          fit: BoxFit.contain,
-                        ),
-                ),
-              ),
+        return GestureDetector(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 10,
+              top: 15,
+              bottom: 25,
             ),
-            Row(
+            child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                Expanded(
-                  flex: isOffer ? 7 : 6,
-                  child: FadeInLeft(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          title,
-                          style: isOffer
-                              ? GoogleFonts.pacifico(
-                                  fontSize: 36,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.15,
-                                )
-                              : GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                  height: 1.05,
-                                ),
-                          maxLines: isOffer ? 2 : 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          description,
-                          style: GoogleFonts.poppins(
-                            fontSize: isOffer ? 13 : 11,
-                            color: Colors.white.withOpacity(0.9),
-                            fontWeight:
-                                isOffer ? FontWeight.w500 : FontWeight.w400,
-                            height: isOffer ? 1.4 : 1.35,
-                          ),
-                          textAlign: TextAlign.left,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                Positioned(
+                  right: isOffer ? 4 : -10,
+                  top: isOffer ? 8 : -10,
+                  bottom: isOffer ? 18 : -10,
+                  child: FadeInRight(
+                    child: SizedBox(
+                      width: imageWidth,
+                      child: isNetworkImage && imagePath.isNotEmpty
+                          ? Image.network(
+                              imagePath,
+                              width: imageWidth,
+                              fit: BoxFit.contain,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.white24,
+                                  highlightColor: Colors.white54,
+                                  child: Container(
+                                    width: imageWidth * 0.75,
+                                    height: imageWidth * 0.75,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white24,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                "images/advertimages/web.png",
+                                width: imageWidth,
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          : Image.asset(
+                              imagePath,
+                              width: imageWidth,
+                              fit: BoxFit.contain,
+                            ),
                     ),
                   ),
                 ),
-                Expanded(
-                  flex: isOffer ? 3 : 4,
-                  child: const SizedBox(),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: isOffer ? 7 : 6,
+                      child: FadeInLeft(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              title,
+                              style: isOffer
+                                  ? GoogleFonts.pacifico(
+                                      fontSize: wide ? 36 : 30,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.15,
+                                    )
+                                  : GoogleFonts.poppins(
+                                      fontSize: wide ? 24 : 20,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                      height: 1.05,
+                                    ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              description,
+                              style: GoogleFonts.poppins(
+                                fontSize: wide ? 14 : 12,
+                                color: Colors.white.withOpacity(0.9),
+                                fontWeight: isOffer
+                                    ? FontWeight.w500
+                                    : FontWeight.w400,
+                                height: isOffer ? 1.4 : 1.35,
+                              ),
+                              textAlign: TextAlign.left,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(flex: isOffer ? 3 : 4, child: const SizedBox()),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 /// Skeleton shown while homepage slider data is loading.
 class AdvertSliderShimmer extends StatelessWidget {
-  const AdvertSliderShimmer({super.key});
+  const AdvertSliderShimmer({super.key, this.height = 190});
+
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: Container(
-        height: 160,
+        height: height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -203,8 +215,8 @@ class AdvertSliderShimmer extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 64,
+                      height: 64,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,

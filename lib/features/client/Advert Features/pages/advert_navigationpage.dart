@@ -164,7 +164,91 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
               }
             },
             child: Scaffold(
-              body: pages[navProvider.currentIndex],
+              body: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (MediaQuery.sizeOf(context).width >= 840)
+                    Container(
+                      width: MediaQuery.sizeOf(context).width >= 1200
+                          ? 220
+                          : 200,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFF660E0D), Color(0xFF962719)],
+                        ),
+                      ),
+                      child: SafeArea(
+                        right: false,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 28,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  14,
+                                  0,
+                                  14,
+                                  28,
+                                ),
+                                child: Text(
+                                  'DEERO',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ),
+                              _buildNavItem(
+                                index: 0,
+                                icon: IconlyLight.home,
+                                activeIcon: IconlyBold.home,
+                                label: 'Home',
+                                navProvider: navProvider,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildNavItem(
+                                index: 1,
+                                icon: IconlyLight.category,
+                                activeIcon: IconlyBold.category,
+                                label: 'Service',
+                                navProvider: navProvider,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildNavItem(
+                                index: 2,
+                                icon: IconlyLight.chat,
+                                activeIcon: IconlyBold.chat,
+                                label: 'Chat',
+                                navProvider: navProvider,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildHostingNavItem(
+                                index: 3,
+                                label: 'Hosting',
+                                navProvider: navProvider,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildProfileNavItem(
+                                index: 4,
+                                label: 'Profile',
+                                navProvider: navProvider,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  Expanded(child: pages[navProvider.currentIndex]),
+                ],
+              ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
               floatingActionButton: navProvider.currentIndex == 2
@@ -226,65 +310,101 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                         ],
                       ),
                     ),
-              bottomNavigationBar: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 20,
-                      color: Colors.black.withOpacity(.1),
+              bottomNavigationBar: MediaQuery.sizeOf(context).width >= 840
+                  ? null
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 20,
+                            color: Colors.black.withOpacity(.1),
+                          ),
+                        ],
+                      ),
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildNavItem(
+                                index: 0,
+                                icon: IconlyLight.home,
+                                activeIcon: IconlyBold.home,
+                                label: 'Home',
+                                navProvider: navProvider,
+                              ),
+                              _buildNavItem(
+                                index: 1,
+                                icon: IconlyLight.category,
+                                activeIcon: IconlyBold.category,
+                                label: 'Service',
+                                navProvider: navProvider,
+                              ),
+                              _buildNavItem(
+                                index: 2,
+                                icon: IconlyLight.chat,
+                                activeIcon: IconlyBold.chat,
+                                label: 'Chat',
+                                navProvider: navProvider,
+                              ),
+                              _buildHostingNavItem(
+                                index: 3,
+                                label: 'Hosting',
+                                navProvider: navProvider,
+                              ),
+                              _buildProfileNavItem(
+                                index: 4,
+                                label: 'Profile',
+                                navProvider: navProvider,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildNavItem(
-                          index: 0,
-                          icon: IconlyLight.home,
-                          activeIcon: IconlyBold.home,
-                          label: 'Home',
-                          navProvider: navProvider,
-                        ),
-                        _buildNavItem(
-                          index: 1,
-                          icon: IconlyLight.category,
-                          activeIcon: IconlyBold.category,
-                          label: 'Service',
-                          navProvider: navProvider,
-                        ),
-                        _buildNavItem(
-                          index: 2,
-                          icon: IconlyLight.chat,
-                          activeIcon: IconlyBold.chat,
-                          label: 'Chat',
-                          navProvider: navProvider,
-                        ),
-                        _buildHostingNavItem(
-                          index: 3,
-                          label: 'Hosting',
-                          navProvider: navProvider,
-                        ),
-                        _buildProfileNavItem(
-                          index: 4,
-                          label: 'Profile',
-                          navProvider: navProvider,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _navigationTile({
+    required int index,
+    required NavigationProvider navProvider,
+    required List<Widget> children,
+  }) {
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    final selected = navProvider.currentIndex == index;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: Material(
+        color: wide && selected ? const Color(0xFFEF7044) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => navProvider.setPageIndex(index),
+          child: Padding(
+            padding: wide
+                ? const EdgeInsets.symmetric(horizontal: 14, vertical: 16)
+                : EdgeInsets.zero,
+            child: wide
+                ? Row(
+                    children: [
+                      ...children.take(children.length - 1),
+                      Expanded(child: children.last),
+                    ],
+                  )
+                : Column(mainAxisSize: MainAxisSize.min, children: children),
+          ),
+        ),
+      ),
     );
   }
 
@@ -296,62 +416,63 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    Color color = wide
+        ? Colors.white
+        : (isSelected ? const Color(0xffEF7044) : Colors.grey);
 
-    return InkWell(
-      onTap: () => navProvider.setPageIndex(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(isSelected ? activeIcon : icon, color: color, size: 24),
-              if (index == 2) // Chat index for regular users
-                Consumer<ChatProvider>(
-                  builder: (context, chatProvider, _) {
-                    final unreadCount = chatProvider.totalUnreadCount;
-                    if (unreadCount == 0) return const SizedBox.shrink();
-                    return Positioned(
-                      right: -4,
-                      top: -4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          unreadCount > 9 ? '9+' : unreadCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 7,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+    return _navigationTile(
+      index: index,
+      navProvider: navProvider,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(isSelected ? activeIcon : icon, color: color, size: 24),
+            if (index == 2) // Chat index for regular users
+              Consumer<ChatProvider>(
+                builder: (context, chatProvider, _) {
+                  final unreadCount = chatProvider.totalUnreadCount;
+                  if (unreadCount == 0) return const SizedBox.shrink();
+                  return Positioned(
+                    right: -4,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
-                    );
-                  },
-                ),
-            ],
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unreadCount > 9 ? '9+' : unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 7,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+        SizedBox(height: wide ? 0 : 4, width: wide ? 14 : 0),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: color,
+            fontSize: wide ? 14 : 10,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: color,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -361,53 +482,54 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    Color color = wide
+        ? Colors.white
+        : (isSelected ? const Color(0xffEF7044) : Colors.grey);
 
-    return InkWell(
-      onTap: () => navProvider.setPageIndex(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Consumer<UserProvider>(
-            builder: (context, userProvider, _) {
-              final image = userProvider.userModel?.user?.image;
-              final hasImage = image != null && image.isNotEmpty;
-              final imageUrl = hasImage
-                  ? (image.startsWith('http') ? image : BaseUrl + image)
-                  : null;
+    return _navigationTile(
+      index: index,
+      navProvider: navProvider,
+      children: [
+        Consumer<UserProvider>(
+          builder: (context, userProvider, _) {
+            final image = userProvider.userModel?.user?.image;
+            final hasImage = image != null && image.isNotEmpty;
+            final imageUrl = hasImage
+                ? (image.startsWith('http') ? image : BaseUrl + image)
+                : null;
 
-              if (imageUrl != null) {
-                return SafeNetworkAvatar(
-                  imageUrl: imageUrl,
-                  radius: 13,
-                  shimmerBase: const Color(0xFF2A2A2A),
-                  shimmerHighlight: const Color(0xFF3D3D3D),
-                  errorWidget: Icon(
-                    isSelected ? IconlyBold.profile : IconlyLight.profile,
-                    color: color,
-                    size: 24,
-                  ),
-                );
-              }
-
-              return Icon(
-                isSelected ? IconlyBold.profile : IconlyLight.profile,
-                color: color,
-                size: 24,
+            if (imageUrl != null) {
+              return SafeNetworkAvatar(
+                imageUrl: imageUrl,
+                radius: 13,
+                shimmerBase: const Color(0xFF2A2A2A),
+                shimmerHighlight: const Color(0xFF3D3D3D),
+                errorWidget: Icon(
+                  isSelected ? IconlyBold.profile : IconlyLight.profile,
+                  color: color,
+                  size: 24,
+                ),
               );
-            },
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
+            }
+
+            return Icon(
+              isSelected ? IconlyBold.profile : IconlyLight.profile,
               color: color,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
+              size: 24,
+            );
+          },
+        ),
+        SizedBox(height: wide ? 0 : 4, width: wide ? 14 : 0),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: color,
+            fontSize: wide ? 14 : 10,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -417,30 +539,31 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     required NavigationProvider navProvider,
   }) {
     bool isSelected = navProvider.currentIndex == index;
-    Color color = isSelected ? const Color(0xffEF7044) : Colors.grey;
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    Color color = wide
+        ? Colors.white
+        : (isSelected ? const Color(0xffEF7044) : Colors.grey);
 
-    return InkWell(
-      onTap: () => navProvider.setPageIndex(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            "images/advertimages/hosting.png",
-            width: 24,
-            height: 24,
+    return _navigationTile(
+      index: index,
+      navProvider: navProvider,
+      children: [
+        Image.asset(
+          "images/advertimages/hosting.png",
+          width: 24,
+          height: 24,
+          color: color,
+        ),
+        SizedBox(height: wide ? 0 : 4, width: wide ? 14 : 0),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
             color: color,
+            fontSize: wide ? 14 : 10,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: color,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
