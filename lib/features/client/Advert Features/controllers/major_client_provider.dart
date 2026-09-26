@@ -10,7 +10,8 @@ class MajorClientProvider extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
-  Future<void> getMajorClients() async {
+  Future<void> getMajorClients({bool force = false}) async {
+    if (!force && majorClientModel != null) return;
     try {
       isLoading = true;
       errorMessage = "";

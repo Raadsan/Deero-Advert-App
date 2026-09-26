@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Regular (non-discount) homepage promo banner slide.
+/// For discount / offer slides, use [AdvertDiscountBannerCard] instead.
 class AdvertSliderCard extends StatelessWidget {
   final String title;
   final String description;
   final String imagePath;
   final bool isNetworkImage;
-  final bool isOffer;
   final VoidCallback? onTap;
 
   const AdvertSliderCard({
@@ -17,7 +18,6 @@ class AdvertSliderCard extends StatelessWidget {
     required this.description,
     required this.imagePath,
     this.isNetworkImage = false,
-    this.isOffer = false,
     this.onTap,
   });
 
@@ -43,9 +43,9 @@ class AdvertSliderCard extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 Positioned(
-                  right: isOffer ? 4 : -10,
-                  top: isOffer ? 8 : -10,
-                  bottom: isOffer ? 18 : -10,
+                  right: -10,
+                  top: -10,
+                  bottom: -10,
                   child: FadeInRight(
                     child: SizedBox(
                       width: imageWidth,
@@ -86,7 +86,7 @@ class AdvertSliderCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      flex: isOffer ? 7 : 6,
+                      flex: 6,
                       child: FadeInLeft(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,22 +94,16 @@ class AdvertSliderCard extends StatelessWidget {
                           children: [
                             Text(
                               title,
-                              style: isOffer
-                                  ? GoogleFonts.pacifico(
-                                      fontSize: wide ? 36 : 30,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.15,
-                                    )
-                                  : GoogleFonts.poppins(
-                                      fontSize: wide ? 24 : 20,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
-                                      height: 1.05,
-                                    ),
-                              maxLines: 2,
+                              style: GoogleFonts.poppins(
+                                fontSize: wide ? 24 : 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                                height: 1.05,
+                              ),
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              softWrap: false,
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -117,20 +111,19 @@ class AdvertSliderCard extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: wide ? 14 : 12,
                                 color: Colors.white.withOpacity(0.9),
-                                fontWeight: isOffer
-                                    ? FontWeight.w500
-                                    : FontWeight.w400,
-                                height: isOffer ? 1.4 : 1.35,
+                                fontWeight: FontWeight.w400,
+                                height: 1.35,
                               ),
                               textAlign: TextAlign.left,
-                              maxLines: 3,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              softWrap: false,
                             ),
                           ],
                         ),
                       ),
                     ),
-                    Expanded(flex: isOffer ? 3 : 4, child: const SizedBox()),
+                    const Expanded(flex: 4, child: SizedBox()),
                   ],
                 ),
               ],

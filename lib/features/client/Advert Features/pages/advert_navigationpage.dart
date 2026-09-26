@@ -30,6 +30,17 @@ class AdvertNavigationpage extends StatefulWidget {
 class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
   bool _socialFabOpen = false;
 
+  // Keep tab pages alive so Homepage does not re-fetch on every tab switch
+  late final Widget _homePage = const AdvertHomepage();
+  late final Widget _chatPage = const AdvertChatListPage();
+  late final Widget _hostingPage = AdvertHostingpage();
+  late final Widget _profilePage = const AdvertProfilePage();
+  int _cachedServiceIndex = 0;
+  late Widget _servicePage = AdvertServicepage(
+    key: ValueKey('service-$_cachedServiceIndex'),
+    initialIndex: _cachedServiceIndex,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +55,23 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
         chatProvider.fetchConversations();
       }
     });
+  }
+
+  List<Widget> _pagesFor(int serviceIndex) {
+    if (serviceIndex != _cachedServiceIndex) {
+      _cachedServiceIndex = serviceIndex;
+      _servicePage = AdvertServicepage(
+        key: ValueKey('service-$serviceIndex'),
+        initialIndex: serviceIndex,
+      );
+    }
+    return [
+      _homePage,
+      _servicePage,
+      _chatPage,
+      _hostingPage,
+      _profilePage,
+    ];
   }
 
   Future<void> _openUrl(String url) async {
@@ -116,16 +144,7 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
     );
   }
 
-  List<Widget> _buildPages(int serviceIndex) => [
-    AdvertHomepage(),
-    AdvertServicepage(
-      key: ValueKey('service-$serviceIndex'),
-      initialIndex: serviceIndex,
-    ),
-    const AdvertChatListPage(),
-    AdvertHostingpage(),
-    const AdvertProfilePage(),
-  ];
+  List<Widget> _buildPages(int serviceIndex) => _pagesFor(serviceIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +265,12 @@ class _AdvertNavigationpageState extends State<AdvertNavigationpage> {
                         ),
                       ),
                     ),
-                  Expanded(child: pages[navProvider.currentIndex]),
+                  Expanded(
+                    child: IndexedStack(
+                      index: navProvider.currentIndex,
+                      children: pages,
+                    ),
+                  ),
                 ],
               ),
               floatingActionButtonLocation:

@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                     "Welcome Back",
                     style: GoogleFonts.poppins(
                       fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: primaryColor,
                     ),
                   ),
@@ -107,15 +107,15 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         "Forgot password?",
                         style: GoogleFonts.poppins(
-                          color: secondaryColor,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400,
                           fontSize: 13,
                         ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
                   // Sign In Button
                   SizedBox(
@@ -173,14 +173,14 @@ class _LoginPageState extends State<LoginPage> {
                               "Sign In",
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
                             ),
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   Row(
                     children: [
                       Expanded(child: Divider(color: Colors.grey.shade300)),
@@ -197,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(child: Divider(color: Colors.grey.shade300)),
                     ],
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
 
                   // Google Sign In Button
                   SizedBox(
@@ -271,8 +271,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                     ),
                   ),
-
-                  const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -329,7 +327,7 @@ class _LoginPageState extends State<LoginPage> {
         Text(
           label,
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 13,
             color: Colors.black87,
           ),

@@ -10,7 +10,8 @@ class AchievementProvider extends ChangeNotifier {
   bool isLoading = false;
   String error = "";
 
-  Future<void> getAchievements() async {
+  Future<void> getAchievements({bool force = false}) async {
+    if (!force && achievementModel != null) return;
     isLoading = true;
     error = "";
     notifyListeners();

@@ -90,8 +90,9 @@ class ServiceCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       serviceTitle ?? "",
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,

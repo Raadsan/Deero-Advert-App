@@ -10,87 +10,163 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_profile_details_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_terms_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 
-class AdvertProfilePage extends StatelessWidget {
+class AdvertProfilePage extends StatefulWidget {
   const AdvertProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final box = GetStorage();
-    final isLoggedIn = box.hasData(isLogged);
-    final Color lightHeaderColor = const Color(
-      0xffE9F2F2,
-    ); // Very light teal/grey
+  State<AdvertProfilePage> createState() => _AdvertProfilePageState();
+}
 
+class _AdvertProfilePageState extends State<AdvertProfilePage> {
+  bool _checkingSession = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _validateSession());
+  }
+
+  Future<void> _validateSession() async {
+    if (!mounted) return;
+    setState(() => _checkingSession = true);
+    await context.read<UserProvider>().validateSession();
+    if (!mounted) return;
+    setState(() => _checkingSession = false);
+  }
+
+  Future<void> _openLogin() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+    if (!mounted) return;
+    await _validateSession();
+  }
+
+  /// Shown when guest taps Profile (or other account items).
+  Future<void> _showLoginPrompt({
+    String message = "Login to view your profile",
+  }) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _ProfileLoginPromptPage(
+          message: message,
+          onLogin: () async {
+            Navigator.pop(context);
+            await _openLogin();
+          },
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _validateSession();
+  }
+
+  void _requireLoginOr(
+    VoidCallback action, {
+    String loginMessage = "Login to view your profile",
+  }) {
+    final loggedIn = context.read<UserProvider>().isSessionValid;
+    if (loggedIn) {
+      action();
+    } else {
+      _showLoginPrompt(message: loginMessage);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
+          final loggedIn = userProvider.isSessionValid;
+          final user = loggedIn ? userProvider.userModel?.user : null;
+
+          if (_checkingSession) {
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xff660E0D)),
+            );
+          }
+
           return SingleChildScrollView(
             child: SafeArea(
               child: Column(
                 children: [
-                  // Header Section
+                  // Header — Guest icon + "Guest" when not logged in
                   Center(
                     child: Column(
                       children: [
-                        SafeNetworkAvatar(
-                          imageUrl: () {
-                            final img = userProvider.userModel?.user?.image;
-                            if (img == null || img.isEmpty) return null;
-                            return img.startsWith('http') ? img : BaseUrl + img;
-                          }(),
-                          radius: 40,
-                          shimmerBase: const Color(0xFFE5E7EB),
-                          shimmerHighlight: const Color(0xFFF3F4F6),
-                          errorWidget: CircleAvatar(
+                        if (loggedIn)
+                          SafeNetworkAvatar(
+                            imageUrl: () {
+                              final img = user?.image;
+                              if (img == null || img.isEmpty) return null;
+                              return img.startsWith('http')
+                                  ? img
+                                  : BaseUrl + img;
+                            }(),
                             radius: 40,
-                            backgroundColor: const Color(0xFFF3F4F6),
-                            child: Text(
-                              userProvider.userModel?.user?.fullname?.isNotEmpty == true
-                                  ? userProvider.userModel!.user!.fullname![0].toUpperCase()
-                                  : 'U',
-                              style: GoogleFonts.outfit(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF374151),
+                            shimmerBase: const Color(0xFFE5E7EB),
+                            shimmerHighlight: const Color(0xFFF3F4F6),
+                            errorWidget: CircleAvatar(
+                              radius: 40,
+                              backgroundColor: const Color(0xFFF3F4F6),
+                              child: Text(
+                                user?.fullname?.isNotEmpty == true
+                                    ? user!.fullname![0].toUpperCase()
+                                    : 'U',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF374151),
+                                ),
                               ),
                             ),
+                          )
+                        else
+                          const CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Color(0xFFF3F4F6),
+                            child: Icon(
+                              IconlyLight.profile,
+                              size: 40,
+                              color: Color(0xFF9CA3AF),
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 12),
                         Text(
-                          userProvider.userModel?.user?.fullname ??
-                              "Guest User",
+                          loggedIn ? (user?.fullname ?? "Guest") : "Guest",
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          userProvider.userModel?.user?.phone ??
-                              "Login to see details",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey,
+                        if (loggedIn) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            user?.phone ?? "",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Menu Sections
+                  // Account / About / Support — always visible
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
@@ -100,30 +176,21 @@ class AdvertProfilePage extends StatelessWidget {
                         _buildMenuItem(
                           icon: IconlyLight.profile,
                           title: "Profile",
-                          onTap: () {
-                            if (userProvider.userModel?.user != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AdvertProfileDetailsPage(),
-                                ),
-                              );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                              );
-                            }
-                          },
+                          onTap: () => _requireLoginOr(() {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const AdvertProfileDetailsPage(),
+                              ),
+                            );
+                          }),
                         ),
                         _buildMenuItem(
                           icon: IconlyLight.bookmark,
                           title: "Transactions",
-                          onTap: () {
-                            if (userProvider.userModel?.user != null) {
+                          onTap: () => _requireLoginOr(
+                            () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -131,21 +198,16 @@ class AdvertProfilePage extends StatelessWidget {
                                       const AdvertHistorypage(),
                                 ),
                               );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                              );
-                            }
-                          },
+                            },
+                            loginMessage:
+                                "Login to view your transaction history",
+                          ),
                         ),
                         _buildMenuItem(
                           icon: IconlyLight.ticket,
                           title: "My Bonuses",
-                          onTap: () {
-                            if (userProvider.userModel?.user != null) {
+                          onTap: () => _requireLoginOr(
+                            () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -153,15 +215,9 @@ class AdvertProfilePage extends StatelessWidget {
                                       const AdvertBonusHistoryPage(),
                                 ),
                               );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                              );
-                            }
-                          },
+                            },
+                            loginMessage: "Login to view your bonuses",
+                          ),
                         ),
 
                         const SizedBox(height: 25),
@@ -224,7 +280,7 @@ class AdvertProfilePage extends StatelessWidget {
                                 url,
                                 mode: LaunchMode.externalApplication,
                               );
-                            } else {
+                            } else if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Could not open Play Store."),
@@ -245,7 +301,7 @@ class AdvertProfilePage extends StatelessWidget {
                                 url,
                                 mode: LaunchMode.externalApplication,
                               );
-                            } else {
+                            } else if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Could not open link."),
@@ -268,25 +324,20 @@ class AdvertProfilePage extends StatelessWidget {
                         const SizedBox(height: 25),
 
                         _buildSectionHeader("Account Management"),
-                        userProvider.userModel?.user != null
-                            ? _buildMenuItem(
-                                icon: IconlyLight.logout,
-                                title: "Logout",
-                                isDanger: true,
-                                onTap: () =>
-                                    _showLogoutDialog(context, userProvider),
-                              )
-                            : _buildMenuItem(
-                                icon: IconlyLight.login,
-                                title: "Login",
-                                isDanger: false,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginPage(),
-                                  ),
-                                ),
-                              ),
+                        if (loggedIn)
+                          _buildMenuItem(
+                            icon: IconlyLight.logout,
+                            title: "Logout",
+                            isDanger: true,
+                            onTap: () =>
+                                _showLogoutDialog(context, userProvider),
+                          )
+                        else
+                          _buildMenuItem(
+                            icon: IconlyLight.login,
+                            title: "Login",
+                            onTap: _openLogin,
+                          ),
 
                         const SizedBox(height: 50),
                       ],
@@ -346,60 +397,10 @@ class AdvertProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(
+            const Icon(
               IconlyLight.arrow_right_2,
               size: 16,
-              color: const Color(0xFF9CA3AF),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGuestView(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(IconlyLight.profile, size: 80, color: Color(0xFF9CA3AF)),
-            const SizedBox(height: 24),
-            Text(
-              "Not Logged In",
-              style: GoogleFonts.outfit(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff660E0D),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  "Log In Now",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              color: Color(0xFF9CA3AF),
             ),
           ],
         ),
@@ -431,11 +432,8 @@ class AdvertProfilePage extends StatelessWidget {
           TextButton(
             onPressed: () {
               userProvider.logout();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false,
-              );
+              Navigator.pop(context);
+              setState(() {});
             },
             child: Text(
               "Logout",
@@ -443,6 +441,119 @@ class AdvertProfilePage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Login prompt (same style as Transaction History) — opened when guest taps Profile.
+class _ProfileLoginPromptPage extends StatelessWidget {
+  const _ProfileLoginPromptPage({
+    required this.message,
+    required this.onLogin,
+  });
+
+  final String message;
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: Color(0xff660E0D),
+          ),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 40,
+                backgroundColor: Color(0xFFF3F4F6),
+                child: Icon(
+                  IconlyLight.profile,
+                  size: 40,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Guest",
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xff111827),
+                ),
+              ),
+              const SizedBox(height: 60),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: onLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff660E0D),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Login",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xff660E0D),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Color(0xff660E0D)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Back",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

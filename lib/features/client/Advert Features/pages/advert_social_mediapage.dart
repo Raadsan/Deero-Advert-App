@@ -2,6 +2,7 @@ import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/core/safe_url.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AdvertSocialMediapage extends StatelessWidget {
   const AdvertSocialMediapage({super.key});
@@ -22,39 +23,46 @@ class AdvertSocialMediapage extends StatelessWidget {
   Widget build(BuildContext context) {
     final platforms = <_SocialPlatform>[
       const _SocialPlatform(
+        name: 'WhatsApp',
+        description: 'View our official WhatsApp page',
+        url:kAdvertWhatsAppNumber ,
+        icon: FontAwesomeIcons.whatsapp,
+        color: Color(0xFF25D366),
+      ),
+      const _SocialPlatform(
         name: 'Facebook',
         description: 'View our official Facebook page',
         url: _facebookUrl,
-        icon: Icons.facebook,
+        icon: FontAwesomeIcons.facebookF,
         color: Color(0xFF1877F2),
       ),
-      _SocialPlatform(
+      const _SocialPlatform(
         name: 'Instagram',
         description: 'View our latest Instagram posts and reels',
         url: kAdvertSocialInstagramUrl,
-        icon: Icons.camera_alt_rounded,
-        color: const Color(0xFFE1306C),
+        icon: FontAwesomeIcons.instagram,
+        color: Color(0xFFE1306C),
       ),
-      _SocialPlatform(
+      const _SocialPlatform(
         name: 'TikTok',
         description: 'Watch Deero Advert on TikTok',
         url: kAdvertSocialTikTokUrl,
-        icon: Icons.music_note_rounded,
+        icon: FontAwesomeIcons.tiktok,
         color: Colors.black,
       ),
-      _SocialPlatform(
+      const _SocialPlatform(
         name: 'LinkedIn',
         description: 'Connect with our company on LinkedIn',
         url: kAdvertSocialLinkedInUrl,
-        icon: Icons.business_rounded,
-        color: const Color(0xFF0A66C2),
+        icon: FontAwesomeIcons.linkedinIn,
+        color: Color(0xFF0A66C2),
       ),
-      _SocialPlatform(
+      const _SocialPlatform(
         name: 'Behance',
         description: 'Explore our creative portfolio',
         url: kAdvertSocialBehanceUrl,
-        icon: Icons.palette_rounded,
-        color: const Color(0xFF1769FF),
+        icon: FontAwesomeIcons.behance,
+        color: Color(0xFF1769FF),
       ),
     ];
 
@@ -70,7 +78,10 @@ class AdvertSocialMediapage extends StatelessWidget {
         ),
         title: Text(
           'Social Media',
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(fontSize: 18, 
+          fontWeight: FontWeight.w400,
+          color: const Color(0xff660E0D),
+          ),
         ),
         centerTitle: true,
       ),
@@ -80,8 +91,8 @@ class AdvertSocialMediapage extends StatelessWidget {
           Text(
             'Follow Deero Advert',
             style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF111827),
             ),
           ),
@@ -114,7 +125,14 @@ class AdvertSocialMediapage extends StatelessWidget {
                             color: platform.color,
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(platform.icon, color: Colors.white),
+                          // FaIcon — not Icon — for FontAwesomeIcons (FaIconData)
+                          child: Center(
+                            child: FaIcon(
+                              platform.icon,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -156,7 +174,9 @@ class _SocialPlatform {
   final String name;
   final String description;
   final String url;
-  final IconData icon;
+  /// Font Awesome 11+ uses [FaIconData] (not Flutter's [IconData]).
+  /// Always render with [FaIcon], never with [Icon].
+  final FaIconData icon;
   final Color color;
 
   const _SocialPlatform({

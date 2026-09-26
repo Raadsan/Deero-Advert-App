@@ -37,7 +37,6 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
     const borderColor = Color(0xFFE24122);
     const primaryText = Color(0xFF2D2D2D);
     const mutedText = Color(0xFF5D6574);
-    const accent = Color(0xFFEF7044);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 280),
@@ -61,29 +60,32 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.65),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.stars_rounded, size: 15, color: accent),
-                    const SizedBox(width: 4),
-                    Text(
-                      "Bonus",
-                      style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: primaryText,
-                      ),
+              Row(
+                children: [
+                  const SizedBox(width: 4),
+                //    Text(
+                //   isAvailable
+                //       ? "unlocked! ${widget.discount}% bonus is ready."
+                //       : "Only $pointsLeft $pointWord left to unlock ${widget.discount}% discount.",
+                //   style: GoogleFonts.poppins(
+                //     fontSize: 11,
+                //     fontWeight: FontWeight.w500,
+                //     color: primaryText,
+                //   ),
+                // ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Text(
+                    "Bonus",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 11,
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w500,
+                      color: primaryText,
                     ),
-                  ],
+                  ),
                 ),
+                ],
               ),
               const Spacer(),
               Text(
@@ -91,7 +93,7 @@ class _BonusProgressCardState extends State<BonusProgressCard> {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: primaryText,
+                  color: Color(0xff660E0D),
                 ),
               ),
               const SizedBox(width: 6),

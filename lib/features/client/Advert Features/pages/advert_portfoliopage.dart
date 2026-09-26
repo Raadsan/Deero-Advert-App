@@ -48,6 +48,14 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: Color(0xff660E0D),
+          ),
+        ),
         backgroundColor: const Color(0xFFF9FAFB),
         surfaceTintColor: Colors.white,
         systemOverlayStyle: SystemUiOverlayStyle(
@@ -57,10 +65,10 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
         centerTitle: true,
         title: Text(
           "Our Portfolio",
-          style: GoogleFonts.outfit(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xff111827),
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xff660E0D),
           ),
         ),
         actions: [
@@ -118,9 +126,9 @@ class _AdvertPortfoliopageState extends State<AdvertPortfoliopage> {
                   children: [
                     Text(
                       "You want to see more? Visit here",
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: const Color(0xff4B5563),
                       ),
                     ),
@@ -272,33 +280,14 @@ class PortfolioCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.title ?? "Project Title",
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.poppins(
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: const Color(0xff111827),
                             ),
                           ),
                         ),
-                        if (item.industry != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEB4724).withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              item.industry!.toUpperCase(),
-                              style: GoogleFonts.poppins(
-                                color: const Color(0xFFEB4724),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
+                       
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -307,6 +296,7 @@ class PortfolioCard extends StatelessWidget {
                           "No description available for this project.",
                       style: GoogleFonts.poppins(
                         fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: const Color(0xff4B5563),
                         height: 1.5,
                       ),
@@ -318,27 +308,33 @@ class PortfolioCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(
-                          Icons.category_outlined,
-                          size: 16,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Latest Case Study",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w500,
+                        if (item.industry != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff660E0D).withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              item.industry!.toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xff660E0D),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ),
-                        ),
                         const Spacer(),
                         Text(
                           "View Details",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: const Color(0xFFEB4724),
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const Icon(

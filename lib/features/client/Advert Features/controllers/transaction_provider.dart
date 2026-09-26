@@ -12,6 +12,12 @@ class TransactionProvider extends ChangeNotifier {
   String errorMessage = "";
   TransactionModel? transactionModel;
 
+  void requireLogin() {
+    errorMessage = "LOGIN_REQUIRED";
+    isLoading = false;
+    notifyListeners();
+  }
+
   Future<TransactionModel?> getTransactionHistoryByUserId(String userId) async {
     try {
       isLoading = true;

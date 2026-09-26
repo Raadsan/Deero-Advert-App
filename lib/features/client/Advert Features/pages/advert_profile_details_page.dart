@@ -272,9 +272,13 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                     height: 55,
                     child: ElevatedButton(
                       onPressed: () async {
+                        // Capture before async — sheet context can die after rebuild
+                        final sheetNavigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.of(this.context);
+
                         final success =
                             await Provider.of<UserProvider>(
-                              context,
+                              this.context,
                               listen: false,
                             ).updateProfile(
                               fullname: nameController.text,
@@ -282,17 +286,32 @@ class _AdvertProfileDetailsPageState extends State<AdvertProfileDetailsPage> {
                               phone: phoneController.text,
                               imageFile: _imageFile,
                             );
+
+                        if (!mounted) return;
+
                         if (success) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Profile updated successfully!"),
+                          if (context.mounted) {
+                            sheetNavigator.pop();
+                          }
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Profile updated successfully!",
+                                style: GoogleFonts.poppins(),
+                              ),
+                              backgroundColor: const Color(0xFF16A34A),
+                              behavior: SnackBarBehavior.floating,
                             ),
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Failed to update profile."),
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Failed to update profile.",
+                                style: GoogleFonts.poppins(),
+                              ),
+                              backgroundColor: const Color(0xFFEF4444),
+                              behavior: SnackBarBehavior.floating,
                             ),
                           );
                         }

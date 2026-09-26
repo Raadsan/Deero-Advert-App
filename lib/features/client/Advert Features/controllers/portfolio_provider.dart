@@ -11,7 +11,8 @@ class PortfolioProvider extends ChangeNotifier {
   bool isLoading =false;
   String error = "";
 
-  Future<void> getPortfolio() async {
+  Future<void> getPortfolio({bool force = false}) async {
+    if (!force && portfolioModel != null) return;
     error = "";
     isLoading = true;
     notifyListeners();

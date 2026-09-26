@@ -18,6 +18,7 @@ import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_
 import 'package:deero_advert_app/features/client/Advert%20Features/pages/advert_domains_page.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_achievment_card_widget.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_drawer.dart';
+import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_discount_banner_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/advert_slider_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/widgets/bonus_progress_card.dart';
 import 'package:deero_advert_app/features/client/Advert%20Features/controllers/notification_provider.dart';
@@ -44,6 +45,8 @@ class _AdvertHomepageState extends State<AdvertHomepage>
   final TextEditingController _domainController = TextEditingController();
   final GetStorage _box = GetStorage();
   static const String _bonusSeenKey = "advert_bonus_seen_points";
+  /// Fetch home APIs once per app process (until app is killed).
+  static bool _sessionBootstrapDone = false;
   int _currentIndex = 0;
   int? _lastProcessedBonus;
 
@@ -55,11 +58,14 @@ class _AdvertHomepageState extends State<AdvertHomepage>
 
   @override
   FutureOr<void> afterFirstLayout(BuildContext context) {
-    // Parallelize core data fetching with slight delays to avoid main thread spikes
     _initData();
   }
 
   Future<void> _initData() async {
+    // Already loaded this session — skip network (pull-to-refresh still works)
+    if (_sessionBootstrapDone) return;
+    _sessionBootstrapDone = true;
+
     final sp = Provider.of<ServiceProvider>(context, listen: false);
     final hp = Provider.of<HostingProvider>(context, listen: false);
     final np = Provider.of<NotificationProvider>(context, listen: false);
@@ -69,7 +75,10 @@ class _AdvertHomepageState extends State<AdvertHomepage>
     final up = Provider.of<UserProvider>(context, listen: false);
 
     // Initial important data — global discounts work without login
-    await Future.wait([up.refreshUser(), up.fetchGlobalDiscounts()]);
+    await Future.wait([
+      up.refreshUser(waitForBackend: false),
+      up.fetchGlobalDiscounts(),
+    ]);
     sp.getAllServices();
 
     // Defer non-critical sections slightly to ensure smooth UI interaction
@@ -242,23 +251,28 @@ class _AdvertHomepageState extends State<AdvertHomepage>
 
   Future<void> _onRefresh() async {
     await Future.wait([
-      Provider.of<ServiceProvider>(context, listen: false).getAllServices(),
-      Provider.of<HostingProvider>(context, listen: false).getAllHosting(),
+      Provider.of<ServiceProvider>(context, listen: false)
+          .getAllServices(force: true),
+      Provider.of<HostingProvider>(context, listen: false)
+          .getAllHosting(force: true),
       Provider.of<NotificationProvider>(
         context,
         listen: false,
       ).activeNotification(),
-      Provider.of<PortfolioProvider>(context, listen: false).getPortfolio(),
+      Provider.of<PortfolioProvider>(context, listen: false)
+          .getPortfolio(force: true),
       Provider.of<AchievementProvider>(
         context,
         listen: false,
-      ).getAchievements(),
+      ).getAchievements(force: true),
       Provider.of<MajorClientProvider>(
         context,
         listen: false,
-      ).getMajorClients(),
-      Provider.of<UserProvider>(context, listen: false).refreshUser(),
-      Provider.of<UserProvider>(context, listen: false).fetchGlobalDiscounts(),
+      ).getMajorClients(force: true),
+      Provider.of<UserProvider>(context, listen: false)
+          .refreshUser(waitForBackend: false),
+      Provider.of<UserProvider>(context, listen: false)
+          .fetchGlobalDiscounts(force: true),
     ]);
   }
 
@@ -394,7 +408,7 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                 .floor()
                 .clamp(1, 3);
             final cardWidth = (contentWidth - (columns - 1) * 12) / columns;
-            final bannerHeight = 190.0 * textScale.clamp(1.0, 2.5);
+            final bannerHeight = 160.0 * textScale.clamp(1.0, 2.5);
             return Scaffold(
               backgroundColor: bgColor,
               drawer: const AdvertDrawer(),
@@ -501,131 +515,145 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                               SizedBox(height: 16),
                               serviceprovider.isLoading && service.isEmpty
                                   ? AdvertSliderShimmer(height: bannerHeight)
-                                  : ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Container(
-                                        height: bannerHeight,
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              Color(0xFF5C0F0C),
-                                              Color(0xFFB52E1D),
-                                              Color(0xFFE24122),
-                                              Color(0xFFF3664C),
-                                            ],
-                                            stops: [0.0, 0.38, 0.72, 1.0],
-                                          ),
+                                  : Builder(
+                                      builder: (context) {
+                                        final showingOffers =
+                                            sliderItems.isNotEmpty &&
+                                            sliderItems.first.isOffer;
+
+                                        // Offer slides: bg from images/offerbg.png (notch included)
+                                        if (showingOffers) {
+                                          return SizedBox(
+                                            height: bannerHeight,
+                                            child: CarouselSlider(
+                                              items: sliderItems.map((item) {
+                                                final onTap =
+                                                    item.serviceIndex != null
+                                                    ? () {
+                                                        Provider.of<
+                                                              NavigationProvider
+                                                            >(
+                                                              context,
+                                                              listen: false,
+                                                            )
+                                                            .navigateToService(
+                                                              item.serviceIndex!,
+                                                            );
+                                                      }
+                                                    : null;
+                                                return AdvertDiscountBannerCard(
+                                                  offerTitle: item.title,
+                                                  serviceName: item.description,
+                                                  imagePath: item.imagePath,
+                                                  isNetworkImage:
+                                                      item.isNetworkImage,
+                                                  onTap: onTap,
+                                                );
+                                              }).toList(),
+                                              options: CarouselOptions(
+                                                height: bannerHeight,
+                                                viewportFraction: 1,
+                                                aspectRatio: 16 / 9,
+                                                autoPlay: true,
+                                                autoPlayInterval:
+                                                    const Duration(seconds: 4),
+                                                autoPlayAnimationDuration:
+                                                    const Duration(
+                                                      milliseconds: 800,
+                                                    ),
+                                                autoPlayCurve:
+                                                    Curves.fastOutSlowIn,
+                                                enlargeCenterPage: true,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                onPageChanged: (index, reason) {
+                                                  setState(() {
+                                                    _currentIndex = index;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        }
+
+                                        return ClipRRect(
                                           borderRadius: BorderRadius.circular(
-                                            15,
+                                            16,
                                           ),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: CarouselSlider(
-                                                items: sliderItems.map((item) {
-                                                  return AdvertSliderCard(
-                                                    title: item.title,
-                                                    description:
-                                                        item.description,
-                                                    imagePath: item.imagePath,
-                                                    isNetworkImage:
-                                                        item.isNetworkImage,
-                                                    isOffer: item.isOffer,
-                                                    onTap:
-                                                        item.serviceIndex !=
-                                                            null
-                                                        ? () {
-                                                            Provider.of<
-                                                                  NavigationProvider
-                                                                >(
-                                                                  context,
-                                                                  listen: false,
-                                                                )
-                                                                .navigateToService(
-                                                                  item.serviceIndex!,
-                                                                );
-                                                          }
-                                                        : null,
-                                                  );
-                                                }).toList(),
-                                                options: CarouselOptions(
-                                                  height: bannerHeight,
-                                                  viewportFraction: 1,
-                                                  aspectRatio: 16 / 9,
-                                                  autoPlay: true,
-                                                  autoPlayInterval:
-                                                      const Duration(
-                                                        seconds: 4,
-                                                      ),
-                                                  autoPlayAnimationDuration:
-                                                      const Duration(
-                                                        milliseconds: 800,
-                                                      ),
-                                                  autoPlayCurve:
-                                                      Curves.fastOutSlowIn,
-                                                  enlargeCenterPage: true,
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  onPageChanged:
-                                                      (index, reason) {
-                                                        setState(() {
-                                                          _currentIndex = index;
-                                                        });
-                                                      },
-                                                ),
+                                          child: Container(
+                                            height: bannerHeight,
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Color(0xFF5C0F0C),
+                                                  Color(0xFFB52E1D),
+                                                  Color(0xFFE24122),
+                                                  Color(0xFFF3664C),
+                                                ],
+                                                stops: [
+                                                  0.0,
+                                                  0.38,
+                                                  0.72,
+                                                  1.0,
+                                                ],
+                                              ),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(16),
                                               ),
                                             ),
-                                            // Indicator dots
-                                            Positioned(
-                                              bottom: 12,
-                                              left: 0,
-                                              right: 0,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: List.generate(
-                                                  sliderItems.length,
-                                                  (index) {
-                                                    return AnimatedContainer(
-                                                      duration: const Duration(
-                                                        milliseconds: 300,
-                                                      ),
-                                                      margin:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 4,
-                                                          ),
-                                                      width:
-                                                          _currentIndex == index
-                                                          ? 20
-                                                          : 8,
-                                                      height: 5,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            _currentIndex ==
-                                                                index
-                                                            ? const Color(
-                                                                0xFFF3664C,
-                                                              ) // Active button-like color
-                                                            : Colors.white
-                                                                  .withOpacity(
-                                                                    0.5,
-                                                                  ),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
+                                            child: CarouselSlider(
+                                              items: sliderItems.map((item) {
+                                                final onTap =
+                                                    item.serviceIndex != null
+                                                    ? () {
+                                                        Provider.of<
+                                                              NavigationProvider
+                                                            >(
+                                                              context,
+                                                              listen: false,
+                                                            )
+                                                            .navigateToService(
+                                                              item.serviceIndex!,
+                                                            );
+                                                      }
+                                                    : null;
+                                                return AdvertSliderCard(
+                                                  title: item.title,
+                                                  description: item.description,
+                                                  imagePath: item.imagePath,
+                                                  isNetworkImage:
+                                                      item.isNetworkImage,
+                                                  onTap: onTap,
+                                                );
+                                              }).toList(),
+                                              options: CarouselOptions(
+                                                height: bannerHeight,
+                                                viewportFraction: 1,
+                                                aspectRatio: 16 / 9,
+                                                autoPlay: true,
+                                                autoPlayInterval:
+                                                    const Duration(seconds: 4),
+                                                autoPlayAnimationDuration:
+                                                    const Duration(
+                                                      milliseconds: 800,
+                                                    ),
+                                                autoPlayCurve:
+                                                    Curves.fastOutSlowIn,
+                                                enlargeCenterPage: true,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                onPageChanged: (index, reason) {
+                                                  setState(() {
+                                                    _currentIndex = index;
+                                                  });
+                                                },
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     ),
                               SizedBox(height: 20),
                               Text(

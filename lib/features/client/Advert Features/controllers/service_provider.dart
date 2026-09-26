@@ -13,7 +13,8 @@ class ServiceProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<void> getAllServices() async {
+  Future<void> getAllServices({bool force = false}) async {
+    if (!force && serviceModel != null) return;
     try {
       isLoading = true;
       error = null; // Clear previous error

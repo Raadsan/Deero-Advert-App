@@ -1,4 +1,3 @@
-import 'package:deero_advert_app/core/constant.dart';
 import 'package:deero_advert_app/core/themes/color_page.dart';
 import 'package:deero_advert_app/features/auth/controllers/user_provider.dart';
 import 'package:deero_advert_app/features/auth/pages/login_page.dart';
@@ -9,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:deero_advert_app/core/widgets/transaction_receipt_bottomsheet.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
@@ -35,22 +33,28 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
     });
   }
 
-  void _checkLoginAndFetchHistory() {
+  Future<void> _checkLoginAndFetchHistory() async {
     final userProvider = context.read<UserProvider>();
-    final box = GetStorage();
-    final isLoggedIn = box.read(isLogged) ?? false;
+    final valid = await userProvider.validateSession();
 
-    if (!isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } else {
-      final userId = userProvider.userModel?.user?.id;
-      if (userId != null) {
-        context.read<TransactionProvider>().getTransactionHistoryByUserId(
-          userId,
-        );
+    if (!mounted) return;
+
+    if (!valid) {
+      context.read<TransactionProvider>().requireLogin();
+      return;
+    }
+
+    final userId = userProvider.userModel?.user?.id;
+    if (userId != null) {
+      await context
+          .read<TransactionProvider>()
+          .getTransactionHistoryByUserId(userId);
+
+      if (!mounted) return;
+      // Token expired mid-request → clear session so Profile shows Guest
+      if (context.read<TransactionProvider>().errorMessage ==
+          "LOGIN_REQUIRED") {
+        userProvider.logout();
       }
     }
   }
@@ -98,46 +102,29 @@ class _AdvertHistorypageState extends State<AdvertHistorypage> {
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: const Color(0xffFFF6F0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        needsLogin
-                            ? Icons.lock_outline_rounded
-                            : Icons.error_outline,
-                        size: 48,
-                        color: needsLogin
-                            ? const Color(0xffEF7044)
-                            : Colors.red,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                     Text(
-                      needsLogin ? "Gal account-kaaga" : "Something went wrong",
+                      needsLogin ? "Login to view your transaction history" : "Something went wrong",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xff111827),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      needsLogin
-                          ? "Waxaad u baahan tahay inaad login gasho si aad u aragto taariikhda lacag bixintaada. Haddii aad horey u login gashay, mar kale isku day (session-ku wuu dhamaaday)."
-                          : provider.errorMessage,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        height: 1.45,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
+                    // Text(
+                    //   needsLogin
+                    //       ? "You need to login to view your transaction history. If you are already logged in, please log out and log back in."
+                    //       : provider.errorMessage,
+                    //   textAlign: TextAlign.center,
+                    //   style: GoogleFonts.poppins(
+                    //     fontSize: 14,
+                    //     height: 1.45,
+                    //     color: Colors.grey.shade700,
+                    //   ),
+                    // ),
+                   const SizedBox(height: 60),
                     if (needsLogin) ...[
                       SizedBox(
                         width: double.infinity,

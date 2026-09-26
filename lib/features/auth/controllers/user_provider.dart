@@ -188,6 +188,46 @@ class UserProvider extends ChangeNotifier {
     print("hasdata" + hasdata.toString());
   }
 
+  /// True when we have both a user and a non-empty auth token locally.
+  bool get isSessionValid =>
+      userModel?.user != null && (userModel?.token?.isNotEmpty ?? false);
+
+  /// Hit the API to confirm the stored JWT is still valid.
+  /// On 401 / missing token → [logout] so Profile becomes Guest.
+  Future<bool> validateSession() async {
+    final token = userModel?.token;
+    final userId = userModel?.user?.id;
+
+    if (token == null || token.isEmpty || userId == null) {
+      if (userModel != null || box.hasData("userInfo") || box.hasData(isLogged)) {
+        logout();
+      }
+      return false;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse("${EndPoint}users/$userId"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 401) {
+        logout();
+        return false;
+      }
+
+      // Other non-200: keep local session (network/server blip)
+      return response.statusCode == 200;
+    } catch (e) {
+      print("validateSession error: $e");
+      // Offline — do not force logout
+      return isSessionValid;
+    }
+  }
+
   List<BonusHistory> bonusHistory = [];
   bool isHistoryLoading = false;
 
@@ -197,7 +237,8 @@ class UserProvider extends ChangeNotifier {
   /// "All Users" discounts — visible without login
   List<Discount> globalDiscounts = [];
 
-  Future<void> fetchGlobalDiscounts() async {
+  Future<void> fetchGlobalDiscounts({bool force = false}) async {
+    if (!force && globalDiscounts.isNotEmpty) return;
     try {
       final response = await http.get(
         Uri.parse("${EndPoint}discounts/public?platform=app"),
@@ -272,7 +313,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshUser() async {
+  Future<void> refreshUser({bool waitForBackend = true}) async {
     final currentModel = userModel;
     final userId = currentModel?.user?.id;
     if (userId == null) {
@@ -281,8 +322,10 @@ class UserProvider extends ChangeNotifier {
     }
 
     try {
-      // 2 second delay to ensure backend has finished processing the transaction
-      await Future.delayed(const Duration(seconds: 2));
+      // Delay only after payments so backend can finish writing bonus / status
+      if (waitForBackend) {
+        await Future.delayed(const Duration(seconds: 2));
+      }
 
       print("Refreshing user data for ID: $userId");
       final token = currentModel?.token;
@@ -341,6 +384,9 @@ class UserProvider extends ChangeNotifier {
         } else {
           print("Refresh failed: User data not found in response");
         }
+      } else if (response.statusCode == 401) {
+        print("Refresh failed: token expired");
+        logout();
       } else {
         print("Refresh failed with status: ${response.statusCode}");
       }
@@ -370,6 +416,8 @@ class UserProvider extends ChangeNotifier {
   }
 
   void logout() {
+    userModel = null;
+    bonusHistory = [];
     box.remove("userInfo");
     box.remove(isLogged);
     notifyListeners();
@@ -479,8 +527,8 @@ class UserProvider extends ChangeNotifier {
       print("Update Profile Body: ${response.body}");
 
       if (response.statusCode == 200) {
-        // Refresh local data
-        await refreshUser();
+        // Refresh local data (no payment delay)
+        await refreshUser(waitForBackend: false);
         isLoading = false;
         notifyListeners();
         return true;

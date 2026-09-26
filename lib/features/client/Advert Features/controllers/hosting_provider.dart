@@ -13,7 +13,8 @@ class HostingProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<void> getAllHosting() async {
+  Future<void> getAllHosting({bool force = false}) async {
+    if (!force && hostingModel != null) return;
     try {
       isLoading = true;
       error = null;
