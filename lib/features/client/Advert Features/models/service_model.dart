@@ -82,15 +82,25 @@ class Data {
 class Packages {
   String? packageTitle;
   double? price;
+  String? deliveryTime;
   List<String>? features;
   String? sId;
 
-  Packages({this.packageTitle, this.price, this.features, this.sId});
+  Packages({
+    this.packageTitle,
+    this.price,
+    this.deliveryTime,
+    this.features,
+    this.sId,
+  });
 
   Packages.fromJson(Map<String, dynamic> json) {
     packageTitle = json['packageTitle'];
     price = json['price']?.toDouble();
-    features = json['features'].cast<String>();
+    deliveryTime = json['deliveryTime']?.toString();
+    features = json['features'] != null
+        ? (json['features'] as List).map((e) => e.toString()).toList()
+        : null;
     sId = json['_id'] ?? json['id']?.toString();
   }
 
@@ -98,6 +108,7 @@ class Packages {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['packageTitle'] = this.packageTitle;
     data['price'] = this.price;
+    data['deliveryTime'] = this.deliveryTime;
     data['features'] = this.features;
     data['_id'] = this.sId;
     return data;

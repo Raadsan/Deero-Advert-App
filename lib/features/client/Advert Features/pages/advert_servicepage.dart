@@ -1228,6 +1228,32 @@ class _PackageCardState extends State<PackageCard> {
                           color: const Color(0xFFEB4724),
                         ),
                       ),
+                    if (widget.package.deliveryTime != null &&
+                        widget.package.deliveryTime!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              "Delivery: ${widget.package.deliveryTime}",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xff4B5563),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     Divider(
                       height: 1,
