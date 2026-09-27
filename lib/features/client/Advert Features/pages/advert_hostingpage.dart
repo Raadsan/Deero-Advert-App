@@ -114,7 +114,7 @@ class _AdvertHostingpageState extends State<AdvertHostingpage> {
                       ),
                       backgroundColor: const Color(0xFFEB4724),
                       child: const Icon(
-                        IconlyLight.buy,
+                        IconlyLight.bag,
                         color: Color(0xff651313),
                         size: 24,
                       ),
