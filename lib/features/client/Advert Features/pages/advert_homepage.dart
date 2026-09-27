@@ -442,8 +442,8 @@ class _AdvertHomepageState extends State<AdvertHomepage>
                             ),
                           ),
                           backgroundColor: const Color(0xFFEB4724),
-                          child: const Icon(
-                            IconlyLight.buy,
+                          child:  Icon(
+                            IconlyLight.bag,
                             color: Color(0xff660E0D),
                             size: 24,
                           ),

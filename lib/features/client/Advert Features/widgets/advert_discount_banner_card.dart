@@ -64,9 +64,9 @@ class AdvertDiscountBannerCard extends StatelessWidget {
               height: h.isFinite ? h : null,
               padding: EdgeInsets.fromLTRB(
                 wide ? 28 : 20,
-                wide ? 20 : 16,
+                wide ? 16 : 12,
                 wide ? 28 : 20,
-                wide ? 32 : 28, // extra bottom for notch in offerbg.png
+                wide ? 28 : 24, // extra bottom for notch in offerbg.png
               ),
               decoration: const BoxDecoration(
                 image: DecorationImage(
@@ -80,84 +80,73 @@ class AdvertDiscountBannerCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                           Text(
-                           serviceName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            // softWrap: false,
-                            style: GoogleFonts.poppins(
-                              fontSize: wide ? 16 : 14,
-                              color: Colors.white.withOpacity(0.92),
-                              fontWeight: FontWeight.w500,
-                              height: 1.25,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              serviceName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: wide ? 16 : 14,
+                                color: Colors.white.withOpacity(0.92),
+                                fontWeight: FontWeight.w500,
+                                height: 1.2,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: wide ? 10 : 8),
-                          Text(
-                            _displayOffer,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            style: GoogleFonts.montserrat(
-                              fontSize: wide ? 40 : 32,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              height: 1.05,
+                            SizedBox(height: wide ? 8 : 6),
+                            Text(
+                              _displayOffer,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                              style: GoogleFonts.montserrat(
+                                fontSize: wide ? 40 : 32,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                height: 1.0,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: wide ? 14 : 12),
-                         
-                          if (ctaText.isNotEmpty)
-                            Material(
-                              color: accentColor,
-                              borderRadius: BorderRadius.circular(50),
-                              child: InkWell(
-                                onTap: onTap,
+                            SizedBox(height: wide ? 10 : 8),
+                            if (ctaText.isNotEmpty)
+                              Material(
+                                color: Color(0xffec4724),
                                 borderRadius: BorderRadius.circular(50),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: wide ? 18 : 14,
-                                    vertical: wide ? 11 : 9,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          ctaText,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: wide ? 14 : 12,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1.1,
-                                          ),
-                                        ),
+                                child: InkWell(
+                                  onTap: onTap,
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: wide ? 18 : 14,
+                                      vertical: wide ? 10 : 8,
+                                    ),
+                                    child: Text(
+                                      ctaText,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: wide ? 14 : 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.1,
                                       ),
-                                      // const SizedBox(width: 8),
-                                      // Icon(
-                                      //   Icons.north_east_rounded,
-                                      //   size: wide ? 16 : 14,
-                                      //   color: Colors.white,
-                                      // ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Expanded(
                       child: Image.asset(
                         "images/offer.png",
-                        width: 110,
-                        height: 110,
+                        width: wide ? 110 : 100,
+                        height: wide ? 110 : 100,
                         fit: BoxFit.contain,
                       ),
                     ),
